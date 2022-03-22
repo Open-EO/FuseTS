@@ -1,2 +1,3 @@
 # FuseTS
-Time series Fusion toolbox integrated with openEO
+
+Time Series Fusion toolbox integrated with openEO

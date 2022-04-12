@@ -1,4 +1,6 @@
+import fusets
+
 
 def test_init():
     # dummy test
-    pass
+    assert fusets.__version__

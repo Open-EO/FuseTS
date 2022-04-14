@@ -22,16 +22,16 @@ def test_whittaker_f():
     assert 0.25 < np.isnan(ys_with_nan).mean() < 0.75
 
     # Smooth
-    ys_smooth, ts_smooth, ys_smooth_sampled, ts_smooth_sampled = whittaker_f(x=ts, y=ys, lmbd=1, d=4)
+    ys_smooth, ts_smooth, ys_smooth_sampled, ts_smooth_sampled = whittaker_f(x=ts, y=ys_with_nan, lmbd=1, d=4)
 
     xs_expected = np.arange(42)
     ts_expected, ys_expected = generate_data(xs_expected)
     assert ts_smooth == ts_expected
     assert np.isnan(ys_smooth).sum() == 0
-    numpy.testing.assert_allclose(ys_smooth, ys_expected, atol=0.1)
+    numpy.testing.assert_allclose(ys_smooth, ys_expected, atol=0.15)
 
     xs_expected = np.arange(42)[::4]
     ts_expected, ys_expected = generate_data(xs_expected)
     assert ts_smooth_sampled == ts_expected
     assert np.isnan(ys_smooth_sampled).sum() == 0
-    numpy.testing.assert_allclose(ys_smooth_sampled, ys_expected, atol=0.1)
+    numpy.testing.assert_allclose(ys_smooth_sampled, ys_expected, atol=0.15)

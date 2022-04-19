@@ -125,13 +125,13 @@ def MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                     if i_test == 0:
 
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / Nt
-                            out_std[ind][:, None, x, y] = (Vp[:, None, 0] * Y_std_vec[ind]) / Nt
+                            out_mean[ind][:, None, x, y] = (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            out_std[ind][:, None, x, y] = (Vp[:, None, 0] * Y_std_vec[ind]) / nt
 
                     else:
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / Nt
-                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (Vp[:, None, 0] * Y_std_vec[ind]) / Nt
+                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (Vp[:, None, 0] * Y_std_vec[ind]) / nt
 
                     del Yp, Vp
 

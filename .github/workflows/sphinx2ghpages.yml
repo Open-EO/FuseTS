@@ -20,6 +20,8 @@ jobs:
     - name: Install dependencies (including Sphinx and related)
       run: |
         python -m pip install --upgrade pip
+        # Workaround for vam.whittaker installation issue https://github.com/WFP-VAM/vam.whittaker/issues/4
+        pip install numpy cython
         python -m pip install .[dev]
 
     - name: Sphinx build

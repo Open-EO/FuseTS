@@ -33,6 +33,7 @@ release = '0.0.1'
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

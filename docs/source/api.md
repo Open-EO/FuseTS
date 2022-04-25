@@ -7,4 +7,20 @@
 ```{eval-rst}
 .. automodule:: fusets
     :members:
+
+```
+
+### fusets.mogrp
+
+```{eval-rst}
+.. automodule:: fusets.mogrp
+    :members:
+
+```
+
+### fusets.whittaker
+
+```{eval-rst}
+.. automodule:: fusets.whittaker
+    :members:
 ```

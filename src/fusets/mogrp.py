@@ -6,14 +6,14 @@ import numpy as np
 
 def create_empty_2D_list(nrows, ncols):
     """
-    Function creating an empty list of lists (matrix-like structure) 
+    Function creating a list of lists (matrix-like structure)
     
     Args:
-       nrows [int] : # of rows of the output list of lists
-       ncols [int] : # of cols of the output list of lists
+       nrows (int) : # of rows of the output list of lists
+       ncols (int) : # of cols of the output list of lists
 
     Returns:
-        empty_list [list] : empty list of lists (matrix-like structure) 
+        list of lists (matrix-like structure)
             
     """
     empty_list = []
@@ -30,16 +30,19 @@ def MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
     Function performing the multioutput gaussian-process regression at pixel level for gapfilling purposes
 
     Args:
-        data_in [array] : 3D (2DSpace, Time) array containing data to be processed
-        time_in [array] : vector containing the dates of each layer in the time dimension
-        master_ind [int] : Index identifying the Master output
-        output_timevec [array] :vector containing the dates on which output must be estimated
-        nt [int]  : # of time the GP training must be performed (def=1)
+        data_in (array): 3D (2DSpace, Time) array containing data to be processed
+        time_in (array): vector containing the dates of each layer in the time dimension
+        master_ind (int): Index identifying the Master output
+        output_timevec (array) :vector containing the dates on which output must be estimated
+        nt [int]: # of time the GP training must be performed (def=1)
     Returns:
-        Out_mean [array] : 3D (2DSpace, Time) mean value of the prediction at pixel level
-        Out_std [array]  : 3D (2DSpace, Time) standard deviation  of the prediction at pixel level
-        Out_QFlag [array]: 2D map of Quality Flag for any numerical error in the model determination
-        Out_model [list] : Matrix-like structure containing the model information at pixel level
+        a tuple
+        (out_mean, out_std, out_qflag, out_model) where:
+
+        - out_mean (array): 3D (2DSpace, Time) mean value of the prediction at pixel level
+        - out_std (array): 3D (2DSpace, Time) standard deviation  of the prediction at pixel level
+        - out_qflag (array): 2D map of Quality Flag for any numerical error in the model determination
+        - out_model (list): Matrix-like structure containing the model information at pixel level
     """
     noutput_timeseries = len(data_in)
 

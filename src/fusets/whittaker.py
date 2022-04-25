@@ -6,6 +6,9 @@ from vam.whittaker import ws2d
 
 
 def whittaker_f(x, y, lmbd, d):
+    """
+    Whittaker-Henderson smoothing
+    """
     # minimum and maximum dates
     min = x[0].toordinal()
     max = x[-1].toordinal()

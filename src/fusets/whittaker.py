@@ -1,29 +1,103 @@
 import math
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import numpy as np
+import xarray
 from vam.whittaker import ws2d
+from xarray import DataArray
+
+
+"""
+
+
+References
+
+P. H. C. Eilers, V. Pesendorfer and R. Bonifacio, "Automatic smoothing of remote sensing data," 2017 9th International Workshop on the Analysis of Multitemporal Remote Sensing Images (MultiTemp), Brugge, 2017, pp. 1-3. doi: 10.1109/Multi-Temp.2017.8076705 URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8076705&isnumber=8035194
+"""
+
+def whittaker(array:DataArray, smoothing_lambda, time_dimension="t"):
+    """
+    Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
+    The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
+    corresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image
+    collection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a
+    vector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother
+    is applied to the time series profiles, computing therefore a daily smoothing interpolation.
+
+    Whittaker's fast processing speed was assessed through an initial performance testing by comparing different
+    time series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.
+
+    The smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:
+    the larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a
+    lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
+    found in the original work of Eilers 2003.
+
+    @param array:
+    @param smoothing_lambda:
+    @param time_dimension:
+    @return:
+    """
+
+
+    dates = array.coords[time_dimension]
+
+    def topydate(t):
+        return datetime.utcfromtimestamp((t - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's'))
+
+    dates = list(dates.values)
+    dates = [topydate(d) for d in dates]
+
+
+    def callback(timeseries):
+        z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
+        indices = [XXd.index(date) for date in dates]
+
+        result = list(Zd[i] for i in indices)
+        return result
+
+
+    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[time_dimension]])
+
+    return result
+
 
 
 def whittaker_f(x, y, lmbd, d):
     """
-    Whittaker-Henderson smoothing
+    Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
+    The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
+    corresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image
+    collection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a
+    vector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother
+    is applied to the time series profiles, computing therefore a daily smoothing interpolation.
+
+    Whittaker's fast processing speed was assessed through an initial performance testing by comparing different
+    time series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.
+
+    The smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:
+    the larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a
+    lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
+    found in the original work of Eilers 2003.
+
+
+    Args:
+       x (ndarray) : # numpy ndarray of datetime objects
+       y (ndarray) : # numpy ndarray of y values
+       lmbd (double) : lambda value
+       d (int) : period between returned values, as number of days
+
+    Returns:
+        Returns daily (default) and d spacing (d in days defined by the user) smoothed and gap-filled time series and the corresponding time date vector.
     """
     # minimum and maximum dates
-    min = x[0].toordinal()
-    max = x[-1].toordinal()
-    l = max - min
-
-    v = np.full(l + 1, -3000)
-    t = np.full(l + 1, 0, dtype='float')
-
-    D = []
-    for i in x:
-        D.append(i.toordinal())
-
-    D1 = np.array(D) - D[0]
+    D1 = get_all_dates(x)
     D11 = D1[~np.isnan(y)]
+
+    l = D1[-1] - D1[0]
+    v = np.full(l + 1, -3000)
     v[D11] = 1
+
+    t = np.full(l + 1, 0, dtype='float')
     t[D11] = y[~np.isnan(y)]
 
     # dates
@@ -54,3 +128,9 @@ def whittaker_f(x, y, lmbd, d):
         print("d must be an integer")
 
     return z1_, xx, Zd, XXd
+
+
+def get_all_dates(x):
+    D = [ i.toordinal() for i in x]
+    D1 = np.array(D) - D[0]
+    return D1

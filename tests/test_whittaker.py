@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import numpy.testing
 
-from fusets.whittaker import whittaker_f
+from fusets.whittaker import whittaker_f, whittaker
 
 
 def test_whittaker_f():
@@ -35,3 +35,14 @@ def test_whittaker_f():
     assert ts_smooth_sampled == ts_expected
     assert np.isnan(ys_smooth_sampled).sum() == 0
     numpy.testing.assert_allclose(ys_smooth_sampled, ys_expected, atol=0.15)
+
+
+def test_whittaker_xarray(sinusoidal_timeseries):
+    result = whittaker(sinusoidal_timeseries,smoothing_lambda=10000,time_dimension="time")
+
+    print(result)
+    assert np.isnan(result).sum() == 0
+    #numpy.testing.assert_allclose(result, sinusoidal_timeseries, atol=0.15)
+
+
+

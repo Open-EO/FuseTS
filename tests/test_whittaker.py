@@ -38,11 +38,11 @@ def test_whittaker_f():
 
 
 def test_whittaker_xarray(sinusoidal_timeseries):
-    result = whittaker(sinusoidal_timeseries,smoothing_lambda=10000,time_dimension="time")
 
-    print(result)
+    result = whittaker(sinusoidal_timeseries,smoothing_lambda=1,time_dimension="time")
+
     assert np.isnan(result).sum() == 0
-    #numpy.testing.assert_allclose(result, sinusoidal_timeseries, atol=0.15)
+    numpy.testing.assert_allclose(result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15)
 
 
 

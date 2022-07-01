@@ -15,7 +15,7 @@ References
 P. H. C. Eilers, V. Pesendorfer and R. Bonifacio, "Automatic smoothing of remote sensing data," 2017 9th International Workshop on the Analysis of Multitemporal Remote Sensing Images (MultiTemp), Brugge, 2017, pp. 1-3. doi: 10.1109/Multi-Temp.2017.8076705 URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8076705&isnumber=8035194
 """
 
-def whittaker(array:DataArray, smoothing_lambda, time_dimension="t"):
+def whittaker(array:DataArray, smoothing_lambda=10000, time_dimension="t"):
     """
     Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
     The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
@@ -38,8 +38,13 @@ def whittaker(array:DataArray, smoothing_lambda, time_dimension="t"):
     @return:
     """
 
-
-    dates = array.coords[time_dimension]
+    time_coords = [ c for c in array.coords.values() if c.dtype.type == np.datetime64 ]
+    if len(time_coords) == 0:
+        raise ValueError("Whittaker expects an input with exactly one coordinate of type numpy.datetime64, which represents the time dimension, but found none.")
+    if len(time_coords) > 1:
+        raise ValueError(f"Whittaker expects an input with exactly one coordinate of type numpy.datetime64, which represents the time dimension, but found multiple: {time_coords}")
+    dates = time_coords[0]
+    assert dates.dtype.type == np.datetime64
 
     def topydate(t):
         return datetime.utcfromtimestamp((t - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's'))
@@ -53,12 +58,13 @@ def whittaker(array:DataArray, smoothing_lambda, time_dimension="t"):
         indices = [XXd.index(date) for date in dates]
 
         result = list(Zd[i] for i in indices)
-        return result
+        return np.array(result)
 
 
-    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[time_dimension]])
+    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[time_dimension]],vectorize=True)
 
-    return result
+    #make sure to preserve dimension order
+    return result.transpose(*array.dims)
 
 
 

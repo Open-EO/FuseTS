@@ -38,6 +38,16 @@ def xarray_inputs(areas):
     from fusets.openeo import load_xarray
     return {area[0]: load_xarray("SENTINEL2_L2A",spatial_extent=area[1],temporal_extent=("2020-01-01","2021-01-01")) for area in areas.items()}
 
+@pytest.fixture
+def wetland_sentinel2_ndvi(areas):
+    import openeo
+    openeo_connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+
+    data = openeo_connection.load_collection("SENTINEL2_L2A",temporal_extent=("2020-01-01","2021-01-01"),bands=["B08","B04","SCL"]).filter_bbox(areas["wetland"])
+    data = data.process("mask_scl_dilation", data=data, scl_band_name="SCL")
+
+
+    return data.ndvi(nir="B08",red="B04")
 
 def input_definitions(areas):
 
@@ -51,6 +61,9 @@ def input_definitions(areas):
             "SENTINEL1_GRD": {
                 "bands": ["VV", "VH"]
             }
-        }
+        },
+        "computed_variables":[
+            "NDVI","CropSAR-NDVI","fAPAR"
+        ]
     }
 

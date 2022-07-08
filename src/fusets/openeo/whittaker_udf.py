@@ -14,7 +14,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
 
     from fusets.whittaker import whittaker
     smoothing_lambda = context.get("smoothing_lambda",None)
-    return whittaker(cube.get_array(),smoothing_lambda=smoothing_lambda)
+    return XarrayDataCube(whittaker(cube.get_array(),smoothing_lambda=smoothing_lambda))
 
 
 def load_whittakker_udf() -> str:

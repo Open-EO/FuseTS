@@ -14,7 +14,7 @@ def whittaker(datacube :DataCube, smoothing_lambda :float):
     @return:
     """
 
-    return datacube.apply_dimension(code= load_whittakker_udf(),context=dict(smoothing_lambda=smoothing_lambda))
+    return datacube.apply_dimension(code= load_whittakker_udf(),runtime="Python",context=dict(smoothing_lambda=smoothing_lambda))
 
 def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,openeo_connection=None):
     if openeo_connection == None:

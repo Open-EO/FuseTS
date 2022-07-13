@@ -2,6 +2,28 @@ import itertools
 
 import GPy
 import numpy as np
+import xarray
+from xarray import DataArray
+
+from fusets._xarray_utils import _extract_dates
+
+
+def mogpr(array:DataArray, time_dimension="t"):
+    """
+    Computes MOGPR
+
+    @param array: Array containing multiple inputs to predict.
+    @param time_dimension:
+    @return:
+    """
+
+    dates = _extract_dates(array)
+
+    dates_np = [d.toordinal() for d in dates]
+
+    out_mean, out_std, out_qflag, out_model = MOGRP_GPY_retrieval([array.values,array.values], [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
+                                                                  nt=1)
+    return out_mean
 
 
 def create_empty_2D_list(nrows, ncols):

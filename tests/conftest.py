@@ -32,6 +32,30 @@ def sinusoidal_timeseries():
                      coords=dict(time=ts))
 
 @pytest.fixture
+def harmonic_timeseries():
+
+    intercept = 5000
+    coef = [ 5, 600,200 ]
+    def generate_data(xs: np.array):
+        """Generate test data from array of ints (day offsets)"""
+        ts = [datetime(2016, 1, 1) + timedelta(days=int(5*x)) for x in xs]
+        days = 5*xs
+        ys = intercept + coef[0] * days + coef[1]*np.cos(days*1*2*np.pi/365.25) + coef[2]*np.sin(days*1*2*np.pi/365.25)
+        return ts, ys
+
+    n = 365
+    # Input: unevenly spaced timestamps and missing data
+    xs = np.array([x  for x in range(n)], dtype="int")
+    ts, ys = generate_data(xs)
+    #ys_with_nan = ys.copy()
+    #ys_with_nan[xs % 5 >= 2] = np.nan
+    #assert 0.25 < np.isnan(ys_with_nan).mean() < 0.75
+
+    return xarray.DataArray(data=ys,
+                     dims=["time"],
+                     coords=dict(time=ts))
+
+@pytest.fixture
 def areas():
     return {
         "wetland": (22.490387, 53.328413, 22.573814, 53.372474),

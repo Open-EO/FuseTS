@@ -7,7 +7,7 @@ import requests
 import xarray
 from numpy.testing import assert_allclose
 
-from fusets.ccdc import fit_harmonics_curve
+from fusets.ccdc import fit_harmonics_curve, ccdc_change_detection
 from fusets.whittaker import whittaker
 
 
@@ -30,4 +30,11 @@ def test_fit_simple_harmonics_exact(harmonic_timeseries):
 
     coefficients = fit_harmonics_curve(harmonic_timeseries,num_coefficients=4)
     assert_allclose(coefficients, [5000,5,600,200],atol=3)
+
+
+def test_ccdc_change_detection(harmonic_timeseries):
+
+    breaks = ccdc_change_detection(harmonic_timeseries)
+    print(breaks)
+
 

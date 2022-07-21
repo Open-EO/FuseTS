@@ -31,3 +31,20 @@ def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,ope
     if(len(netcdfs)>0):
         path = base_path / netcdfs[0].name
         return xarray.load_dataset(path)
+
+def predict_ndvi(spatial_extent,temporal_extent,openeo_connection=None):
+    """
+    EXPERIMENTAL may be removed in final version
+    Method to compute a predicted, cloud-free, NDVI from Sentinel-2 and Sentinel-1 inputs
+
+    @param spatial_extent:
+    @param temporal_extent:
+    @param openeo_connection:
+    @return:
+    """
+    if openeo_connection == None:
+        openeo_connection = openeo.connect("openeo.cloud").authenticate_oidc()
+    cube = openeo_connection.datacube_from_process(process_id="CropSAR_px",namespace="vito",geometry=spatial_extent,startdate=temporal_extent[0],enddate=temporal_extent[1],output_mask=True)
+
+
+    return cube.add_dimension(name="bands", label="NDVI",type="bands")

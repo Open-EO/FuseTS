@@ -1,3 +1,4 @@
+from functools import reduce
 from pathlib import Path
 
 import xarray
@@ -31,6 +32,48 @@ def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,ope
     if(len(netcdfs)>0):
         path = base_path / netcdfs[0].name
         return xarray.load_dataset(path)
+
+def load_cubes(collections:dict,spatial_extent=None,temporal_extent=None,openeo_connection=None):
+    """
+    Create an openEO datacube based on a specification.
+
+    @param collections:
+    @param spatial_extent:
+    @param temporal_extent:
+    @param openeo_connection:
+    @return:
+    """
+    if openeo_connection == None:
+        openeo_connection = openeo.connect("openeo.cloud").authenticate_oidc()
+    cubes = []
+    if isinstance(collections,dict):
+        def create_cube(collection,args):
+            load_collections_kwargs = ["bands", "spatial_extent", "temporal_extent", "properties"]
+            load_coll_args = {k: v for k, v in args.items() if k in load_collections_kwargs}
+            other_args = {k: v for k, v in args.items() if k not in load_collections_kwargs}
+
+            cube = openeo_connection.load_collection(collection, **load_coll_args)
+            for k,v in other_args.items():
+                cube = cube.process(k,data=cube, **v)
+            return cube
+
+        cubes = [create_cube(k,v) for k,v in collections.items()]
+    elif isinstance(collections,str):
+        cubes = [openeo_connection.load_collection(collections)]
+
+    first_cube = cubes[0]
+    merged = reduce(lambda r,l:r.merge_cubes(l.resample_cube_spatial(first_cube)),cubes)
+    if(spatial_extent is not None):
+        if(isinstance(spatial_extent,list)):
+            merged = merged.filter_bbox(spatial_extent)
+        else:
+            merged = merged.filter_spatial(spatial_extent)
+    if(temporal_extent is not None):
+        merged = merged.filter_temporal(temporal_extent)
+    return merged
+
+
+
 
 def predict_ndvi(spatial_extent,temporal_extent,openeo_connection=None):
     """

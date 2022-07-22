@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Meta-documentation &#8212; FuseTS 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API" href="api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="meta-documentation">
+<h1>Meta-documentation<a class="headerlink" href="#meta-documentation" title="Permalink to this heading">¶</a></h1>
+<p>This page gives basic explanation of how this documentation is built and maintained.</p>
+<section id="documentation-generator">
+<h2>Documentation generator<a class="headerlink" href="#documentation-generator" title="Permalink to this heading">¶</a></h2>
+<p>This documentation is built through <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a>, a popular documentation generator
+for (but not limited to) Python projects.</p>
+<p>Sphinx supports, by default, <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText</a>
+as markup language for the documentation source files, which can be a bit obscure for the uninitiated user, unfortunately.
+Instead, to make writing documentation more user-friendly,
+<strong>MarkDown</strong> was chosen as preferred base format because it is easier to use, more widely known and supported.
+The <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/">MyST-parser</a> plugin for Sphinx is used to make that possible.</p>
+</section>
+<section id="quick-syntax-guide">
+<h2>Quick syntax guide<a class="headerlink" href="#quick-syntax-guide" title="Permalink to this heading">¶</a></h2>
+<p>This is just a superficial listing of some key MarkDown/MyST syntax features.
+See the references under <a class="reference internal" href="#syntax-further-reading"><span class="std std-ref">Further reading</span></a> for more detailed information.</p>
+<section id="markdown-base">
+<h3>Markdown base<a class="headerlink" href="#markdown-base" title="Permalink to this heading">¶</a></h3>
+<p>As a base, MyST follows the <a class="reference external" href="https://spec.commonmark.org/current/">CommonMark specification</a> for MarkDown.
+A very minimal example of this format with some headers, paragraphs and a list:</p>
+<div class="highlight-md notranslate"><div class="highlight"><pre><span></span><span class="gh"># Page title</span>
+
+A paragraph explaining something <span class="gs">**important**</span>.
+
+<span class="gu">## Section title</span>
+
+Let&#39;s enumrate a couple of points:
+
+<span class="k">-</span> First item
+<span class="k">-</span> Another item
+</pre></div>
+</div>
+<p>On the web, one can easily find multiple MarkDown tutorials and guides with more detail.</p>
+</section>
+<section id="myst-extensions">
+<h3>MyST extensions<a class="headerlink" href="#myst-extensions" title="Permalink to this heading">¶</a></h3>
+<p>MyST adds a couple of extensions on top of Markdown for more advanced authoring of software documentation
+as discussed in the <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#">MyST Syntax Guide</a>.</p>
+<p>In short, there are two main constructs:</p>
+<ol class="arabic">
+<li><p><a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#directives-a-block-level-extension-point"><em>Directives</em> for block-level extensions</a>,
+which are enclosed in triple-backticks,
+have a directive name in curly brackets and possibly
+<a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#parameterizing-directives">additional parameters</a>.
+For example, to embed a Python code snippet with line numbers and a caption:</p>
+<div class="highlight-md notranslate"><div class="highlight"><pre><span></span>```{code-block} python
+:lineno-start: 23
+:caption: Code snippet with a caption
+
+for line in open(path, &quot;r&quot;):
+    print(line)
+```
+</pre></div>
+</div>
+<p>looks rendered like this:</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Code snippet with a caption</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">23</span><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">):</span>
+<span class="linenos">24</span>    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#roles-an-in-line-extension-point"><em>Roles</em> for in-line extensions</a>
+are the more compact, in-line version of directives with format <code class="docutils literal notranslate"><span class="pre">{role}`content`</span></code>.
+For example for small mathematical formulas:</p>
+<div class="highlight-md notranslate"><div class="highlight"><pre><span></span>This is Euler&#39;s famous identity: {math}`e^{i\pi} + 1 = 0`
+</pre></div>
+</div>
+<p>which will be rendered as:</p>
+<blockquote>
+<div><p>This is Euler’s famous identity: <span class="math notranslate nohighlight">\(e^{i\pi} + 1 = 0\)</span></p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="references">
+<span id="syntax-references"></span><h3>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h3>
+<p>A common feature in documentation is referencing other internal parts or external sources,
+which is supported as follows:</p>
+<ul>
+<li><p><a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#markdown-links-and-referencing">external links</a>
+can be written the standard MarkDown way as <code class="docutils literal notranslate"><span class="pre">[link</span> <span class="pre">text][https://example.com/]</span></code>
+which will create a link with text “link text”,
+linking to <a class="reference external" href="https://example.com/">https://example.com/</a>.</p></li>
+<li><p>link to another documentation file in the documentation tree, for example the index page:
+<code class="docutils literal notranslate"><span class="pre">[homepage](index.md)</span></code> will render as <a class="reference internal" href="index.html"><span class="doc std std-doc">homepage</span></a>.</p></li>
+<li><p>link to a <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#targets-and-cross-referencing">custom anchor</a>,
+(like another (sub)section of the documentation).
+First, the anchor must be defined with the <code class="docutils literal notranslate"><span class="pre">(anchor)=</span></code> syntax.
+This section for example is preceded with this anchor:</p>
+<div class="highlight-md notranslate"><div class="highlight"><pre><span></span>(syntax-references)=
+<span class="gu">### References</span>
+</pre></div>
+</div>
+<p>and can be referenced with <code class="docutils literal notranslate"><span class="pre">{ref}`syntax-references`</span></code>,
+which will be rendered as <a class="reference internal" href="#syntax-references"><span class="std std-ref">References</span></a>.</p>
+</li>
+</ul>
+</section>
+<section id="further-reading">
+<span id="syntax-further-reading"></span><h3>Further reading<a class="headerlink" href="#further-reading" title="Permalink to this heading">¶</a></h3>
+<p>For more information or inspiration, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://commonmark.org/help/">learn MarkDown in 60 seconds</a>
+or <a class="reference external" href="https://spec.commonmark.org/dingus/">experiment interectively</a></p></li>
+<li><p><a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html">the MyST Syntax Guide</a></p></li>
+<li><p><a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/reference.html">the Myst Syntax Reference</a></p></li>
+</ul>
+</section>
+</section>
+<section id="build-the-documentation">
+<h2>Build the documentation<a class="headerlink" href="#build-the-documentation" title="Permalink to this heading">¶</a></h2>
+<p>To build the documentation locally (e.g. to check some updates/additions you made):</p>
+<ul>
+<li><p>Prerequisites</p>
+<ul>
+<li><p>work in a virtual environment,
+with the <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies (such as <code class="docutils literal notranslate"><span class="pre">sphinx</span></code> and <code class="docutils literal notranslate"><span class="pre">myst-parser</span></code>) installed.
+For example, if this fits your workflow,
+install the package in <code class="docutils literal notranslate"><span class="pre">--editable</span></code> mode with the <code class="docutils literal notranslate"><span class="pre">dev</span></code> extra (from the project root):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">sphinx-build</span></code>, from the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder</p>
+<ul>
+<li><p>the easiest option (if you have the <code class="docutils literal notranslate"><span class="pre">make</span></code> build tool) is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make html
+</pre></div>
+</div>
+</li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">make</span></code> is not available, or you need a bit more flexibility, run <code class="docutils literal notranslate"><span class="pre">sphinx</span> <span class="pre">build</span></code> directly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html <span class="nb">source</span> build/html
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Visit the generated HTML tree, by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in your browser.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">FuseTS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="openeo.html">openEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Meta-documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-generator">Documentation generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-syntax-guide">Quick syntax guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-documentation">Build the documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Stefaan Lippens.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/meta.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

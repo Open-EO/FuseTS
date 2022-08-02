@@ -14,6 +14,12 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import datetime
+import inspect
+import os
+import sys
+import fusets
+
 
 # -- Project information -----------------------------------------------------
 
@@ -34,8 +40,9 @@ extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
     'sphinx_autodoc_typehints',
-    'sphinx.ext.viewcode',
+    "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -65,13 +72,82 @@ html_theme_options = {
     'github_repo': 'FuseTS',
     'github_banner': True,
     'fixed_sidebar': False,
+    'use_edit_page_button': True,
+    'use_repository_button': True,
+    'use_issues_button': True,
     'page_width': '1200px',
     'sidebar_width': '300px',
     'font_family': 'Cantarell, Georgia, serif',
     'code_font_family': "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
+    'extra_footer': """<p>FuseTS is built in the frame of the ESA AI4Food project.</p>""",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "iris": ("https://scitools-iris.readthedocs.io/en/latest", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
+    "numba": ("https://numba.pydata.org/numba-doc/latest", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "dask": ("https://docs.dask.org/en/latest", None),
+    "cftime": ("https://unidata.github.io/cftime", None),
+    "rasterio": ("https://rasterio.readthedocs.io/en/latest", None),
+    "sparse": ("https://sparse.pydata.org/en/latest/", None),
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
+    "openeo": ("https://open-eo.github.io/openeo-python-client/", None),
+}
+
+# based on numpy doc/source/conf.py
+def linkcode_resolve(domain, info):
+    """
+    Determine the URL corresponding to Python object
+    """
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            return None
+
+    try:
+        fn = inspect.getsourcefile(inspect.unwrap(obj))
+    except TypeError:
+        fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except OSError:
+        lineno = None
+
+    if lineno:
+        linespec = f"#L{lineno}-L{lineno + len(source) - 1}"
+    else:
+        linespec = ""
+
+    fn = os.path.relpath(fn, start=os.path.dirname(fusets.__file__))
+
+    if "+" in fusets.__version__:
+        return f"https://github.com/Open-EO/FuseTS/blob/main/src/fusets/{fn}{linespec}"
+    else:
+        return (
+            f"https://github.com/Open-EO/FuseTS/blob/"
+            f"v{fusets.__version__}/fusets/{fn}{linespec}"
+        )

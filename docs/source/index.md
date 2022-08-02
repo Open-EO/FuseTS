@@ -14,6 +14,7 @@ FuseTS is a Python package for Time Series Fusion, integrated with openEO.
 :maxdepth: 2
 :caption: "Contents:"
 
+design
 openeo
 api
 meta

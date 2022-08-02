@@ -33,10 +33,10 @@ def whittaker(array:DataArray, smoothing_lambda=10000, time_dimension="t"):
     lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
     found in the original work of Eilers 2003.
 
-    @param array:
-    @param smoothing_lambda:
-    @param time_dimension:
-    @return:
+    :param array:
+    :param smoothing_lambda:
+    :param time_dimension:
+    :return:
     """
 
     dates = _extract_dates(array)

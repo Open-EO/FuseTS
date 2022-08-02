@@ -6,7 +6,15 @@
 
 ```{eval-rst}
 .. automodule:: fusets
-    :members:
+    :members: whittaker, mogpr
+
+```
+
+### timeseries analysis
+
+```{eval-rst}
+.. automodule:: fusets.ccdc
+    :members: ccdc_change_detection, fit_harmonics_curve
 
 ```
 
@@ -18,9 +26,11 @@
 
 ```
 
-### fusets.whittaker
+
+### fusets.openeo
 
 ```{eval-rst}
-.. automodule:: fusets.whittaker
+.. automodule:: fusets.openeo
     :members:
+    
 ```

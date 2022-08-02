@@ -12,9 +12,9 @@ def mogpr(array:DataArray, time_dimension="t"):
     """
     Computes MOGPR
 
-    @param array: Array containing multiple inputs to predict.
-    @param time_dimension:
-    @return:
+    :param array:
+    :param time_dimension:
+    :return:
     """
 
     dates = _extract_dates(array)
@@ -76,12 +76,12 @@ def MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
     out_qflag = np.ones((x_size, y_size), dtype=bool)
     out_mean = []
     out_std = []
-    out_model = create_empty_2D_list(x_size, y_size)
+    out_model = [[0] * y_size for _ in range(x_size)]
 
     for _ in range(noutput_timeseries):
         out_mean.append(np.full(imout_sz, np.nan))
         out_std.append(np.full(imout_sz, np.nan))
-    # Variable is initialized to take into account possibility that within one block no valid pixels is present, due to the mask
+
     for x, y in itertools.product(range(x_size), range(y_size)):
 
         X_vec = []
@@ -116,14 +116,11 @@ def MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
             for i_test in range(nt):
                 Yp = np.zeros((nsamples, noutputs))
                 Vp = np.zeros((nsamples, noutputs))
-                # K            =  GPy.kern.RBF(1, lengthscale=32.9169)
-                K = GPy.kern.Matern32(1, lengthscale=32.9169)  # Use RBF or Matern32 as kernels
+                K = GPy.kern.Matern32(1)
                 LCM = GPy.util.multioutput.LCM(input_dim=1,
                                                num_outputs=noutputs,
                                                kernels_list=[K] * noutputs, W_rank=1)
                 model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
-                model['.*Mat32.var'].constrain_fixed(1.)
-                # model['.*rbf.var'].constrain_fixed(1.)
                 if not np.isnan(Ytrain[1]).all():
 
                     try:

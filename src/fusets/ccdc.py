@@ -15,8 +15,8 @@ def ccdc_change_detection(array: xarray.DataArray):
 
     `Zhe Zhu, Curtis E. Woodcock, Christopher Holden, Zhiqiang Yang, Generating synthetic Landsat images based on all available Landsat data: Predicting Landsat surface reflectance at any given time <https://doi.org/10.1016/j.rse.2015.02.009>`_
 
-    @param array:
-    @return: the break days
+    :param: array:
+    :return: the break days
     """
 
     import ccd.models as models
@@ -125,9 +125,10 @@ def fit_harmonics_curve(array: xarray.DataArray, num_coefficients=6, time_dimens
 
     `Zhe Zhu, Curtis E. Woodcock, Christopher Holden, Zhiqiang Yang, Generating synthetic Landsat images based on all available Landsat data: Predicting Landsat surface reflectance at any given time <https://doi.org/10.1016/j.rse.2015.02.009>`_
 
-
-    @param array: DataArray containing timestamped observations in the range [0,10000]
-    @return:
+    :param array: DataArray containing timestamped observations in the range [0,10000]
+    :param num_coefficients:
+    :param time_dimension:
+    :return:
     """
 
     from ccd.models import lasso

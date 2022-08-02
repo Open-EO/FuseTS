@@ -9,10 +9,24 @@ import openeo
 
 def whittaker(datacube :DataCube, smoothing_lambda :float):
     """
+    Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
+    The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
+    corresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image
+    collection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a
+    vector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother
+    is applied to the time series profiles, computing therefore a daily smoothing interpolation.
 
-    @param datacube:
-    @param smoothing_lambda:
-    @return:
+    Whittaker's fast processing speed was assessed through an initial performance testing by comparing different
+    time series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.
+
+    The smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:
+    the larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a
+    lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
+    found in the original work of Eilers 2003.
+
+    :param datacube:
+    :param smoothing_lambda:
+    :return:
     """
 
     return datacube.apply_dimension(code= load_whittakker_udf(),runtime="Python",context=dict(smoothing_lambda=smoothing_lambda))
@@ -35,13 +49,14 @@ def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,ope
 
 def load_cubes(collections:dict,spatial_extent=None,temporal_extent=None,openeo_connection=None):
     """
-    Create an openEO datacube based on a specification.
+    Create an openEO datacube based on a specification. Multiple collections can be specified and will be merged together into a single cube.
+    The resulting cube will be sampled to the layout of the first collection in the list.
 
-    @param collections:
-    @param spatial_extent:
-    @param temporal_extent:
-    @param openeo_connection:
-    @return:
+    :param collections:
+    :param spatial_extent:
+    :param temporal_extent:
+    :param openeo_connection:
+    :return:
     """
     if openeo_connection == None:
         openeo_connection = openeo.connect("openeo.cloud").authenticate_oidc()
@@ -80,10 +95,10 @@ def predict_ndvi(spatial_extent,temporal_extent,openeo_connection=None):
     EXPERIMENTAL may be removed in final version
     Method to compute a predicted, cloud-free, NDVI from Sentinel-2 and Sentinel-1 inputs
 
-    @param spatial_extent:
-    @param temporal_extent:
-    @param openeo_connection:
-    @return:
+    :param spatial_extent:
+    :param temporal_extent:
+    :param openeo_connection:
+    :return:
     """
     if openeo_connection == None:
         openeo_connection = openeo.connect("openeo.cloud").authenticate_oidc()

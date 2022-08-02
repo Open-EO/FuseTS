@@ -33,6 +33,8 @@ release = '0.0.1'
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    'sphinx_autodoc_typehints',
+    'sphinx.ext.viewcode',
     "sphinx.ext.napoleon",
 ]
 
@@ -56,6 +58,18 @@ source_suffix = {
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+
+html_theme_options = {
+    'badge_branch': 'main',
+    'github_user': 'Open-EO',
+    'github_repo': 'FuseTS',
+    'github_banner': True,
+    'fixed_sidebar': False,
+    'page_width': '1200px',
+    'sidebar_width': '300px',
+    'font_family': 'Cantarell, Georgia, serif',
+    'code_font_family': "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

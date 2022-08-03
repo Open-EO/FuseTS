@@ -40,6 +40,10 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
     lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
     found in the original work of Eilers 2003.
 
+    .. image:: images/whittaker.svg
+      :width: 800
+      :alt: Comparing smoothing parameter
+
     Args:
         array: An input datacube having at least a temporal dimension over which the smoothing will be applied.
         smoothing_lambda: The smoothing factor.

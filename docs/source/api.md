@@ -18,10 +18,10 @@
 
 ```
 
-### fusets.mogrp
+### fusets.mogpr
 
 ```{eval-rst}
-.. automodule:: fusets.mogrp
+.. automodule:: fusets.mogpr
     :members:
 
 ```

@@ -2,7 +2,7 @@
 
 def test_whittaker_openeo_udf(wetland_sentinel2_ndvi):
 
-    from fusets.openeo import whittaker
+    from fusets import whittaker
 
     result = whittaker(wetland_sentinel2_ndvi,smoothing_lambda=100)
 

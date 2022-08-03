@@ -20,3 +20,15 @@ def _extract_dates(array):
     dates = list(dates.values)
     dates = [topydate(d) for d in dates]
     return dates
+
+def _time_dimension(array, time_dimension):
+    time_coords = {c.name: c for c in array.coords.values() if c.dtype.type == np.datetime64}
+    if len(time_coords) == 0:
+        raise ValueError(f"Your input array does not have a time dimension {array}")
+    if len(time_coords) > 1:
+        if not (time_dimension in time_coords):
+            raise ValueError(
+                f"Specified time dimension {time_dimension} does not exist, available dimensions: f{time_coords.keys()}")
+    else:
+        time_dimension = list(time_coords.keys())[0]
+    return time_dimension

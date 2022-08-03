@@ -1,12 +1,19 @@
 import math
 from datetime import timedelta, datetime
+from typing import Union
 
 import numpy as np
 import xarray
 from vam.whittaker import ws2d
 from xarray import DataArray
 
-from fusets._xarray_utils import _extract_dates
+from fusets._xarray_utils import _extract_dates, _time_dimension
+
+import importlib.util
+_openeo_exists = importlib.util.find_spec("openeo") is not None
+if _openeo_exists:
+    from openeo import DataCube
+
 
 """
 
@@ -16,7 +23,7 @@ References
 P. H. C. Eilers, V. Pesendorfer and R. Bonifacio, "Automatic smoothing of remote sensing data," 2017 9th International Workshop on the Analysis of Multitemporal Remote Sensing Images (MultiTemp), Brugge, 2017, pp. 1-3. doi: 10.1109/Multi-Temp.2017.8076705 URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8076705&isnumber=8035194
 """
 
-def whittaker(array:DataArray, smoothing_lambda=10000, time_dimension="t"):
+def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t") -> Union[DataArray,DataCube]:
     """
     Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
     The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
@@ -33,13 +40,21 @@ def whittaker(array:DataArray, smoothing_lambda=10000, time_dimension="t"):
     lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
     found in the original work of Eilers 2003.
 
-    :param array:
-    :param smoothing_lambda:
-    :param time_dimension:
-    :return:
+    Args:
+        array: An input datacube having at least a temporal dimension over which the smoothing will be applied.
+        smoothing_lambda: The smoothing factor.
+        time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
+
+    Returns: A smoothed datacube
+
     """
+    if _openeo_exists and isinstance(array,DataCube):
+        from .openeo import whittaker as whittaker_openeo
+        return whittaker_openeo(array,smoothing_lambda)
+
 
     dates = _extract_dates(array)
+    time_dimension = _time_dimension(array, time_dimension)
 
     def callback(timeseries):
         z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)

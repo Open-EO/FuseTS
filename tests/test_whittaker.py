@@ -6,7 +6,8 @@ import numpy.testing
 import requests
 import xarray
 
-from fusets.whittaker import whittaker_f, whittaker
+from fusets import whittaker
+from fusets.whittaker import whittaker_f
 
 
 def test_whittaker_f():
@@ -56,4 +57,5 @@ def test_whittaker_realdata():
     smoothed_output = whittaker(some_index)
     out_set = xarray.Dataset({"index":smoothed_output.assign_attrs(grid_mapping="crs"),"crs":ds.crs},attrs=dict(Conventions="CF-1.8"))
     out_set.to_netcdf("malawi_smooth.nc")
+
 

@@ -131,7 +131,7 @@ from fusets import whittaker
 result = whittaker(timeseries_cube,smoothing_lambda=1,time_dimension="time")
 ```
 
-
+![NDVI with different whittaker smoothing](images/whittaker.svg)
 
 ### Time series analysis
 

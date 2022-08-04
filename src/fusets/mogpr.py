@@ -1,53 +1,43 @@
 import itertools
+from typing import List
 
 import GPy
 import numpy as np
 import xarray
-from xarray import DataArray
+from xarray import DataArray,Dataset
 
 from fusets._xarray_utils import _extract_dates
 
 
-def mogpr(array:DataArray, time_dimension="t"):
+def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     """
-    Computes MOGPR
+    MOGPR (multi-output gaussia-process regression) integrates various timeseries into a single values. This allows to
+    fill gaps based on other indicators that are correlated with each other.
 
-    :param array:
-    :param time_dimension:
-    :return:
+    One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI.
+
+    Args:
+        array: An input datacube having at least a temporal dimension over which the smoothing will be applied.
+        variables: The list of variable names that should be included, or None to use all variables
+        time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
+
+    Returns: A gapfilled datacube.
+
     """
 
     dates = _extract_dates(array)
 
     dates_np = [d.toordinal() for d in dates]
 
-    out_mean, out_std, out_qflag, out_model = MOGRP_GPY_retrieval([array.values,array.values], [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
+    selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
+
+    out_mean, out_std, out_qflag, out_model = _MOGRP_GPY_retrieval(selected_values, [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
                                                                   nt=1)
     return out_mean
 
 
-def create_empty_2D_list(nrows, ncols):
-    """
-    Function creating a list of lists (matrix-like structure)
-    
-    Args:
-       nrows (int) : # of rows of the output list of lists
-       ncols (int) : # of cols of the output list of lists
 
-    Returns:
-        list of lists (matrix-like structure)
-            
-    """
-    empty_list = []
-    for j in range(nrows):
-        column = []
-        for i in range(ncols):
-            column.append(0)
-        empty_list.append(column)
-    return empty_list
-
-
-def MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
+def _MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
     """
     Function performing the multioutput gaussian-process regression at pixel level for gapfilling purposes
 

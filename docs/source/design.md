@@ -10,6 +10,18 @@ FuseTS consist of multiple logical modules:
 - Timeseries analysis
 - OpenEO integration
 
+## Key design highlights
+
+We build on the concept of EO **data cubes**, which can be small, in-memory datasets as supported by [**XArray**](https://docs.xarray.dev), or cloud-based
+virtual cubes as defined by [**openEO**](https://openeo.org).
+
+Complex algorithms are exposed as **simple Python functions** wherever possible. Simple things should be simple, complex things should be possible.
+
+Code should be the same when working with openEO or XArray datacubes.
+
+Prefer *[convention over configuration](https://en.wikipedia.org/wiki/Convention_over_configuration)* to allow functions 
+to work with a minimal set of arguments. 
+
 
 ## Data cubes
 

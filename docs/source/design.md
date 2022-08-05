@@ -134,9 +134,12 @@ When working with a cloud platform like openEO, you can use a built-in cloud mas
 For a fully local workflow from raw products, we advice to use basic XArray methods to mask clouds based on quality 
 information in the product.
 
-#### Time series integration & prediction
 
-##### Basic smoothing & interpolation
+
+#### Time series smoothing & interpolation
+Time series smoothing methods take a single timeseries, from a pixel or aggregated over an area, and smooth it over time.
+This reduces noise, and allows filling gaps by interpolating along the smoothing curve that is fitted through the observations.
+
 
 ```python
 from fusets import whittaker
@@ -144,6 +147,14 @@ result = whittaker(timeseries_cube,smoothing_lambda=1,time_dimension="time")
 ```
 
 ![NDVI with different whittaker smoothing](images/whittaker.svg)
+
+#### Time series integration & prediction
+Time series integration methods take multiple input time series and derive a variable based on that. 
+
+MOGPR (multi-output gaussia-process regression) integrates various timeseries into a single values. This allows to
+fill gaps based on other indicators that are correlated with each other.
+
+One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI. 
 
 ### Time series analysis
 

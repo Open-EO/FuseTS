@@ -1,7 +1,11 @@
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
 
+
+def _topydate(t):
+    return datetime.utcfromtimestamp((t - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's'))
 
 def _extract_dates(array):
     time_coords = [c for c in array.coords.values() if c.dtype.type == np.datetime64]
@@ -14,11 +18,8 @@ def _extract_dates(array):
     dates = time_coords[0]
     assert dates.dtype.type == np.datetime64
 
-    def topydate(t):
-        return datetime.utcfromtimestamp((t - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's'))
-
     dates = list(dates.values)
-    dates = [topydate(d) for d in dates]
+    dates = [_topydate(d) for d in dates]
     return dates
 
 def _time_dimension(array, time_dimension):
@@ -32,3 +33,8 @@ def _time_dimension(array, time_dimension):
     else:
         time_dimension = list(time_coords.keys())[0]
     return time_dimension
+
+def _output_dates(prediction_period,start_date,end_date):
+    period = pd.Timedelta(prediction_period)
+    range = pd.date_range(start_date,end_date,freq=period)
+    return [_topydate(d) for d in range.values]

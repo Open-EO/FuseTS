@@ -1,13 +1,15 @@
 import math
+from array import array
 from datetime import timedelta, datetime
 from typing import Union
 
 import numpy as np
 import xarray
-from vam.whittaker import ws2d
+from vam.whittaker import ws2d,ws2doptv
 from xarray import DataArray
+import pandas as pd
 
-from fusets._xarray_utils import _extract_dates, _time_dimension
+from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
 
 import importlib.util
 _openeo_exists = importlib.util.find_spec("openeo") is not None
@@ -23,7 +25,7 @@ References
 P. H. C. Eilers, V. Pesendorfer and R. Bonifacio, "Automatic smoothing of remote sensing data," 2017 9th International Workshop on the Analysis of Multitemporal Remote Sensing Images (MultiTemp), Brugge, 2017, pp. 1-3. doi: 10.1109/Multi-Temp.2017.8076705 URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8076705&isnumber=8035194
 """
 
-def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t") -> Union[DataArray,DataCube]:
+def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None) -> Union[DataArray,DataCube]:
     """
     Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
     The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
@@ -48,6 +50,7 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
         array: An input datacube having at least a temporal dimension over which the smoothing will be applied.
         smoothing_lambda: The smoothing factor.
         time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
+        prediction_period: The duration specified as ISO-8601, e.g. P5D: 5-daily, P1M: monthly. First date of the time dimension is used as starting point.
 
     Returns: A smoothed datacube
 
@@ -59,16 +62,26 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
 
     dates = _extract_dates(array)
     time_dimension = _time_dimension(array, time_dimension)
+    output_time_dimension = time_dimension
+
+    if prediction_period is not None:
+        expected_dates = _output_dates(prediction_period,dates[0],dates[-1])
+        output_time_dimension = 't_new'
+    else:
+        expected_dates = dates
+
 
     def callback(timeseries):
         z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
-        indices = [XXd.index(date) for date in dates]
+        indices = [XXd.index(date) for date in expected_dates]
 
         result = list(Zd[i] for i in indices)
         return np.array(result)
 
 
-    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[time_dimension]],vectorize=True)
+    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
+
+    result = result.rename({output_time_dimension:time_dimension})
 
     #make sure to preserve dimension order
     return result.transpose(*array.dims)
@@ -121,7 +134,11 @@ def whittaker_f(x, y, lmbd, d):
     w = np.array((v != -3000) * 1, dtype='double')
 
     # apply filter
-    z_ = ws2d(t, lmbd, w)
+    if isinstance(lmbd,list):
+        # the whitakker library also allows to choose a lambda value from a list. Note that values in this list need to be log10(lambda) (or so it seems)
+        z_,the_lambda = ws2doptv(t, w=w,llas=array('d',lmbd))
+    else:
+        z_ = ws2d(t, lmbd, w)
     z1_ = np.array(z_)
 
     # return z1_,xx

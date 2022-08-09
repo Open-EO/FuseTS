@@ -36,35 +36,39 @@ def peakvalley(
 
 
 def peakvalley_f(
-    array: xarray.DataArray,
+    x: Sequence[datetime],
+    y: np.ndarray,
     drop_thr: float = 0.15,
     rec_r: float = 1.0,
-    slope_thr: float = 0.2,
+    slope_thr: float = -0.007,
 ) -> np.ndarray:
     """
     Algorithm for finding peak-valley patterns in the provided array.
 
-    @param array: DataArray containing timestamped observations
+    @param x: array of timestamps
+    @param y: array of input feature values
     @param drop_thr: threshold value for the amplitude of the drop in the input feature
     @param rec_r: threshold value for the amplitude of the recovery, relative to the `drop_delta`
     @param slope_thr: threshold value for the slope where the peak should start
-    @return: array with different values:
+    @return: array with different values
                 *  1: peak
                 * -1: valley
                 *  0: between peak and valley
                 * np.nan: values outside of found peak-valley patterns
     """
 
-    nan_mask = np.isnan(array).values
-    x = np.array(_extract_dates(array))[~nan_mask]
-    y = array[~nan_mask].values
+    drop_thr, rec_thr = drop_thr, drop_thr * rec_r
+    result = np.full_like(y, np.nan)
 
-    rec_thr = drop_thr * rec_r
+    # find peaks and valleys in trend
+    nan_mask = np.isnan(y)
+    feature = y[~nan_mask]
+    timestamps = x[~nan_mask]
 
-    pk_ids = find_peaks(y)[0]
-    vl_ids = find_peaks(-y)[0]
+    pk_ids = find_peaks(feature)[0]
+    vl_ids = find_peaks(-feature)[0]
     if len(pk_ids) == 0 or len(vl_ids) == 0:
-        return None
+        return result, []
 
     # if first valley before peak, add initial peak
     if vl_ids[0] < pk_ids[0]:
@@ -72,27 +76,12 @@ def peakvalley_f(
 
     # if last valley before last peak, add final valley
     if vl_ids[-1] < pk_ids[-1]:
-        vl_ids = np.insert(vl_ids, len(pk_ids) - 1, len(y) - 1)
+        vl_ids = np.insert(vl_ids, len(pk_ids) - 1, len(feature) - 1)
 
     pairs = np.transpose([pk_ids, vl_ids])
     if len(pk_ids) == 0 or len(vl_ids) == 0:
-        return None
+        return result, []
 
-    pairs = _merge_dropping_fluctuations(pairs, y, rec_thr)
-    pairs = _filter_fluctuations(pairs, y, drop_thr)
-    pairs = _backtrace_till_slope(pairs, x, y, drop_thr, slope_thr)
-    pairs = _filter_recovery_point(pairs, y, rec_thr)
-
-    out = np.full_like(y, np.nan)
-    for pk, vl in pairs:
-        out[pk] = 1
-        out[vl] = -1
-        out[pk + 1 : vl] = 0
-
-    return out, pairs
-
-
-def _merge_dropping_fluctuations(pairs: np.ndarray, y: np.ndarray, rec_thr: float):
     # merge fluctuations when dropping
     idx = 0
     new_pairs = [pairs[0]]
@@ -100,7 +89,7 @@ def _merge_dropping_fluctuations(pairs: np.ndarray, y: np.ndarray, rec_thr: floa
         idx += 1
         pk2, vl2 = pairs[idx]
         pk1, vl1 = new_pairs[-1]
-        y11, y12, y21, y22 = y[[pk1, vl1, pk2, vl2]]
+        y11, y12, y21, y22 = feature[[pk1, vl1, pk2, vl2]]
 
         # merge with previous if second pair below threshold
         # and if second peak/valley below first peak/valley
@@ -108,66 +97,69 @@ def _merge_dropping_fluctuations(pairs: np.ndarray, y: np.ndarray, rec_thr: floa
             new_pairs[-1][1] = vl2
         else:
             new_pairs.append([pk2, vl2])
-    return np.array(new_pairs)
+    pairs = np.array(new_pairs)
 
-
-def _filter_fluctuations(pairs: np.ndarray, y: np.ndarray, drop_thr: float):
-    mask = -np.diff(y[pairs], axis=-1) > drop_thr
+    # apply filter on merged
+    mask = -np.diff(feature[pairs], axis=-1) > drop_thr
     pairs = pairs[mask.squeeze(-1)]
-    return pairs
 
-
-def _backtrace_till_slope(
-    pairs: np.ndarray, x: np.ndarray, y: np.ndarray, drop_thr: float, slope_thr: float
-):
+    # select eligible events
     new_pairs = []
-    for pk, vl in pairs:
-        assigned_peak = False
+    for p_id, (pk, vl) in enumerate(pairs):
+        eligible = False
+        assigned_peak = False  # flag to control if the peak has already been assigned
         skip_next = False
 
-        start = pk
+        # fix marker start
         for idx in range(vl - 1, pk - 1, -1):
             if skip_next:
                 skip_next = False
                 continue
 
             # if the difference is above the threshold and the peak has not yet been assigned
-            if y[idx] - y[vl] > drop_thr and not assigned_peak:
+            if feature[idx] - feature[vl] > drop_thr and not assigned_peak:
                 start = idx
                 assigned_peak = True
                 continue
 
             if assigned_peak:
                 # calculate derivative between current NDVI and the next NDVI
-                if _calculate_slope((idx + 1, idx), x, y) < slope_thr:
+                slope1 = _calculate_slope((idx + 1, idx), x, y)
+                slope2 = _calculate_slope((idx + 1, idx - 1), x, y)
+                if slope1 < slope_thr:
                     start = idx
-                elif (
-                    idx - 1 >= pk
-                    and _calculate_slope((idx + 1, idx - 1), x, y) < slope_thr
-                ):
+
+                elif idx - 1 >= pk and slope2 < slope_thr:
                     start = idx - 1
                     skip_next = True
                 else:
                     break
-        new_pairs.append([start, vl])
-    return np.array(new_pairs)
 
-
-def _filter_recovery_point(pairs: np.ndarray, y: np.ndarray, rec_thr: float):
-    new_pairs = []
-    for pair_id, (pk, vl) in enumerate(pairs):
-        eligible = False
-        next_pk = pairs[pair_id + 1][0] + 1 if pair_id + 1 < len(pairs) else len(y)
+        # find marker end
+        next_pk = pairs[p_id + 1][0] + 1 if p_id + 1 < len(pairs) else len(feature)
         for idx in range(vl, next_pk):
-            if y[idx] - y[vl] > rec_thr:
+            if feature[idx] - feature[vl] > rec_thr:
+                rec = idx
                 eligible = True
                 break
-            if y[idx] < y[vl]:
+            if feature[idx] < feature[vl]:
                 vl = idx
 
-        if eligible:
-            new_pairs.append([pk, vl])
-    return np.array(new_pairs)
+        if not eligible:
+            continue
+
+        new_pairs.append([start, vl])
+
+    pairs = np.array(new_pairs)
+
+    for pair in pairs:
+        s, e = timestamps[pair]
+        result[(x > s) & (x < e)] = 0
+        result[(x == s)] = 1
+        result[(x == e)] = -1
+
+    return result
+
 
 
 def _calculate_slope(

@@ -9,6 +9,31 @@ from xarray import DataArray
 from fusets._xarray_utils import _extract_dates, _time_dimension
 
 
+def peakvalley(
+    array: DataArray,
+    drop_thr: float = 0.15,
+    rec_r: float = 1.0,
+    slope_thr: float = -0.007,
+) -> DataArray:
+
+    dates = np.array(_extract_dates(array))
+    time_dimension = _time_dimension(array, None)
+
+    def callback(timeseries):
+        out = peakvalley_f(dates, timeseries, drop_thr, rec_r, slope_thr)
+        return out
+
+    result = xarray.apply_ufunc(
+        callback,
+        array,
+        input_core_dims=[[time_dimension]],
+        output_core_dims=[[time_dimension]],
+        vectorize=True,
+    )
+
+    result = result.rename("peak_valley_mask")
+    return result
+
 
 def peakvalley_f(
     array: xarray.DataArray,

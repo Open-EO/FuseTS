@@ -161,9 +161,8 @@ def peakvalley_f(
     return result
 
 
-
 def _calculate_slope(
-    indices: Tuple[int, int], x: Iterable[pd.datetime], y: np.ndarray
+    indices: Tuple[int, int], x: Iterable[datetime], y: np.ndarray
 ) -> float:
     idx1, idx2 = indices
     return (y[idx1] - y[idx2]) / (x[idx1] - x[idx2]).days

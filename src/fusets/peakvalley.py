@@ -20,7 +20,7 @@ def peakvalley(
     time_dimension = _time_dimension(array, None)
 
     def callback(timeseries):
-        out = peakvalley_f(dates, timeseries, drop_thr, rec_r, slope_thr)
+        out, _ = peakvalley_f(dates, timeseries, drop_thr, rec_r, slope_thr)
         return out
 
     result = xarray.apply_ufunc(
@@ -158,7 +158,7 @@ def peakvalley_f(
         result[(x == s)] = 1
         result[(x == e)] = -1
 
-    return result
+    return result, pairs
 
 
 def _calculate_slope(

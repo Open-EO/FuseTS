@@ -1,11 +1,13 @@
-from typing import Iterable, Tuple
+from datetime import datetime
+from typing import Iterable, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
 import xarray
 from scipy.signal import find_peaks
+from xarray import DataArray
 
-from fusets._xarray_utils import _extract_dates
+from fusets._xarray_utils import _extract_dates, _time_dimension
+
 
 
 def peakvalley_f(

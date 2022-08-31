@@ -15,6 +15,18 @@ def peakvalley(
     rec_r: float = 1.0,
     slope_thr: float = -0.007,
 ) -> DataArray:
+    """
+    Algorithm for finding peak-valley patterns in the provided array.
+
+    Args:
+        array: input data array
+        drop_thr: threshold value for the amplitude of the drop in the input feature
+        rec_r: threshold value for the amplitude of the recovery, relative to the `drop_delta`
+        slope_thr: threshold value for the slope where the peak should start
+
+    Returns:
+        data array with different values {1: peak, -1: valley, 0: between peak and valley, np.nan: other}
+    """
 
     dates = np.array(_extract_dates(array))
     time_dimension = _time_dimension(array, None)
@@ -45,16 +57,15 @@ def peakvalley_f(
     """
     Algorithm for finding peak-valley patterns in the provided array.
 
-    @param x: array of timestamps
-    @param y: array of input feature values
-    @param drop_thr: threshold value for the amplitude of the drop in the input feature
-    @param rec_r: threshold value for the amplitude of the recovery, relative to the `drop_delta`
-    @param slope_thr: threshold value for the slope where the peak should start
-    @return: array with different values
-                *  1: peak
-                * -1: valley
-                *  0: between peak and valley
-                * np.nan: values outside of found peak-valley patterns
+    Args:
+        x: array of timestamps
+        y: array of input feature values
+        drop_thr: threshold value for the amplitude of the drop in the input feature
+        rec_r: threshold value for the amplitude of the recovery, relative to the `drop_delta`
+        slope_thr: threshold value for the slope where the peak should start
+
+    Returns:
+        array with different values {1: peak, -1: valley, 0: between peak and valley, np.nan: other}
     """
 
     drop_thr, rec_thr = drop_thr, drop_thr * rec_r

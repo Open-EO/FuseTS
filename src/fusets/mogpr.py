@@ -31,13 +31,13 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
 
     selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
 
-    out_mean, out_std, out_qflag, out_model = _MOGRP_GPY_retrieval(selected_values, [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
+    out_mean, out_std, out_qflag, out_model = _MOGPR_GPY_retrieval(selected_values, [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
                                                                   nt=1)
     return out_mean
 
 
 
-def _MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
+def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
     """
     Function performing the multioutput gaussian-process regression at pixel level for gapfilling purposes
 
@@ -137,14 +137,114 @@ def _MOGRP_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                     if i_test == 0:
 
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
-                            out_std[ind][:, None, x, y] = (Vp[:, None, 0] * Y_std_vec[ind]) / nt
+                            out_mean[ind][:, None, x, y] = (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            out_std[ind][:, None, x, y] = (Vp[:, None, ind] * Y_std_vec[ind]) / nt
 
                     else:
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (Yp[:, None, 0] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
-                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (Vp[:, None, 0] * Y_std_vec[ind]) / nt
+                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
 
                     del Yp, Vp
 
     return out_mean, out_std, out_qflag, out_model
+
+
+def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=None):
+    """
+    Function performing the multioutput gaussian-process regression at pixel level for gapfilling purposes
+    
+    Args:
+        data_in (list): List of numpy 1D arrays containing data to be processed
+        time_in (list): List of numpy 1D arrays containing the (ordinal)dates of each variable in the time dimension
+        master_ind (int): Index identifying the Master output
+        output_timevec (array) : Vector containing the dates on which output must be estimated
+        nt [int]: # of times the GP training must be performed (def=1)
+    Returns:
+        a tuple
+        (out_mean, out_std, out_qflag, out_model) where:
+        - out_mean_list (array): List of numpy 1D arrays containing mean value of the prediction at pixel level
+        - out_std_list (array): List of numpy 1D arrays containing standard deviation of the prediction at pixel level
+        - out_qflag (bool): Quality Flag for any numerical error in the model determination
+        - out_model (object): Gaussian Process model for heteroscedastic multioutput regression
+    """    
+    # Number of outputs
+    noutputs = len(data_in)
+    # Number of output samples
+    outputs_len = output_timevec.shape[0]
+    
+    out_mean  = []
+    out_std   = []
+    out_model = []
+    
+    X_vec = []
+    Y_vec = []
+    Y_mean_vec = []
+    Y_std_vec  = []
+
+    out_qflag = True
+    
+    #Variable is initialized to take into account possibility of no valid pixels present
+    for ind in range(noutputs):           
+        
+        out_mean.append(np.full(outputs_len,np.nan))
+        out_std.append(np.full(outputs_len,np.nan))
+        
+        X_tmp  = time_in[ind]
+        Y_tmp  = data_in[ind]
+        X_tmp  = X_tmp[~np.isnan(Y_tmp), np.newaxis]
+        Y_tmp  = Y_tmp[~np.isnan(Y_tmp), np.newaxis]        
+        X_vec.append(X_tmp)
+        Y_vec.append(Y_tmp)
+        del X_tmp,Y_tmp
+        
+        # Data Normalization        
+        Y_mean_vec.append(np.mean(Y_vec[ind])) 
+        Y_std_vec.append(np.std(Y_vec[ind]))
+        Y_vec[ind] = (Y_vec[ind]-Y_mean_vec[ind])/Y_std_vec[ind]          
+        
+    if np.size(Y_vec[master_ind])>0:        
+        # Multi-output train and test sets
+        Xtrain = X_vec
+        Ytrain = Y_vec       
+        
+        Yp = np.zeros((outputs_len, noutputs))
+        Vp = np.zeros((outputs_len, noutputs))
+        
+        for i_test in range(nt):
+            try:
+                if trained_model is None:
+                    # Kernel
+                    K = GPy.kern.Matern32(input_dim=1)
+                    # Linear coregionalization 
+                    LCM = GPy.util.multioutput.LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1)        
+                    out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
+                    out_model.optimize()                    
+                else: 
+                    out_model = trained_model
+            except:
+                out_qflag=False
+                continue
+
+            for out in range(noutputs):                
+                newX =  output_timevec[:, np.newaxis]
+                newX = np.hstack([newX, out * np.ones((newX.shape[0], 1))])
+                noise_dict = {'output_index': newX[:, -1:].astype(int)} 
+                # Prediction
+                Yp[:, None, out], Vp[:, None, out] = out_model.predict(newX, Y_metadata=noise_dict)                        
+                if i_test==0:
+                    out_mean[out][:, None] = (Yp[:,None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
+                    out_std[out][:, None]  = (Vp[:,None, out]*Y_std_vec[out])/nt       
+                else:                
+                    out_mean[out][:, None] = out_mean[out][:, None] + (Yp[:, None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
+                    out_std[out][:, None]  = out_std[out][:, None]  + (Vp[:, None, out]*Y_std_vec[out])/nt        
+            del Yp,Vp    
+            
+    # Flatten the series    
+    out_mean_list = []
+    out_std_list = []
+    for ind in range(noutputs):
+        out_mean_list.append(out_mean[ind].ravel())
+        out_std_list.append(out_std[ind].ravel())    
+        
+    return  out_mean_list, out_std_list, out_qflag, out_model 

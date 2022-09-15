@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
 import datetime
 import inspect
@@ -20,16 +20,17 @@ import os
 import sys
 import fusets
 
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../source'))
 
 # -- Project information -----------------------------------------------------
 
-title= 'System Design Document'
-project = 'FuseTS'
+project = 'DEL-03 Design Definition File'
 copyright = '2022, Stefaan Lippens'
 author = 'Stefaan Lippens, Jeroen Dries'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -62,12 +63,12 @@ source_suffix = {
 }
 
 latex_documents = [
-    ('design.md', 'ai4food.tex', 'AI4Food Design definition file',
+    ('del03_ddf', 'DEL-03-DDF-AI4FOOD-1.0.tex', 'AI4Food Design definition file',
      'Jeroen Dries', 'manual'),
 ]
 
 texinfo_documents = [
-    ('design.md', 'DEL-03', 'Design Definition File',
+    ('del03_ddf', 'DEL-03', 'Design Definition File',
      author, 'openeo', 'AI4Food Design Definition File',
      'Miscellaneous'),
 ]
@@ -115,7 +116,7 @@ latex_maketitle = r'''
 \end{center}
 \end{titlepage}
 '''
-latex_logo='images/AI4Food.png'
+latex_logo='../source/images/AI4Food.png'
 latex_elements = {
     'preamble': r'''
 \usepackage{pdfpages}

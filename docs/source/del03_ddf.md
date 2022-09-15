@@ -8,6 +8,7 @@
 :maxdepth: 2
 :caption: "Contents:"
 
+del03_intro
 design
 openeo
 api

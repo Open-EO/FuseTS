@@ -48,6 +48,11 @@ extensions = [
     "sphinxcontrib.rsvgconverter"
 ]
 
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence"
+]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -77,8 +82,34 @@ latex_maketitle = r'''
 \begin{titlepage}
 
 
-\includepdf[pages=1]{TN_v1.1.pdf} 
-\large
+
+\begin{center}
+   \vspace*{1cm}
+   
+   \includegraphics[width=0.5\textwidth]{AI4Food.png}
+   \\
+   \begin{huge}  
+       \textbf{DEL-03 Design Definition File AI4FOOD
+       \\
+       (WP 2)}
+   \end{huge}
+   \\
+   \vspace{0.5cm}
+   \begin{LARGE}
+        Version 1.0
+        \\
+        \vspace{0.3cm}
+        15 September 2022    
+   \end{LARGE}
+   \vspace*{2.5cm}
+   \\
+   \begin{large}
+        Prepared by    
+   \end{large}
+   \\
+   \includegraphics[width=0.7\textwidth]{AI4Food_companies.png}
+\end{center}
+
 \newpage
 ~
 %blank
@@ -116,7 +147,7 @@ latex_maketitle = r'''
 \end{center}
 \end{titlepage}
 '''
-latex_logo='../source/images/AI4Food.png'
+#latex_logo='../source/images/AI4Food.png'
 latex_elements = {
     'preamble': r'''
 \usepackage{pdfpages}

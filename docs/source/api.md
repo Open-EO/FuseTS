@@ -15,6 +15,9 @@
 ```{eval-rst}
 .. automodule:: fusets.ccdc
     :members: ccdc_change_detection, fit_harmonics_curve
+    
+.. automodule:: fusets.peakvalley
+    :members: peakvalley
 
 ```
 

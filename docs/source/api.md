@@ -19,6 +19,9 @@
 .. automodule:: fusets.peakvalley
     :members: peakvalley
 
+.. automodule:: fusets.analytics
+    :members: phenology
+
 ```
 
 ### fusets.mogpr

@@ -188,15 +188,30 @@ One example is combining an optical NDVI with a SAR based RVI to compute a gap-f
 
 ### Time series analysis
 
+FuseTS aims to provide time series analysis methods specific to earth observation use cases. 
+
+It should be noted that the broader Python ecosystem also offers capabilities that are often applicable in earth
+observation:
+
+- [scipy](https://docs.scipy.org): interpolation, fourier transforms and signal processing
+- [sktime](https://www.sktime.org): time series clustering, classification and forecasting
+
+These libraries operate mostly on NumPy data structures, making them very compatible with the XArray data structures used
+here.
+
 #### Change Detection
-CCDC
+Change detection is provided by:
+{py:class}`fusets.ccdc.ccdc_change_detection`
 
-BFAST
-
-#### Timeseries similarity
+Additionally, integration with the Python version of BFast is foreseen in a similar manner.
 
 #### Fitting harmonics
 
+For fitting harmonics, for instance to predict a future value, see:
+
+{py:class}`fusets.ccdc.fit_harmonics_curve`
+
 #### Phenology metrics
+
 
 

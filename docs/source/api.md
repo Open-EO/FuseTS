@@ -37,3 +37,11 @@
     :members:
     
 ```
+
+### fusets.openeo.services
+
+```{eval-rst}
+.. automodule:: fusets.openeo.services
+    :members:
+    
+```

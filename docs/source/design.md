@@ -200,14 +200,3 @@ BFAST
 #### Phenology metrics
 
 
-
-# FuseTS on demand services
-
-
-
-
-
-
-
-
-

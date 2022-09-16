@@ -11,6 +11,7 @@
 del03_intro
 design
 openeo
+del03_outro
 api
 
 ```

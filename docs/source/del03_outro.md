@@ -49,78 +49,45 @@ cube.execute_batch(out_format="GTIFF")
 ```
 
 
+It is important to mention one limitation: an openEO user defined process always consists of a single process
+graph, that generates the complete result in one invocation. The number of services that can be built in this
+way is growing with the capabilities of openEO and the backend implementations, but sometimes there are still
+workflows that require multiple openEO invocations, are more complex preprocessing of inputs.
+
+To work around this limitation, we refer to the Euro Data Cube functionality that allows exposing arbitrary
+Python code as a service:
+
+https://eurodatacube.com/documentation/offer_algorithms_for_on_demand_data_generation
+
+This approach is very complementary to the openEO user defined processes. Having both options available ensures
+that we can expose any on demand service. 
+
+
+
 
 ## Discoverable services in EOPlaza
 
-This section illustrates the design of on demand services with an example on the Terrascope marketplace. This service is a phenology service, based on  a proprietary library:  
+The UDP catalog on Github, or published in a given openEO backend, is not easy to discover by users.
+To achieve that, we will additionally publish these services on the EOPlaza marketplace. 
+ 
+This is an example phenology service, based on  a proprietary library:  
 
 https://portal.terrascope.be/marketplace/app-details/23 
 
- 
 
- 
+The services are published on a marketplace to make them discoverable by users, and to document them.
+Good documentation is important for operational services, and describes functionality, usage limitations, 
+expected accuracy, usage, and a cost estimate.  
 
- 
+Another side-effect of publishing the services is the inclusion of a remuneration model that allows a 'value-added'
+cost to be associated with the use of a service.
 
-Figure 1 Published service example 
-
- 
-
-The services are published on a marketplace to make them discoverable by users, and to document them. Good documentation is important for operational services, and describes functionality, usage limitations, expected accuracy, usage, and a cost estimate.  
-
-The Terrascope marketplace uses ‘maturity levels’ to classify services. This allows users to also share services that are not yet operational. Services can define an ‘added value’ cost, but only if they achieve a sufficiently high maturity level. 
-
- 
-
- 
-
-Figure 2 Service maturity levels 
-
- 
-
- 
-
- 
-
-To invoke the service, users can either use the REST API directly, or the Python API: 
-
- 
-
-phen_timesat_ndvi = eoconn.datacube_from_process("phenology_with_timesat_ndvi", namespace="vito", ts_start_date=ts_start_date,ts_end_date=ts_end_date, ts_layer=ts_layer,ts_polys = polys) 
-
- 
-
- 
-
-The openEO web editor also provides a generic user interface that is derived from the definition of the UDP: 
-
- 
-
-Figure 3 Running service 
-
- 
+The Terrascope marketplace uses ‘maturity levels’ to classify services. This allows users to also share
+services that are not yet operational. Services can define an ‘added value’ cost, but only if they achieve 
+a sufficiently high maturity level. 
 
 For mature services, we require automated testing. This typically needs to be set up by the service publisher. For services maintained by VITO, a continuous integration system verifies the functioning of the service whenever changes are made. We should be able to reuse this framework for the on-demand services in AI4FOOD project. 
 
- 
-
-For more information on the openEO concept of user defined processes, we refer to the Python documentation: 
-
-https://open-eo.github.io/openeo-python-client/udp.html 
-
-The openEO API documentation is the reference for web or client developers: 
-
-https://api.openeo.org/#tag/User-Defined-Processes 
-
- 
-
-It is important to mention one limitation: an openEO user defined process always consists of a single process graph, that generates the complete result in one invocation. The number of services that can be built in this way is growing with the capabilities of openEO and the backend implementations, but sometimes there are still workflows that require multiple openEO invocations, are more complex preprocessing of inputs.  
-
-To work around this limitation, we refer to the Euro Data Cube functionality that allows exposing arbitrary Python code as a service: 
-
-https://eurodatacube.com/documentation/offer_algorithms_for_on_demand_data_generation 
-
-This approach is very complementary to the openEO user defined processes. Having both options available ensures that we can expose any on demand service. 
 
 
 # Planned functionality

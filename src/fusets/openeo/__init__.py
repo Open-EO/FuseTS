@@ -1,3 +1,9 @@
+"""
+This module contains the openEO variants of FuseTS core algorithms. These algorithms are integrated in openEO by using
+user defined functions.
+
+"""
+
 from functools import reduce
 from pathlib import Path
 

@@ -3,14 +3,12 @@
 
 
 % index.md should at least contain the root `toctree` directive
-
-```{toctree}
+```{toctree}  
 :maxdepth: 3
-:caption: "Contents:"
+:caption: "Contents"
 
 del03_intro
 design
-openeo
 del03_outro
 api
 

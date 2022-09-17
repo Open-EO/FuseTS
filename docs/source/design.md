@@ -143,16 +143,18 @@ print(xx.NO2)
 
 For more information on loading data from STAC, examples can be found [here](https://odc-stac.readthedocs.io/en/latest/notebooks/stac-load-e84-aws.html).
 
-#### Loading raw Sentinel-2 data
+#### Loading raw Copernicus data
 
 The hardest way to load data, is to read it from the original products. Depending on the EO product, the support in open
 source tools may vary. There's also raw data products like SAR (Sentinel-1) data that requires substantial preprocessing 
 to be usable.
 
 
+
+
 ### ARD generation
 
-Many raw products require some level of processing to be usable. Examples include atmospheric correction for optical data, 
+Raw products require some level of processing to be usable. Examples include atmospheric correction for optical data, 
 or computing backscatter for SAR data. 
 
 #### Cloud masking
@@ -164,7 +166,12 @@ When working with a cloud platform like openEO, you can use a built-in cloud mas
 For a fully local workflow from raw products, we advice to use basic XArray methods to mask clouds based on quality 
 information in the product.
 
+#### Computing SAR backscatter
 
+For obtaining SAR backscatter, we either advice the use of the Sentinel-1 toolbox, which has been validated in many projects, 
+or look into [Sarsen](https://github.com/bopen/sarsen), which integrates better with XArray, but is still in the beta phase.
+
+In any case, computing SAR backscatter is compute intensive and error prone, so cloud platforms may provide a better alternative.
 
 #### Time series smoothing & interpolation
 Time series smoothing methods take a single timeseries, from a pixel or aggregated over an area, and smooth it over time.
@@ -176,15 +183,34 @@ from fusets import whittaker
 result = whittaker(timeseries_cube,smoothing_lambda=1,time_dimension="time")
 ```
 
-![NDVI with different whittaker smoothing](images/whittaker.svg)
+:::{figure-md} fig-whittaker
+
+<img src="images/whittaker.svg" alt="NDVI with different whittaker smoothing" class="bg-primary mb-1">
+
+NDVI with different whittaker smoothing
+:::
+
 
 #### Time series integration & prediction
-Time series integration methods take multiple input time series and derive a variable based on that. 
+Time series integration methods take multiple input time series and derive a variable based on that. This is also
+referred to as timeseries fusion, and is the main objective of this library.
 
 MOGPR (multi-output gaussia-process regression) integrates various timeseries into a single values. This allows to
 fill gaps based on other indicators that are correlated with each other.
 
 One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI. 
+
+Two methods are currently available:
+ - {py:class}`fusets.mogpr`
+ - {py:class}`fusets.openeo.predict_ndvi`
+
+This library aims for seamless switching between XArray and openEO data structures, so this works in both cases:
+
+```python
+from fusets import mogpr
+timeseries_cube # openEO datacube or XArray DataSet
+result = mogpr(timeseries_cube)
+```
 
 ### Time series analysis
 
@@ -219,9 +245,21 @@ The phenometrics implementation is based on the Phenolopy library, and is wrappe
 
 Computed phenometrics are shown in the figure below:
 
-![alt text](https://github.com/lewistrotter/Phenolopy/blob/main/documentation/images/pheno_explain.png?raw=true)
+:::{figure-md} fig-phenology
+
+<img src="https://github.com/lewistrotter/Phenolopy/blob/main/documentation/images/pheno_explain.png?raw=true" alt="Phenology" class="bg-primary mb-1" width="500px">
+
+Phenology metrics
+:::
+
 
 The codes presented on the figure above translate to:
+              
+```{eval-rst}                                       
+.. raw:: latex
+
+    \tiny
+```
 
 Code | Name | Description | Method | 
 --- | --- | --- | --- | 
@@ -241,5 +279,9 @@ SIOT | Short Integral of Total | Represents total vegetation productivity throug
 LIOT | Long Integral of Total | Represents the total productivity of vegetation throughout the season. | Calculated using the trapezoidal rule between the total vegetation values between season start and end. |  | 
 NOS | Number of Seasons | Total number of seasons (i.e. prominent graph peaks) in timerseries. | Peaks detected using scipy find_peaks and any peaks are over 3 months apart. | | 
 
+```{eval-rst}                                       
+.. raw:: latex
 
+   \normalsize
+```
 

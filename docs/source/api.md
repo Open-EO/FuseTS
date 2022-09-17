@@ -4,13 +4,15 @@
 
 % See https://myst-parser.readthedocs.io/en/latest/sphinx/use.html?highlight=autodoc#use-sphinx-ext-autodoc-in-markdown-files
 
+### Timeseries smoothing & integration
+
 ```{eval-rst}
 .. automodule:: fusets
     :members: whittaker, mogpr
 
 ```
 
-### timeseries analysis
+### Timeseries analysis
 
 ```{eval-rst}
 .. automodule:: fusets.ccdc
@@ -21,14 +23,6 @@
 
 .. automodule:: fusets.analytics
     :members: phenology
-
-```
-
-### fusets.mogpr
-
-```{eval-rst}
-.. automodule:: fusets.mogpr
-    :members:
 
 ```
 

@@ -146,6 +146,24 @@ latex_maketitle = r'''
      \vspace{3cm} {\large 13th July, 2022} \vspace{0.2cm}
 \end{center}
 \end{titlepage}
+
+\begin{center}
+
+\begin{tabular}{|l|l|l|l|}
+\hline
+Authors: & \multicolumn{3}{|l|}{J. Dries, M. Salinero-Delgado, S. Lippens, M. Lubej}  \\          
+\hline
+Circulation: & \multicolumn{3}{|l|}{ESA document}\\
+\hline
+Release & Date & Details & Editors \\
+\hline
+1.0 & 17 September 2022 & CDR Version & JD \\
+\hline
+\end{tabular}
+
+\vspace{2mm}
+\end{center}
+
 '''
 #latex_logo='../source/images/AI4Food.png'
 latex_elements = {

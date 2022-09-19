@@ -15,9 +15,15 @@ FuseTS consist of multiple logical modules:
 We build on the concept of EO **data cubes**, which can be small, in-memory datasets as supported by [**XArray**](https://docs.xarray.dev), or cloud-based
 virtual cubes as defined by [**openEO**](https://openeo.org).
 
-Complex algorithms are exposed as **simple Python functions** wherever possible. Simple things should be simple, complex things should be possible.
+<!---Complex algorithms are exposed as **simple Python functions** wherever possible. -->
+
+Simple things should be simple, complex things should be possible.
 
 Code should be the same when working with openEO or XArray datacubes.
+
+For the general framework, we base ourselves on [sktime](https://www.sktime.org), which in turn
+is based on [scikit-learn](https://scikit-learn.org). These libraries have an API that has proven
+to be generic enough to support many timeseries transformation algorithms.
 
 Prefer *[convention over configuration](https://en.wikipedia.org/wiki/Convention_over_configuration)* to allow functions 
 to work with a minimal set of arguments. 
@@ -62,6 +68,28 @@ An algorithm may require a specific combination of dimensions and variables to b
 The methods in this library are designed to work both on openEO and XArray datacubes. This allows the user code to work 
 in both cases.
 
+## Estimators framework
+
+In the `scikit-learn` and `sktime` libraries, the base class for most (if not all) algorithms is
+named `BaseEstimator`. Specific subtypes of this class are grouped into transformers, forecasters, 
+classifiers, and so on.
+
+The advantages of this object oriented approach based on common base types is that estimators can 
+be composed into pipelines, and different estimators implementations are interchangeable in a larger
+workflow. For instance, a whittaker estimator could be swapped for an MOGPR estimator with limited
+code changes.
+
+In this version of the design, we work with copies of the `sktime``BaseEstimator` rather than 
+extending directly. This avoids that we require these libraries as additional dependencies, while
+the weak typing system in Python still allows for a lot of interoperability.
+
+The concrete implementation can be found here: 
+{py:class}`fusets.base.BaseEstimator`
+
+One notable difference with the aforementioned libraries, is that `FuseTS` mainly works on XArray
+and openEO data structures, as opposed to `numpy` and `pandas`. It is however not impossible to consider
+direct support for `numpy` arrays in some cases. Also `sktime` supports a mechanism to properly declare
+the type of inputs that are supported.
 
 ## Supported EO data pipelines
 
@@ -150,8 +178,6 @@ source tools may vary. There's also raw data products like SAR (Sentinel-1) data
 to be usable.
 
 
-
-
 ### ARD generation
 
 Raw products require some level of processing to be usable. Examples include atmospheric correction for optical data, 
@@ -179,8 +205,8 @@ This reduces noise, and allows filling gaps by interpolating along the smoothing
 
 
 ```python
-from fusets import whittaker
-result = whittaker(timeseries_cube,smoothing_lambda=1,time_dimension="time")
+from fusets import WhittakerTransformer
+result = WhittakerTransformer().fit_transform(timeseries_cube,smoothing_lambda=1,time_dimension="time")
 ```
 
 :::{figure-md} fig-whittaker
@@ -209,7 +235,7 @@ This library aims for seamless switching between XArray and openEO data structur
 ```python
 from fusets import mogpr
 timeseries_cube # openEO datacube or XArray DataSet
-result = mogpr(timeseries_cube)
+result = MOGPRTransformer().fit_transform(timeseries_cube)
 ```
 
 ### Time series analysis
@@ -221,6 +247,7 @@ observation:
 
 - [scipy](https://docs.scipy.org): interpolation, fourier transforms and signal processing
 - [sktime](https://www.sktime.org): time series clustering, classification and forecasting
+- [tsfresh](https://tsfresh.readthedocs.io): time series feature computation
 
 These libraries operate mostly on NumPy data structures, making them very compatible with the XArray data structures used
 here.
@@ -284,4 +311,35 @@ NOS | Number of Seasons | Total number of seasons (i.e. prominent graph peaks) i
 
    \normalsize
 ```
+
+## Dependencies
+
+### Types of dependencies
+
+There are three types of dependencies in `fusets`:
+
+* "core" dependencies
+* "soft" dependencies
+* "developer" dependencies
+
+
+A core dependency is required for ``fusets`` to install and run.
+They are automatically installed whenever ``fusets`` is installed.
+Example: ``xarray``
+
+
+A soft dependency is a dependency that is only required to import
+certain modules, but not necessary to use most functionality. A soft
+dependency is not installed automatically when the package is
+installed. Instead, users need to install it manually if they want to
+use a module that requires a soft dependency.
+Example: ``lcmap-pyccd``
+
+A developer dependency is required for ``fusets`` developers, but not for typical
+users of ``fusets``.
+Example: ``pytest``
+
+We try to keep the number of core dependencies to a minimum and rely on
+other packages as soft dependencies when feasible.
+
 

@@ -6,7 +6,21 @@ import numpy as np
 import xarray
 from xarray import DataArray,Dataset
 
-from fusets._xarray_utils import _extract_dates
+from fusets._xarray_utils import _extract_dates, _time_dimension
+from fusets.base import BaseEstimator
+
+
+class MOGPRTransformer(BaseEstimator):
+    """
+    MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single value. This allows to
+    fill gaps based on other indicators that are correlated with each other.
+
+    """
+
+    def fit_transform(self, X, y=None, **fit_params):
+        return super().fit_transform(X, y, **fit_params)
+
+
 
 
 def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
@@ -26,14 +40,29 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     """
 
     dates = _extract_dates(array)
+    time_dimension = _time_dimension(array, time_dimension)
+    output_time_dimension = time_dimension
 
     dates_np = [d.toordinal() for d in dates]
 
-    selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
+    if isinstance(array,xarray.Dataset):
+        selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
+    else:
+        selected_values = [array]
 
-    out_mean, out_std, out_qflag, out_model = _MOGPR_GPY_retrieval(selected_values, [np.array(dates_np),np.array(dates_np)], master_ind=0, output_timevec=np.array(dates_np),
-                                                                  nt=1)
-    return out_mean
+
+    def callback(timeseries):
+        print(timeseries)
+        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates) for i in timeseries]), 0, output_timevec=np.array([dates_np]), nt=1, trained_model=None)
+        return np.array(out_mean)[:,0]
+
+
+    #setting vectorize to true is convenient, but has performance similar to for loop
+    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
+
+    result = result.rename({output_time_dimension:time_dimension})
+
+    return result.transpose(*array.dims)
 
 
 

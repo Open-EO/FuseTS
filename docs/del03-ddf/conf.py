@@ -174,15 +174,19 @@ latex_elements = {
 \usepackage[titles]{tocloft}
 \usepackage{svg}
 \cftsetpnumwidth {1.25cm}\cftsetrmarg{1.5cm}
-\setlength{\cftchapnumwidth}{0.75cm}
-\setlength{\cftsecindent}{\cftchapnumwidth}
+\setlength{\cftsecindent}{0.75cm}
 \setlength{\cftsecnumwidth}{1.25cm}
 ''',
     #'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
     'printindex': r'\footnotesize\raggedright\printindex',
     'maketitle': latex_maketitle,
 }
+
 latex_show_urls = 'footnote'
+
+latex_additional_files=['../source/images/AI4Food.png','../source/images/AI4Food_companies.png']
+latex_toplevel_sectioning = 'section'
+latex_docclass= {'manual':'article','howto':'article'}
 
 # -- Options for HTML output -------------------------------------------------
 

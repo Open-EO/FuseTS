@@ -12,6 +12,9 @@ import pandas as pd
 from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
 
 import importlib.util
+
+from fusets.base import BaseEstimator
+
 _openeo_exists = importlib.util.find_spec("openeo") is not None
 if _openeo_exists:
     from openeo import DataCube
@@ -24,6 +27,64 @@ References
 
 P. H. C. Eilers, V. Pesendorfer and R. Bonifacio, "Automatic smoothing of remote sensing data," 2017 9th International Workshop on the Analysis of Multitemporal Remote Sensing Images (MultiTemp), Brugge, 2017, pp. 1-3. doi: 10.1109/Multi-Temp.2017.8076705 URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8076705&isnumber=8035194
 """
+
+
+class WhittakerTransformer(BaseEstimator):
+    """
+    Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
+    The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
+    corresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image
+    collection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a
+    vector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother
+    is applied to the time series profiles, computing therefore a daily smoothing interpolation.
+
+    Whittaker's fast processing speed was assessed through an initial performance testing by comparing different
+    time series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.
+
+    The smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:
+    the larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a
+    lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
+    found in the original work of Eilers 2003.
+
+    .. image:: images/whittaker.svg
+      :width: 800
+      :alt: Comparing smoothing parameter
+
+    """
+
+    def fit_transform(self, X:Union[DataArray,DataCube], y:Union[DataArray,DataCube]=None, **fit_params):
+        """
+        Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
+        The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
+        corresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image
+        collection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a
+        vector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother
+        is applied to the time series profiles, computing therefore a daily smoothing interpolation.
+
+        Whittaker's fast processing speed was assessed through an initial performance testing by comparing different
+        time series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.
+
+        The smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:
+        the larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a
+        lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
+        found in the original work of Eilers 2003.
+
+        .. image:: images/whittaker.svg
+          :width: 800
+          :alt: Comparing smoothing parameter
+
+        Args:
+            array: An input datacube having at least a temporal dimension over which the smoothing will be applied.
+            smoothing_lambda: The smoothing factor.
+            time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
+            prediction_period: The duration specified as ISO-8601, e.g. P5D: 5-daily, P1M: monthly. First date of the time dimension is used as starting point.
+
+        Returns: A smoothed datacube
+
+        """
+
+        return whittaker(X,fit_params.get("smoothing_lambda",10000))
+
 
 def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None) -> Union[DataArray,DataCube]:
     """

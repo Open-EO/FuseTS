@@ -89,11 +89,12 @@ a sufficiently high maturity level.
 For mature services, we require automated testing. This typically needs to be set up by the service publisher. For services maintained by VITO, a continuous integration system verifies the functioning of the service whenever changes are made. We should be able to reuse this framework for the on-demand services in AI4FOOD project. 
 
 
-
-# Planned functionality
+# Planned functionality & next steps
 
 This section describes the modules and functionality that did not yet make it into this milestone, but is still planned
 for inclusion in the library. This planning is open for discussion.
 
+- Refactor all algorithms to work with the estimators framework (extend BaseEstimator)
 - [Multi temporal outlier filter](https://github.com/Open-EO/FuseTS/issues/61)
 - [Documentation for working with original Sentinel-2 products](https://github.com/Open-EO/FuseTS/issues/59)
+

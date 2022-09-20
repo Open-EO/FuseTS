@@ -91,6 +91,12 @@ and openEO data structures, as opposed to `numpy` and `pandas`. It is however no
 direct support for `numpy` arrays in some cases. Also `sktime` supports a mechanism to properly declare
 the type of inputs that are supported.
 
+```{warning} 
+The use of the estimators framework is not yet completely consistent in the API. In fact, most functionality
+still uses simple Python functions. Some more experience may be needed to establish whether one or the other is preferrable
+in specific cases, or if both should be supported whereever possible. 
+```
+
 ## Supported EO data pipelines
 
 The library is split up into various modules, that each try to support specific steps in a typical EO workflow.

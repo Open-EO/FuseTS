@@ -7,3 +7,4 @@ __version__ = "0.0.1"
 
 from .whittaker import whittaker, WhittakerTransformer
 from .mogpr import mogpr, MOGPRTransformer
+from .peakvalley import peakvalley

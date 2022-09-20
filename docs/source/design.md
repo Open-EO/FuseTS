@@ -252,6 +252,10 @@ observation:
 These libraries operate mostly on NumPy data structures, making them very compatible with the XArray data structures used
 here.
 
+#### Peak Valley detection
+Peak/valley detection is provided by:
+{py:class}`fusets.peakvalley`
+
 #### Change Detection
 Change detection is provided by:
 {py:class}`fusets.ccdc.ccdc_change_detection`

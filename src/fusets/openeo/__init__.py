@@ -11,6 +11,7 @@ import xarray
 
 from openeo.rest.datacube import DataCube
 from .whittaker_udf import load_whittakker_udf
+from .mogpr_udf import load_mogpr_udf
 import openeo
 
 def whittaker(datacube :DataCube, smoothing_lambda :float):
@@ -36,6 +37,25 @@ def whittaker(datacube :DataCube, smoothing_lambda :float):
     """
 
     return datacube.apply_dimension(code= load_whittakker_udf(),runtime="Python",context=dict(smoothing_lambda=smoothing_lambda))
+
+
+def mogpr(datacube :DataCube):
+    """
+
+    Args:
+        datacube: input datacube containing the bands to integrate
+
+    Returns:
+
+    """
+    return datacube.apply_neighborhood(
+        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime='Python', context=dict()),
+        size=[
+            {'dimension': 'x', 'value': 1, 'unit': 'px'},
+            {'dimension': 'y', 'value': 1, 'unit': 'px'}
+        ]
+    )
+
 
 def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,openeo_connection=None):
     if openeo_connection == None:

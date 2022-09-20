@@ -1,6 +1,7 @@
+import importlib
 import itertools
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 import GPy
 import numpy as np
@@ -11,6 +12,9 @@ from xarray import DataArray,Dataset
 from fusets._xarray_utils import _extract_dates, _time_dimension
 from fusets.base import BaseEstimator
 
+_openeo_exists = importlib.util.find_spec("openeo") is not None
+if _openeo_exists:
+    from openeo import DataCube
 
 class MOGPRTransformer(BaseEstimator):
     """
@@ -109,15 +113,18 @@ class MOGPRTransformer(BaseEstimator):
         return out_ds
 
 
-    def fit_transform(self, X, y=None, **fit_params):
-        return super().fit_transform(X, y, **fit_params)
+    def fit_transform(self, X:Union[DataArray,DataCube], y=None, **fit_params):
+        if _openeo_exists and isinstance(X, DataCube):
+            from .openeo import mogpr as mogpr_openeo
+            return mogpr_openeo(X)
 
+        return mogpr(X)
 
 
 
 def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     """
-    MOGPR (multi-output gaussia-process regression) integrates various timeseries into a single values. This allows to
+    MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
     fill gaps based on other indicators that are correlated with each other.
 
     One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI.

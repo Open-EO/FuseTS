@@ -83,7 +83,12 @@ class WhittakerTransformer(BaseEstimator):
 
         """
 
-        return whittaker(X,fit_params.get("smoothing_lambda",10000),fit_params.get("time_dimension","t"), fit_params.get("prediction_period",None))
+        smoothing = fit_params.get("smoothing_lambda", 10000)
+        if _openeo_exists and isinstance(array, DataCube):
+            from .openeo import whittaker as whittaker_openeo
+            return whittaker_openeo(array, smoothing)
+
+        return whittaker(X, smoothing, fit_params.get("time_dimension", "t"), fit_params.get("prediction_period", None))
 
 
 def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None) -> Union[DataArray,DataCube]:

@@ -83,7 +83,7 @@ class WhittakerTransformer(BaseEstimator):
 
         """
 
-        return whittaker(X,fit_params.get("smoothing_lambda",10000))
+        return whittaker(X,fit_params.get("smoothing_lambda",10000),fit_params.get("time_dimension","t"), fit_params.get("prediction_period",None))
 
 
 def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None) -> Union[DataArray,DataCube]:

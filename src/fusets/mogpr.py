@@ -1,8 +1,10 @@
 import itertools
+from datetime import datetime
 from typing import List
 
 import GPy
 import numpy as np
+import pandas as pd
 import xarray
 from xarray import DataArray,Dataset
 
@@ -16,6 +18,96 @@ class MOGPRTransformer(BaseEstimator):
     fill gaps based on other indicators that are correlated with each other.
 
     """
+
+    def fit(self, X, y=None, **fit_params):
+        ds = X
+        for pos_x in range(4):  # len(ds.coords['x'].values)
+            for pos_y in range(4):  # len(ds.coords['y'].values)
+
+                master_ind = 0
+                nt = 1
+                day_step = 15
+
+                time = []
+                data = []
+                time_str = []
+                var_names = []
+
+                for d in ds:
+                    y = ds[d][:, pos_y, pos_x].values
+                    x = ds[d]['t'].values
+
+                    time_vec_num = np.asarray([pd.Timestamp(_).to_pydatetime().toordinal() for _ in x],
+                                              dtype=np.float64)
+                    time.append(time_vec_num)
+                    data.append(y)
+                    var_names.append(d)
+
+
+
+                time_vec_min = np.min(list(pd.core.common.flatten(time)))
+                time_vec_max = np.max(list(pd.core.common.flatten(time)))
+                output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), 5), dtype=np.float64)
+                output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
+
+                out_mean, out_std, out_qflag, out_model = mogpr_1D(data[:], time[:], master_ind, output_timevec, nt)
+                if out_model is not None:
+                    print(out_model)
+                    self.model = out_model
+                    return
+
+    def transform(self, X ):
+        array = X
+        ds = array
+        variables = None
+        time_dimension = 't'
+
+        output = []
+
+        for pos_x in range(len(ds.coords['x'].values)):
+            for pos_y in range(len(ds.coords['y'].values)):
+
+                master_ind = 0
+                nt = 1
+                day_step = 15
+
+                time = []
+                data = []
+                time_str = []
+                var_names = []
+
+                for d in ds:
+                    y = ds[d][:, pos_y, pos_x].values
+                    x = ds[d]['t'].values
+
+                    time_vec_num = np.asarray([pd.Timestamp(_).to_pydatetime().toordinal() for _ in x],
+                                              dtype=np.float64)
+                    time.append(time_vec_num)
+                    data.append(y)
+                    var_names.append(d)
+
+                time_vec_min = np.min(list(pd.core.common.flatten(time)))
+                time_vec_max = np.max(list(pd.core.common.flatten(time)))
+                output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), 5), dtype=np.float64)
+                output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
+
+                out_mean, out_std, out_qflag, out_model = mogpr_1D(data[:], time[:], master_ind, output_timevec, nt,trained_model=self.model)
+
+                output.append(out_mean)
+        array_x_y_ds_t = np.array(output).reshape((len(ds.coords['x'].values), len(ds.coords['y'].values), len(ds), -1))
+        array_ds_t_x_y = np.moveaxis(np.moveaxis(array_x_y_ds_t, 0, -1), 0, -1)
+
+        #TODO rudimentary dataset construction, needs to be better
+
+        vars = {}
+        c = 0
+        for var in ds:
+            vars[var] = (ds[var].dims, array_ds_t_x_y[c])
+            c = c+1
+
+        out_ds = xarray.Dataset(data_vars=vars)
+        return out_ds
+
 
     def fit_transform(self, X, y=None, **fit_params):
         return super().fit_transform(X, y, **fit_params)
@@ -50,11 +142,18 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     else:
         selected_values = [array]
 
+    tstep = 5
+    time_vec_min = np.min(dates_np)
+    time_vec_max = np.max(dates_np)
+    output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), tstep), dtype=np.float64)
+
 
     def callback(timeseries):
-        print(timeseries)
-        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates) for i in timeseries]), 0, output_timevec=np.array([dates_np]), nt=1, trained_model=None)
-        return np.array(out_mean)[:,0]
+        #print(timeseries)
+        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
+        result = np.array(out_mean)[:, 0]
+        print(result)
+        return result
 
 
     #setting vectorize to true is convenient, but has performance similar to for loop
@@ -204,7 +303,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
     
     out_mean  = []
     out_std   = []
-    out_model = []
+    out_model = None
     
     X_vec = []
     Y_vec = []

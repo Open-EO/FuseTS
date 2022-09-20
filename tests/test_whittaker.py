@@ -7,7 +7,7 @@ import requests
 import xarray
 
 from fusets import whittaker
-from fusets.whittaker import whittaker_f
+from fusets.whittaker import whittaker_f, WhittakerTransformer
 
 
 def test_whittaker_f():
@@ -44,6 +44,14 @@ def test_whittaker_f():
 def test_whittaker_xarray(sinusoidal_timeseries):
 
     result = whittaker(sinusoidal_timeseries,smoothing_lambda=1,time_dimension="time")
+
+    assert np.isnan(result).sum() == 0
+    numpy.testing.assert_allclose(result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15)
+
+
+def test_whittaker_transformer_xarray(sinusoidal_timeseries):
+
+    result = WhittakerTransformer().fit_transform(sinusoidal_timeseries,smoothing_lambda=1,time_dimension="time")
 
     assert np.isnan(result).sum() == 0
     numpy.testing.assert_allclose(result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15)

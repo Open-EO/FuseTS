@@ -308,7 +308,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         - out_mean_list (array): List of numpy 1D arrays containing mean value of the prediction at pixel level
         - out_std_list (array): List of numpy 1D arrays containing standard deviation of the prediction at pixel level
         - out_qflag (bool): Quality Flag for any numerical error in the model determination
-        - out_model (object): Gaussian Process model for heteroscedastic multioutput regression
+        - out_model (Object): Gaussian Process model for heteroscedastic multioutput regression
     """    
     # Number of outputs
     noutputs = len(data_in)
@@ -317,7 +317,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
     
     out_mean  = []
     out_std   = []
-    out_model = None
+    out_model = []
     
     X_vec = []
     Y_vec = []
@@ -354,16 +354,28 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         Vp = np.zeros((outputs_len, noutputs))
         
         for i_test in range(nt):
-            try:
+            try:    
+                # Kernel
+                K = GPy.kern.Matern32(input_dim=1)
+                # Linear Coregionalization
+                LCM = GPy.util.multioutput.LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1) 
                 if trained_model is None:
-                    # Kernel
-                    K = GPy.kern.Matern32(input_dim=1)
-                    # Linear coregionalization 
-                    LCM = GPy.util.multioutput.LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1)        
+                    # Linear coregionalization                    
                     out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
                     out_model.optimize()                    
-                else: 
-                    out_model = trained_model
+                else:                    
+                    LCM['.*.B'] = trained_model['.*.B']                    
+                    LCM['.*.Mat32.variance'] = trained_model['.*.Mat32.variance']                    
+                    LCM['.*.Mat32.lengthscale'] = trained_model['.*.Mat32.lengthscale']
+                    
+                    out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
+                    
+                    out_model['.*.B'].constrain_fixed()
+                    out_model['.*Mat32.variance'].constrain_fixed()
+                    out_model['.*.Mat32.lengthscale'].constrain_fixed()
+                    
+                    out_model.optimize()                    
+                            
             except:
                 out_qflag=False
                 continue
@@ -371,20 +383,24 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
             for out in range(noutputs):                
                 newX =  output_timevec[:, np.newaxis]
                 newX = np.hstack([newX, out * np.ones((newX.shape[0], 1))])
+
                 noise_dict = {'output_index': newX[:, -1:].astype(int)} 
                 # Prediction
                 Yp[:, None, out], Vp[:, None, out] = out_model.predict(newX, Y_metadata=noise_dict)                        
+
                 if i_test==0:
                     out_mean[out][:, None] = (Yp[:,None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
                     out_std[out][:, None]  = (Vp[:,None, out]*Y_std_vec[out])/nt       
                 else:                
                     out_mean[out][:, None] = out_mean[out][:, None] + (Yp[:, None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
                     out_std[out][:, None]  = out_std[out][:, None]  + (Vp[:, None, out]*Y_std_vec[out])/nt        
-            del Yp,Vp    
+
+            del Yp,Vp
             
     # Flatten the series    
     out_mean_list = []
     out_std_list = []
+    
     for ind in range(noutputs):
         out_mean_list.append(out_mean[ind].ravel())
         out_std_list.append(out_std[ind].ravel())    

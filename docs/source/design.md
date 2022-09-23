@@ -225,10 +225,10 @@ NDVI with different whittaker smoothing
 Time series integration methods take multiple input time series and derive a variable based on that. This is also
 referred to as timeseries fusion, and is the main objective of this library.
 
-MOGPR (multi-output gaussia-process regression) integrates various timeseries into a single values. This allows to
+MOGPR (multi-output gaussia-process regression) integrates various timeseries and delivers the same amount of reconstructed timeseries. This allows to
 fill gaps based on other indicators that are correlated with each other.
 
-One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI.
+One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI (and RVI if needed).
 
 Two methods are currently available:
  - {py:class}`fusets.mogpr`

@@ -18,9 +18,10 @@ if _openeo_exists:
 
 class MOGPRTransformer(BaseEstimator):
     """
-    MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single value. This allows to
+    
+    MOGPR (multi-output gaussia-process regression) integrates various timeseries and delivers the same amount of reconstructed timeseries. This allows to
     fill gaps based on other indicators that are correlated with each other.
-
+    
     """
 
     def fit(self, X, y=None, **fit_params):

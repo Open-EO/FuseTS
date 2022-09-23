@@ -22,7 +22,7 @@ through the openEO API.
 
 :::{figure-md} fig-ai4food-design
 
-<img src="images/AI4Food_highlevel.drawio.svg" alt="AI4Food_design" class="bg-primary mb-1" width="500px">
+<img src="images/AI4Food_highlevel.drawio.png" alt="AI4Food_design" class="bg-primary mb-1" width="500px">
 
 high level design
 :::

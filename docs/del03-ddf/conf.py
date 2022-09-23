@@ -157,7 +157,7 @@ Circulation: & \multicolumn{3}{|l|}{ESA document}\\
 \hline
 Release & Date & Details & Editors \\
 \hline
-1.0 & 17 September 2022 & CDR Version & JD \\
+1.0 & 17 September 2022 & CDR Version & JD, SL, ML, MSD \\
 \hline
 \end{tabular}
 

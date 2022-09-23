@@ -1,6 +1,5 @@
 """
-The fusets.openeo.services module is responsible for building `openEO user defined processes <https://api.openeo.org/#tag/User-Defined-Processes>`_ (UDP)
- based on FuseTS functionality.
+Builds `openEO user defined processes <https://api.openeo.org/#tag/User-Defined-Processes>`_ (UDP's) based on FuseTS functionality.
 
 For each UDP, a json file containing the full process definition can be found in this module. These json files are generated
 by code that is also part of this module. It is possible to manually write and maintain the jsons, but this is not advisable given

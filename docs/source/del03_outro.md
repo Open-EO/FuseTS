@@ -12,7 +12,7 @@ and maintain a high volume of services at a lower quality level.
 
 Some examples of potential services to expose:
 
-- Sentinel-2 based integrated biophysical parameters ($fAPAR$, $fCover$, $NDVI$)
+- Sentinel-2 based integrated biophysical parameters (`fAPAR`, `fCover`, `NDVI`)
 - A phenometrics service based on integrated parameters
 - A peak-valley detection service based on integrated parameters
 
@@ -33,9 +33,13 @@ provide a way to load these dynamically.
 The creation of this public catalog can be done via the [Python API](https://open-eo.github.io/openeo-python-client/udp.html). More details and
 an example can be found in the API documentation of this library.
 
-Once a UDP is defined, the openEO web editor can be used to visualize it:
+Once a UDP is defined, the openEO web editor can be used to visualize it. This is an 
+example url that we constructed for our MOGPR sample service:
 
+```http request
 https://editor.openeo.vito.be/?namespaces=https://raw.githubusercontent.com/Open-EO/FuseTS/main/src/fusets/openeo/services/mogpr.json&process=mogpr@https://raw.githubusercontent.com/Open-EO/FuseTS/main/src/fusets/openeo/services/mogpr.json&edit-node=1&discover=1
+```
+
 
 Or the Python API can be used to invoke it, without requiring a local installation of the
 FuseTS library:
@@ -55,14 +59,10 @@ way is growing with the capabilities of openEO and the backend implementations, 
 workflows that require multiple openEO invocations, are more complex preprocessing of inputs.
 
 To work around this limitation, we refer to the Euro Data Cube functionality that allows exposing arbitrary
-Python code as a service:
-
-https://eurodatacube.com/documentation/offer_algorithms_for_on_demand_data_generation
+[Python code as a service](https://eurodatacube.com/documentation/offer_algorithms_for_on_demand_data_generation).
 
 This approach is very complementary to the openEO user-defined processes. Having both options available ensures
 that we can expose any on-demand service.
-
-
 
 
 ## Discoverable Services in EOPlaza
@@ -70,9 +70,7 @@ that we can expose any on-demand service.
 The UDP catalog on Github, or published in a given openEO backend, is not easy to discover by users.
 To achieve that, we will additionally publish these services on the EOPlaza marketplace.
 
-This is an example phenology service, based on  a proprietary library:
-
-https://portal.terrascope.be/marketplace/app-details/23
+[This](https://portal.terrascope.be/marketplace/app-details/23) is an example phenology service, based on  a proprietary library.
 
 
 The services are published on a marketplace to make them discoverable by users, and to document them.
@@ -94,6 +92,9 @@ For mature services, we require automated testing. This typically needs to be se
 This section describes the modules and functionality that did not yet make it into this milestone, but is still planned
 for inclusion in the library. This planning is open for discussion.
 
+- Extend unit and integration tests
+- Benchmarks tests
+- Performance improvments for the core integration algorithms.
 - Refactor all algorithms to work with the estimators framework (extend BaseEstimator)
 - [Multi temporal outlier filter](https://github.com/Open-EO/FuseTS/issues/61)
 - [Documentation for working with original Sentinel-2 products](https://github.com/Open-EO/FuseTS/issues/59)

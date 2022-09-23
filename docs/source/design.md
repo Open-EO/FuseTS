@@ -21,9 +21,9 @@ virtual cubes as defined by [**openEO**](https://openeo.org).
 
 - Code should be the same when working with openEO or XArray datacubes.
 
-- The general frameworkis based on [sktime](https://www.sktime.org), which in turn
+- The general framework for timeseries processing is based on [sktime](https://www.sktime.org), which in turn
 is based on [scikit-learn](https://scikit-learn.org). These libraries have an API that has proven
-to be generic enough to support many timeseries transformation algorithms.
+to be generic enough to support many timeseries transformation algorithms. 
 
 - Prefer *[convention over configuration](https://en.wikipedia.org/wiki/Convention_over_configuration)* to allow functions
 to work with a minimal set of arguments.
@@ -38,9 +38,7 @@ The main data object used by this library is an [Xarray Dataset](https://docs.xa
 This is a self-describing data structure that combines the raw array data with metadata that describes it. This section
 further documents some of the conventions that are used when working with Earth Observation datasets.
 
-For building these conventions, we rely on these sources:
-- https://docs.openeo.cloud/federation/backends/collections.html#bands
-- https://github.com/awesome-spectral-indices/awesome-spectral-indices#expressions
+For building these conventions, we mainly rely on how [openEO collections](https://docs.openeo.cloud/federation/backends/collections.html#bands) are defined.
 
 The 'bands' dimension in our EO data cubes is represented by variables in the XArray dataset. This allows us to
 conveniently reference them by name. Certain algorithms may expect variables with a specific name to be available, or for
@@ -52,10 +50,10 @@ In the Earth Observation domain, we can standardize on a few dimensions. The Fus
 spatiotemporal dimensions. Multiple space or time dimensions are not supported unless otherwise noted.
 
 | Name | Description                   | Units                                               |
-|------|-------------------------------|-----------------------------------------------------|
-| $time$ | The temporal dimension        | Datetime objects as numpy.datetime64                |
-| $x$    | East-West spatial dimension   | Units of spatial reference system (meters/degrees)  |
-| $y$    | South-North spatial dimension | Units of spatial reference system (meters/degrees)  |
+|----|-------------------------------|-----------------------------------------------------|
+| `time` | The temporal dimension        | Datetime objects as `numpy.datetime64`            |
+| `x`  | East-West spatial dimension   | Units of spatial reference system (meters/degrees)  |
+| `y` | South-North spatial dimension | Units of spatial reference system (meters/degrees)  |
 
 When a datacube has $x$ and $y$ dimensions, these are assumed to be evenly spaced. The time dimension can be irregular.
 Instead of regular spatial dimensions, a cube axis can also have geometries as labels. In this case, the datacube is
@@ -236,6 +234,16 @@ Two methods are currently available:
  - {py:class}`fusets.mogpr`
  - {py:class}`fusets.openeo.predict_ndvi`
 
+The methods are still under evaluation, but the figure below shows the current state. For an actual validation, we refer
+to the technical note.
+
+:::{figure-md} fig-integration
+
+<img src="images/integrated_ndvi.svg" alt="Integrated NDVI based on 2 algorithms" class="bg-primary mb-1">
+
+Integrated NDVI
+:::
+
 This library aims for seamless switching between XArray and openEO data structures, so this works in both cases:
 
 ```python
@@ -243,6 +251,8 @@ from fusets import mogpr
 timeseries_cube # openEO datacube or XArray DataSet
 result = MOGPRTransformer().fit_transform(timeseries_cube)
 ```
+
+
 
 ### Time Series Analysis
 

@@ -24,6 +24,9 @@ class MOGPRTransformer(BaseEstimator):
     
     """
 
+    def __init__(self) -> None:
+        self.model = None
+
     def fit(self, X, y=None, **fit_params):
         ds = X
         for pos_x in range(4):  # len(ds.coords['x'].values)
@@ -146,7 +149,7 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
 
     dates = _extract_dates(array)
     time_dimension = _time_dimension(array, time_dimension)
-    output_time_dimension = time_dimension
+    output_time_dimension = 't_new'
 
     dates_np = [d.toordinal() for d in dates]
 
@@ -162,19 +165,17 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
 
 
     def callback(timeseries):
-        #print(timeseries)
-        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
-        result = np.array(out_mean)[:, 0]
-        print(result)
+        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
+        result = np.array(out_mean)
         return result
 
 
     #setting vectorize to true is convenient, but has performance similar to for loop
-    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
+    result = xarray.apply_ufunc(callback, array.to_array(dim="variable"), input_core_dims=[["variable",time_dimension]], output_core_dims=[["variable",output_time_dimension]],vectorize=True)
 
     result = result.rename({output_time_dimension:time_dimension})
 
-    return result.transpose(*array.dims)
+    return result.to_dataset("variable").transpose(*array.dims)
 
 
 

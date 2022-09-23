@@ -107,10 +107,15 @@ class MOGPRTransformer(BaseEstimator):
         vars = {}
         c = 0
         for var in ds:
-            vars[var] = (ds[var].dims, array_ds_t_x_y[c])
+            vars[var] = (('t','x','y'), array_ds_t_x_y[c])
             c = c+1
 
-        out_ds = xarray.Dataset(data_vars=vars)
+        out_ds = xarray.Dataset(data_vars=vars,coords=dict(
+             x=ds.x,
+             y=ds.y,
+             t=output_time,
+
+         ))
         return out_ds
 
 

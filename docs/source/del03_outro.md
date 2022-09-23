@@ -33,23 +33,22 @@ provide a way to load these dynamically.
 The creation of this public catalog can be done via the [Python API](https://open-eo.github.io/openeo-python-client/udp.html). More details and
 an example can be found in the API documentation of this library.
 
-Once a UDP is defined, the openEO web editor can be used to visualize it. This is an 
-example url that we constructed for our MOGPR sample service:
+Once a UDP is defined, and uploaded, the openEO web editor can be used to visualize it. This can serve
+as a very basic interface for the on demand service. With some UI work to generic openEO components, this
+experience can still be improved.
 
-```http request
-https://editor.openeo.vito.be/?namespaces=https://raw.githubusercontent.com/Open-EO/FuseTS/main/src/fusets/openeo/services/mogpr.json&process=mogpr@https://raw.githubusercontent.com/Open-EO/FuseTS/main/src/fusets/openeo/services/mogpr.json&edit-node=1&discover=1
-```
-
-
-Or the Python API can be used to invoke it, without requiring a local installation of the
+The Python API can also be used to invoke the service, without requiring a local installation of the
 FuseTS library:
 
-```python
-cube = connection.datacube_from_process(
-    "MOGPR",
-    namespace="FuseTS",
-)
-cube.execute_batch(out_format="GTIFF")
+```{eval-rst}
+.. code-block::
+   :caption: Executing on demand service using the Python API
+   
+    cube = connection.datacube_from_process(
+        "MOGPR",
+        namespace="FuseTS",
+    )
+    cube.execute_batch(out_format="GTIFF")
 ```
 
 

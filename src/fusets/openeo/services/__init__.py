@@ -8,7 +8,10 @@ the complexity of some process graphs.
 For the description of the processes, it is recommended to maintain markdown files that are supported by most editors. When
 generating the json definitions, the markdown file content needs to be copied (programmatically).
 
-This is a simple example::
+This is a simple example:
+
+.. code-block::
+    :caption: Creating an openEO UDP
 
     import json
     from importlib.resources import files

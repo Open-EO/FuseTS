@@ -11,6 +11,7 @@ This section contains the API reference, generated from the current state of the
 ```{eval-rst}
 .. automodule:: fusets
     :members: whittaker, mogpr, WhittakerTransformer
+    :show-inheritance:
 
 ```
 

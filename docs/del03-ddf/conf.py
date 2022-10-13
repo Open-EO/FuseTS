@@ -30,7 +30,7 @@ copyright = '2022, Stefaan Lippens'
 author = 'Stefaan Lippens, Jeroen Dries'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -68,7 +68,7 @@ source_suffix = {
 }
 
 latex_documents = [
-    ('del03_ddf', 'DEL-03-DDF-AI4FOOD-1.0.tex', 'AI4Food Design definition file',
+    ('del03_ddf', 'DEL-03-DDF-AI4FOOD-1.1.tex', 'AI4Food Design definition file',
      'Jeroen Dries', 'manual'),
 ]
 
@@ -96,10 +96,10 @@ latex_maketitle = r'''
    \\
    \vspace{0.5cm}
    \begin{LARGE}
-        Version 1.0
+        Version 1.1
         \\
         \vspace{0.3cm}
-        15 September 2022    
+        13 Octobre 2022
    \end{LARGE}
    \vspace*{2.5cm}
    \\
@@ -143,7 +143,7 @@ latex_maketitle = r'''
 		Mol, Belgium\\
 		\vspace{0.2cm}
 		\vspace{0.2cm}
-     \vspace{3cm} {\large 13th July, 2022} \vspace{0.2cm}
+     \vspace{3cm} {\large 13th Octobre, 2022} \vspace{0.2cm}
 \end{center}
 \end{titlepage}
 
@@ -159,12 +159,26 @@ Release & Date & Details & Editors \\
 \hline
 1.0 & 17 September 2022 & CDR Version & JD, SL, ML, MSD \\
 \hline
+1.1 & 13 Octobre 2022 & Integrated CDR RID's & JD, SL, ML, MSD \\
+\hline
 \end{tabular}
 
 \vspace{2mm}
 \end{center}
+\newpage
 
 '''
+
+latex_toc = r'''
+
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+\newpage
+'''
+
 #latex_logo='../source/images/AI4Food.png'
 latex_elements = {
     'preamble': r'''
@@ -173,6 +187,7 @@ latex_elements = {
 \usepackage{hyperref}
 \usepackage[titles]{tocloft}
 \usepackage{svg}
+\usepackage{caption}
 \cftsetpnumwidth {1.25cm}\cftsetrmarg{1.5cm}
 \setlength{\cftsecindent}{0.75cm}
 \setlength{\cftsecnumwidth}{1.25cm}
@@ -180,6 +195,7 @@ latex_elements = {
     #'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
     'printindex': r'\footnotesize\raggedright\printindex',
     'maketitle': latex_maketitle,
+    'tableofcontents': latex_toc
 }
 
 latex_show_urls = 'footnote'

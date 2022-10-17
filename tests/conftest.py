@@ -5,10 +5,16 @@ import pytest
 import xarray
 
 @pytest.fixture
-def auth_connection():
+def connection():
     """Connection fixture to a backend of given version with some image collections."""
     import openeo
-    return openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+    return openeo.connect("openeo-dev.vito.be")
+
+@pytest.fixture
+def auth_connection(connection):
+    """Connection fixture to a backend of given version with some image collections."""
+    import openeo
+    return connection.authenticate_oidc()
 
 
 @pytest.fixture

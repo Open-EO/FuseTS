@@ -19,5 +19,5 @@ def test_merging(connection):
         "spatial_extent": [5.039291,51.166858,5.243225,51.319455]
     }
     cube2 = load_cubes(**spec, openeo_connection=connection)
-    assert cube.graph == cube2.graph
+    assert cube.flat_graph() == cube2.flat_graph()
 

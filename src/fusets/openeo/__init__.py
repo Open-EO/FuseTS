@@ -73,7 +73,7 @@ def load_xarray(collection_id,spatial_extent,temporal_extent,properties=None,ope
         path = base_path / netcdfs[0].name
         return xarray.load_dataset(path)
 
-def load_cubes(collections:dict,spatial_extent=None,temporal_extent=None,openeo_connection=None):
+def load_cubes(collections:dict,spatial_extent=None,temporal_extent=None,openeo_connection=None) -> DataCube:
     """
     Create an openEO datacube based on a specification. Multiple collections can be specified and will be merged together into a single cube.
     The resulting cube will be sampled to the layout of the first collection in the list.

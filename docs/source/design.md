@@ -10,6 +10,15 @@ FuseTS consist of multiple logical modules:
 - Timeseries analysis
 - OpenEO integration
 
+It tries to support multiple steps in EO data (pre-)processing. This is shown in.
+
+:::{figure-md} fig-steps
+
+<img src="images/eo_steps.png" alt="Timeseries processing steps" class="bg-primary mb-1">
+
+Timeseries processing steps
+:::
+
 ## Key Design Highlights
 
 - We build on the concept of EO **data cubes**, which can be small, in-memory datasets as supported by [**XArray**](https://docs.xarray.dev), or cloud-based
@@ -512,7 +521,7 @@ One example is combining an optical NDVI with a SAR based RVI to compute a gap-f
 
 Two methods are currently available:
  - {py:class}`fusets.MOGPRTransformer.fit_transform`
- - {py:class}`fusets.openeo.predict_ndvi`
+ - {py:class}`fusets.openeo.cropsar`
 
 The methods are still under evaluation, but the figure below shows the current state. For an actual validation, we refer
 to the technical note.

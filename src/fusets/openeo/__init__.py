@@ -116,10 +116,10 @@ def load_cubes(collections:dict,spatial_extent=None,temporal_extent=None,openeo_
 
 
 
-def predict_ndvi(spatial_extent,temporal_extent,openeo_connection=None):
+def cropsar(spatial_extent, temporal_extent, openeo_connection=None):
     """
     EXPERIMENTAL may be removed in final version
-    Method to compute a predicted, cloud-free, NDVI from Sentinel-2 and Sentinel-1 inputs
+    Method to compute a predicted, cloud-free, NDVI from Sentinel-2 and Sentinel-1 inputs. Depends on openEO service.
 
     :param spatial_extent:
     :param temporal_extent:

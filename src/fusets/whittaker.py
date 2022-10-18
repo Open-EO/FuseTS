@@ -52,7 +52,7 @@ class WhittakerTransformer(BaseEstimator):
         lambda of 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
         found in the original work of Eilers 2003.
 
-        .. image:: images/whittaker.svg
+        .. image:: images/whittaker_rye.svg
           :width: 800
           :alt: Comparing smoothing parameter
 

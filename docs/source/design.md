@@ -83,6 +83,11 @@ Sentinel-2 typically uses band names 'B01', 'B02' and son on.
 It is also possible to harmonize band names across sensors, this has been done already by the 
 [Awesome spectral indices](https://awesome-ee-spectral-indices.readthedocs.io) project.
 
+```{eval-rst}
+.. raw:: latex
+
+    \tiny
+```
 | Description                | Standard | Sentinel-1 | Sentinel-2 | Landsat-89 | Landsat-457 | MODIS |
 |----------------------------|----------|------------|------------|------------|-------------|------|
 | Aerosols                   | A        |            | B01        | B1         |             |      |
@@ -104,7 +109,7 @@ It is also possible to harmonize band names across sensors, this has been done a
 | Backscattering Coefficient | VV       | VV         | VV         |            |             |      |			
 ```{eval-rst}
 .. raw:: latex
-
+   \normalsize
    \captionof{table}{Band name conventions}    
 ```
 

@@ -109,8 +109,9 @@ It is also possible to harmonize band names across sensors, this has been done a
 | Backscattering Coefficient | VV       | VV         | VV         |            |             |      |			
 ```{eval-rst}
 .. raw:: latex
-   \normalsize
-   \captionof{table}{Band name conventions}    
+   
+   \captionof{table}{Band name conventions}
+   \normalsize    
 ```
 
 

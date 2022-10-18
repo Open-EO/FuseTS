@@ -193,7 +193,8 @@ latex_elements = {
 \setlength{\cftsecnumwidth}{1.25cm}
 ''',
     #'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
-    'printindex': r'\footnotesize\raggedright\printindex',
+    'printindex': '',#r'\footnotesize\raggedright\printindex',
+    'makeindex': '',#r'\footnotesize\raggedright\printindex',
     'maketitle': latex_maketitle,
     'tableofcontents': latex_toc
 }

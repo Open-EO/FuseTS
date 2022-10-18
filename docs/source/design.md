@@ -83,225 +83,31 @@ Sentinel-2 typically uses band names 'B01', 'B02' and son on.
 It is also possible to harmonize band names across sensors, this has been done already by the 
 [Awesome spectral indices](https://awesome-ee-spectral-indices.readthedocs.io) project.
 
-<table>
+| Description                | Standard | Sentinel-1 | Sentinel-2 | Landsat-89 | Landsat-457 | MODIS |
+|----------------------------|----------|------------|------------|------------|-------------|------|
+| Aerosols                   | A        |            | B01        | B1         |             |      |
+| Blue                       | B        |            | B02        | B2         | B1          | B3   |
+| Green                      | G        |            | B03        | B3         | B2          | B4   |
+| Red                        | R        |            | B04        | B4         | B3          | B1   |
+| Red Edge 1                 | RE1      |            | B05        |            |             |      |
+| Red Edge 2                 | RE2      |            | B06        |            |             |      |
+| Red Edge 3                 | RE3      |            | B07        |            |             |      |
+| NIR                        | N        |            | B08        | B5         | B4         | B2    |      
+| NIR 2                      | N2       | 	          | B8A        | 	          | 	      | 	  |  
+| SWIR 1                     | S1       | 	          | B11        | B6         | B5          | B6   |
+| SWIR 2                     | S2       | 	          | B12        | B7         | B7          | B7   |
+| Thermal 1                  | T1       |            | B10        | B6         | 	           |      |
+| Thermal 2                  | T2       |            | B11        | 	          | 	      |      |
+| Backscattering Coefficient | HV       | HV         | HV         |            |             |      |			   
+| Backscattering Coefficient | VH       | VH         | VH         |            |             |      |			   
+| Backscattering Coefficient | HH       | HH         | HH         |            |             |      |			   
+| Backscattering Coefficient | VV       | VV         | VV         |            |             |      |			
+```{eval-rst}
+.. raw:: latex
 
-<tr>
+   \captionof{table}{Band name conventions}    
+```
 
-<th> Description </th>
-<th> Standard </th>
-<th> Sentinel-1 </th>
-<th> Sentinel-2 </th>
-<th> Landsat-89 </th>
-<th> Landsat-457 </th>
-<th> MODIS </th>
-
-</tr>
-
-<tr>
-
-<td>Aerosols</td>
-<td>A</td>
-<td></td>
-<td>B1</td>
-<td>B1</td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Blue</td>
-<td>B</td>
-<td></td>
-<td>B2</td>
-<td>B2</td>
-<td>B1</td>
-<td>B3</td>
-
-</tr>
-
-<tr>
-
-<td>Green</td>
-<td>G</td>
-<td></td>
-<td>B3</td>
-<td>B3</td>
-<td>B2</td>
-<td>B4</td>
-
-</tr>
-
-<tr>
-
-<td>Red</td>
-<td>R</td>
-<td></td>
-<td>B4</td>
-<td>B4</td>
-<td>B3</td>
-<td>B1</td>
-
-</tr>
-
-<tr>
-
-<td>Red Edge 1</td>
-<td>RE1</td>
-<td></td>
-<td>B5</td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Red Edge 2</td>
-<td>RE2</td>
-<td></td>
-<td>B6</td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Red Edge 3</td>
-<td>RE3</td>
-<td></td>
-<td>B7</td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>NIR</td>
-<td>N</td>
-<td></td>
-<td>B8</td>
-<td>B5</td>
-<td>B4</td>
-<td>B2</td>
-
-</tr>
-
-<tr>
-
-<td>NIR 2</td>
-<td>N2</td>
-<td></td>
-<td>B8A</td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>SWIR 1</td>
-<td>S1</td>
-<td></td>
-<td>B11</td>
-<td>B6</td>
-<td>B5</td>
-<td>B6</td>
-
-</tr>
-
-<tr>
-
-<td>SWIR 2</td>
-<td>S2</td>
-<td></td>
-<td>B12</td>
-<td>B7</td>
-<td>B7</td>
-<td>B7</td>
-
-</tr>
-
-<tr>
-
-<td>Thermal 1</td>
-<td>T1</td>
-<td></td>
-<td></td>
-<td>B10</td>
-<td>B6</td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Thermal 2</td>
-<td>T2</td>
-<td></td>
-<td></td>
-<td>B11</td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Backscattering Coefficient HV</td>
-<td>HV</td>
-<td>HV</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Backscattering Coefficient VH</td>
-<td>VH</td>
-<td>VH</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Backscattering Coefficient HH</td>
-<td>HH</td>
-<td>HH</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>Backscattering Coefficient VV</td>
-<td>VV</td>
-<td>VV</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-
-</tr>
-
-</table>
 
 In a similar manner, it may be necessary to standardize specific variable names, we for now assume however the use
 of generally accepted names such as 'NDVI', 'FAPAR', 'LAI' and so on. 
@@ -504,7 +310,7 @@ Two of these parameters parameters also occur in other methods:
 
 :::{figure-md} fig-whittaker
 
-<img src="images/whittaker.svg" alt="NDVI with different whittaker smoothing" class="bg-primary mb-1">
+<img src="images/whittaker_rye.svg" alt="NDVI with different whittaker smoothing" class="bg-primary mb-1">
 
 NDVI with different whittaker smoothing
 :::
@@ -528,7 +334,7 @@ to the technical note.
 
 :::{figure-md} fig-integration
 
-<img src="images/integrated_ndvi.svg" alt="Integrated NDVI based on 2 algorithms" class="bg-primary mb-1">
+<img src="images/integrated_ndvi_rye.svg" alt="Integrated NDVI based on 2 algorithms" class="bg-primary mb-1">
 
 Integrated NDVI
 :::
@@ -600,23 +406,23 @@ The codes presented on the figure above translate to:
     \tiny
 ```
 
-Code | Name | Description | Method |
---- | --- | --- | --- |
-POS | Peak of Season | Highest vegetation value and time of season. | Maximum value in a timeseries. |  |
-MOS | Middle of Season | Mean vegetation value and time of values in top 80% of season. | Mean value and time where the left and right slope edges have increased and decreased to the 80% level of the season, respectively. |  |
-VOS | Valley of Season | Lowest vegetation value and time of season. | Minimum value in a timeseries. |  |
-BSE | Base | Mean of the lowest vegetation values in season. | Mean value of the lowest vegetation values to the left and right of Peak of Season. |  |
-SOS | Start of Season | Vegetation value and time at the start of season. | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of positive slope; and 6) Median value of positive slope. |  |
-EOS | End of season | Vegetation value and time at the end of season. | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of negative slope; and 6) Median value of negative slope. |  |
-LOS | Length of Season | Length of time (number of days) between the start and end of season. | The day of year at SOS minus EOS. | |
-ROI | Rate of Increase | The rate of vegetation "green up" at the beginning of season. | Calculated as the ratio of the difference between the left 20% and 80% levels and the corresponding time difference. |  |
-ROD | Rate of Decrease | The rate of vegetation "green down" at the end of season. | Calculated as the ratio of the difference between the right 20% and 80% levels and the corresponding time difference. |  |
-AOS | Amplitude of Season | The amplitude of vegetation values for season. | The difference between the maximum value and the VOS/BSE value. |  |
-SIOS | Short Integral of Season | Represents the seasonally active vegetation and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover. | Calculated using the trapezoidal rule on the total vegetation values between season start and end minus the VOS/BSE level value. |  |
-LIOS | Long Integral of Season | Represents the total productivity of vegetation when in season. | Calculated using the trapezoidal rule between the total vegetation values between season start and end. |  |
-SIOT | Short Integral of Total | Represents total vegetation productivity throughout the season, and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover. | Calculated using the trapezoidal rule on the total vegetation values minus the VOS/BSE level value. |  |
-LIOT | Long Integral of Total | Represents the total productivity of vegetation throughout the season. | Calculated using the trapezoidal rule between the total vegetation values between season start and end. |  |
-NOS | Number of Seasons | Total number of seasons (i.e. prominent graph peaks) in timerseries. | Peaks detected using scipy find_peaks and any peaks are over 3 months apart. | |
+| Code | Name                     | Description                                                                                                                                                                   | Method                                                                                                                                                                                        |
+|------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| POS  | Peak of Season           | Highest vegetation value and time of season.                                                                                                                                  | Maximum value in a timeseries.                                                                                                                                                                |  |
+| MOS  | Middle of Season         | Mean vegetation value and time of values in top 80% of season.                                                                                                                | Mean value and time where the left and right slope edges have increased and decreased to the 80% level of the season, respectively.                                                           |  |
+| VOS  | Valley of Season         | Lowest vegetation value and time of season.                                                                                                                                   | Minimum value in a timeseries.                                                                                                                                                                |  |
+| BSE  | Base                     | Mean of the lowest vegetation values in season.                                                                                                                               | Mean value of the lowest vegetation values to the left and right of Peak of Season.                                                                                                           |  |
+| SOS  | Start of Season          | Vegetation value and time at the start of season.                                                                                                                             | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of positive slope; and 6) Median value of positive slope. |  |
+| EOS  | End of season            | Vegetation value and time at the end of season.                                                                                                                               | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of negative slope; and 6) Median value of negative slope. |  |
+| LOS  | Length of Season         | Length of time (number of days) between the start and end of season.                                                                                                          | The day of year at SOS minus EOS.                                                                                                                                                             | |
+| ROI  | Rate of Increase         | The rate of vegetation "green up" at the beginning of season.                                                                                                                 | Calculated as the ratio of the difference between the left 20% and 80% levels and the corresponding time difference.                                                                          |  |
+| ROD  | Rate of Decrease         | The rate of vegetation "green down" at the end of season.                                                                                                                     | Calculated as the ratio of the difference between the right 20% and 80% levels and the corresponding time difference.                                                                         |  |
+| AOS  | Amplitude of Season      | The amplitude of vegetation values for season.                                                                                                                                | The difference between the maximum value and the VOS/BSE value.                                                                                                                               |  |
+| SIOS | Short Integral of Season | Represents the seasonally active vegetation and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover.                     | Calculated using the trapezoidal rule on the total vegetation values between season start and end minus the VOS/BSE level value.                                                              |  |
+| LIOS | Long Integral of Season  | Represents the total productivity of vegetation when in season.                                                                                                               | Calculated using the trapezoidal rule between the total vegetation values between season start and end.                                                                                       |  |
+| SIOT | Short Integral of Total  | Represents total vegetation productivity throughout the season, and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover. | Calculated using the trapezoidal rule on the total vegetation values minus the VOS/BSE level value.                                                                                           |  |
+| LIOT | Long Integral of Total   | Represents the total productivity of vegetation throughout the season.                                                                                                        | Calculated using the trapezoidal rule between the total vegetation values between season start and end.                                                                                       |  |
+| NOS  | Number of Seasons        | Total number of seasons (i.e. prominent graph peaks) in timerseries.                                                                                                          | Peaks detected using scipy find_peaks and any peaks are over 3 months apart.                                                                                                                  | |
 
 ```{eval-rst}
 .. raw:: latex

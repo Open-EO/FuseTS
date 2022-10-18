@@ -162,7 +162,7 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     time_vec_min = np.min(dates_np)
     time_vec_max = np.max(dates_np)
     output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), tstep), dtype=np.float64)
-
+    output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
     def callback(timeseries):
         out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
@@ -173,6 +173,7 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     #setting vectorize to true is convenient, but has performance similar to for loop
     result = xarray.apply_ufunc(callback, array.to_array(dim="variable"), input_core_dims=[["variable",time_dimension]], output_core_dims=[["variable",output_time_dimension]],vectorize=True)
 
+    result=result.assign_coords({output_time_dimension: output_time})
     result = result.rename({output_time_dimension:time_dimension})
 
     return result.to_dataset("variable").transpose(*array.dims)

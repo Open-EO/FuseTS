@@ -12,6 +12,13 @@ FuseTS consist of multiple logical modules:
 
 It tries to support multiple steps in EO data (pre-)processing. This is shown in.
 
+:::{figure-md} fig-flowchart
+
+<img src="images/eo_flowchart.png" alt="Timeseries processing steps" class="bg-primary mb-1">
+
+Timeseries processing steps
+:::
+
 :::{figure-md} fig-steps
 
 <img src="images/eo_steps.png" alt="Timeseries processing steps" class="bg-primary mb-1">

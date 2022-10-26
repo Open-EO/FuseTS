@@ -365,15 +365,15 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
                     out_model.optimize()                    
                 else:                    
-                    LCM['.*.B'] = trained_model['.*.B']                    
-                    LCM['.*.Mat32.variance'] = trained_model['.*.Mat32.variance']                    
-                    LCM['.*.Mat32.lengthscale'] = trained_model['.*.Mat32.lengthscale']
+                    LCM['.*B'] = trained_model['.*ICM.*B'] 
+                    LCM['.*variance'] = trained_model['.*ICM.*var'] 
+                    LCM['.*lengthscale'] = trained_model['.*ICM.*lengthscale'] 
                     
                     out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
                     
-                    out_model['.*.B'].constrain_fixed()
-                    out_model['.*Mat32.variance'].constrain_fixed()
-                    out_model['.*.Mat32.lengthscale'].constrain_fixed()
+                    out_model['.*ICM.*B'].constrain_fixed()
+                    out_model['.*ICM.*var'].constrain_fixed()
+                    out_model['.*ICM.*len'].constrain_fixed()
                     
                     out_model.optimize()                    
                             

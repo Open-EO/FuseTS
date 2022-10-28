@@ -64,10 +64,11 @@ This approach is very complementary to the openEO user-defined processes. Having
 that we can expose any on-demand service.
 
 
-## Discoverable Services in EOPlaza
+## Discoverable Services in EOplaza
 
 The UDP catalog on Github, or published in a given openEO backend, is not easy to discover by users.
-To achieve that, we will additionally publish these services on the EOPlaza marketplace.
+To achieve that, we will additionally publish these services on the EOplaza marketplace.
+The EOplaza is integrated with EGI Checkin, making it accessible for existing openEO users.
 
 [This](https://portal.terrascope.be/catalogue/app-details/23) is an example phenology service, based on  a proprietary library.
 

@@ -69,7 +69,7 @@ that we can expose any on-demand service.
 The UDP catalog on Github, or published in a given openEO backend, is not easy to discover by users.
 To achieve that, we will additionally publish these services on the EOPlaza marketplace.
 
-[This](https://portal.terrascope.be/marketplace/app-details/23) is an example phenology service, based on  a proprietary library.
+[This](https://portal.terrascope.be/catalogue/app-details/23) is an example phenology service, based on  a proprietary library.
 
 
 The services are published on a marketplace to make them discoverable by users, and to document them.

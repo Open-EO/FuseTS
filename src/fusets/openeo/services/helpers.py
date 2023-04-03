@@ -15,7 +15,7 @@ def read_description(service: str) -> str:
 
 
 def write_service_info(id: str, summary: str, description: str, parameters: list, process_graph: any) -> Traversable:
-    output_file = files('fusets.openeo.services').joinpath(f'udp/{id}.json')
+    output_file = files('fusets.openeo.services').joinpath(f'{id}.json')
     with output_file.open(mode='w') as f:
         json.dump({
             "id": id,

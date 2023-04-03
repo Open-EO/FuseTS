@@ -2,7 +2,7 @@
 from openeo.api.process import Parameter
 from openeo.processes import apply_dimension, run_udf
 
-from src.fusets.openeo.services.helpers import read_description, publish_service
+from fusets.openeo.services.helpers import read_description, publish_service
 
 
 def generate_mogpr_udp():

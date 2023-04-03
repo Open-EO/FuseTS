@@ -1,0 +1,54 @@
+{
+    "id": "whittaker",
+    "summary": "Execute a computationally efficient reconstruction method for smoothing and gap-filling of time series.",
+    "description": "# Whittaker\n\n## Description\n\nWhittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.\nThe main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the\ncorresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image\ncollection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a\nvector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother\nis applied to the time series profiles, computing therefore a daily smoothing interpolation.\n\nWhittaker's fast processing speed was assessed through an initial performance testing by comparing different\ntime series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.\n\nThe smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:\nthe larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a lambda of\n10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be\nfound in the original work of Eilers 2003.\n\n\n\n",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        },
+        {
+            "name": "smoothing_lambda",
+            "description": "Lambda parameter to change the Whittaker smoothing",
+            "schema": {
+                "type": "number"
+            }
+        }
+    ],
+    "process_graph": {
+        "applydimension1": {
+            "process_id": "apply_dimension",
+            "arguments": {
+                "data": {
+                    "from_parameter": "data"
+                },
+                "dimension": "t",
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "context": {
+                                    "smoothing_lambda": {
+                                        "from_parameter": "smoothing_lambda"
+                                    }
+                                },
+                                "data": {
+                                    "from_parameter": "x"
+                                },
+                                "runtime": "Python",
+                                "udf": "from pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply whittaker smoothing to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n\n    from fusets.whittaker import whittaker\n    smoothing_lambda = context.get(\"smoothing_lambda\",None)\n    return XarrayDataCube(whittaker(cube.get_array(),smoothing_lambda=smoothing_lambda))\n\n\ndef load_whittakker_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies whittaker smoothing.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            },
+            "result": true
+        }
+    }
+}

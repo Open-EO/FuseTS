@@ -1,8 +1,12 @@
+import sys
 from pathlib import Path
 from typing import Dict
 
 from openeo.udf import XarrayDataCube
 
+venv_path = 'tmp/venv_static'
+if Path(venv_path).exists():
+    sys.path.insert(0, 'tmp/venv_static')
 
 def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     """

@@ -1,3 +1,8 @@
+'''
+The methodology is based on the great work of Luca Pipia´s (et al) paper
+Link: https://doi.org/10.1016/j.rse.2019.111452
+'''
+
 import importlib
 import itertools
 from datetime import datetime
@@ -381,15 +386,19 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                     out_model.optimize()                    
                 else:                    
-                    LCM['.*B'] = trained_model['.*ICM.*B'] 
-                    LCM['.*variance'] = trained_model['.*ICM.*var'] 
-                    LCM['.*lengthscale'] = trained_model['.*ICM.*lengthscale'] 
+                    # Extract hyperparams
+                    l = trained_model['.*ICM.*lengthscale'][0]
+                    v = trained_model['.*ICM.*var'][0]
+                    k = trained_model['.*ICM.*B.kappa'].values
+                    w = trained_model['.*ICM.*B.W'].values                    
                     
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                     
-                    out_model['.*ICM.*B'].constrain_fixed()
-                    out_model['.*ICM.*var'].constrain_fixed()
-                    out_model['.*ICM.*len'].constrain_fixed()
+                    # Fix hyperparams
+                    out_model['.*ICM.*len'].constrain_fixed(l)
+                    out_model['.*ICM.*var'].constrain_fixed(v)
+                    out_model['.*ICM.*B.kappa'].constrain_fixed(k)
+                    out_model['.*ICM.*B.W'].constrain_fixed(w)
                     
                     out_model.optimize()                    
                             

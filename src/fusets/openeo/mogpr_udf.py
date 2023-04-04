@@ -4,9 +4,15 @@ from typing import Dict
 
 from openeo.udf import XarrayDataCube
 
-venv_path = 'tmp/venv_static'
-if Path(venv_path).exists():
-    sys.path.insert(0, 'tmp/venv_static')
+
+def load_venv():
+    """
+    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists
+    :return:
+    """
+    for venv_path in ['tmp/venv_static', 'tmp/venv']:
+        if Path(venv_path).exists():
+            sys.path.insert(0, venv_path)
 
 
 def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
@@ -17,6 +23,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     @param context:
     @return:
     """
+    load_venv()
 
     from fusets.mogpr import MOGPRTransformer
     return XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array()))

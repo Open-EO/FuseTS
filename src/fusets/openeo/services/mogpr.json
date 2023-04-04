@@ -29,7 +29,7 @@
                                     "from_parameter": "x"
                                 },
                                 "runtime": "Python",
-                                "udf": "#mogpr"
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply mogpr integration to a datacube.\n    MOGPR requires a full timeseries for multiple bands, so it needs to be invoked in the context of an apply_neighborhood process.\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.mogpr import MOGPRTransformer\n    return XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array()))\n\n\ndef load_mogpr_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies mogpr.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
                             },
                             "result": true
                         }

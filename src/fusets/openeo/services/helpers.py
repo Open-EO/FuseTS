@@ -1,9 +1,8 @@
 import json
 import os
-from importlib.abc import Traversable
-from importlib.resources import files
 
 import openeo
+from importlib_resources import files
 
 
 def get_openeo_connection():
@@ -14,7 +13,7 @@ def read_description(service: str) -> str:
     return files('fusets.openeo.services').joinpath(f'descriptions/{service}.md').read_text(encoding='utf-8')
 
 
-def write_service_info(id: str, summary: str, description: str, parameters: list, process_graph: any) -> Traversable:
+def write_service_info(id: str, summary: str, description: str, parameters: list, process_graph: any):
     output_file = files('fusets.openeo.services').joinpath(f'{id}.json')
     with output_file.open(mode='w') as f:
         json.dump({

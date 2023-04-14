@@ -10,7 +10,8 @@ FuseTS consist of multiple logical modules:
 - Timeseries analysis
 - OpenEO integration
 
-It tries to support multiple steps in EO data (pre-)processing. This is shown in.
+It tries to support multiple steps in EO data (pre-)processing. This is shown here as a [flowchart](fig-flowchart) and
+more graphically through [a figure showing timeseries plots](fig-steps).
 
 :::{figure-md} fig-flowchart
 
@@ -161,7 +162,7 @@ in specific cases, or if both should be supported whereever possible.
 
 ## Supported EO data pipelines
 
-The library is split up into various modules, that each try to support specific steps in a typical EO workflow.
+The library is split up into various modules, that each try to support specific steps in a [typical EO workflow](fig-steps).
 In combination with other libraries in the Python ecosystem, it aims to address complete use cases.
 
 ### EO Data Loading
@@ -329,12 +330,14 @@ NDVI with different whittaker smoothing
 :::
 
 
-#### Time Series Integration & Prediction
-Time series integration methods take multiple input time series and derive a variable based on that. This is also
+#### Time Series Fusion & Prediction
+Time series fusion methods take multiple input time series and derive a variable based on that. This is also
 referred to as timeseries fusion, and is the main objective of this library.
 
-MOGPR (multi-output gaussian-process regression) integrates various timeseries and delivers the same amount of reconstructed timeseries. This allows to
-fill gaps based on other indicators that are correlated with each other.
+MOGPR (multi-output gaussian-process regression) integrates various timeseries and delivers the same amount of
+reconstructed timeseries. So for example if both an NDVI and an RVI signal or provided, it will return both
+a fused NDVI and a fused RVI. This allows to fill gaps in one indicator based on other indicators 
+that are correlated with each other.
 
 One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI (and RVI if needed).
 

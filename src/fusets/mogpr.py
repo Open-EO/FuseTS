@@ -3,7 +3,6 @@ import itertools
 from datetime import datetime
 from typing import List, Union
 
-import GPy
 import numpy as np
 import pandas as pd
 import xarray
@@ -199,6 +198,10 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
         - out_qflag (array): 2D map of Quality Flag for any numerical error in the model determination
         - out_model (list): Matrix-like structure containing the model information at pixel level
     """
+    from GPy.kern import Matern32
+    from GPy.util.multioutput import LCM
+    from GPy.models import GPCoregionalizedRegression
+
     noutput_timeseries = len(data_in)
 
     x_size = data_in[0].shape[1]
@@ -249,11 +252,11 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
             for i_test in range(nt):
                 Yp = np.zeros((nsamples, noutputs))
                 Vp = np.zeros((nsamples, noutputs))
-                K = GPy.kern.Matern32(1)
-                LCM = GPy.util.multioutput.LCM(input_dim=1,
+                K = Matern32(1)
+                LCM = LCM(input_dim=1,
                                                num_outputs=noutputs,
                                                kernels_list=[K] * noutputs, W_rank=1)
-                model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
+                model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                 if not np.isnan(Ytrain[1]).all():
 
                     try:
@@ -310,7 +313,11 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         - out_std_list (array): List of numpy 1D arrays containing standard deviation of the prediction at pixel level
         - out_qflag (bool): Quality Flag for any numerical error in the model determination
         - out_model (Object): Gaussian Process model for heteroscedastic multioutput regression
-    """    
+    """
+    from GPy.kern import Matern32
+    from GPy.util.multioutput import LCM
+    from GPy.models import GPCoregionalizedRegression
+
     # Number of outputs
     noutputs = len(data_in)
     # Number of output samples
@@ -357,19 +364,19 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         for i_test in range(nt):
             try:    
                 # Kernel
-                K = GPy.kern.Matern32(input_dim=1)
+                K = Matern32(input_dim=1)
                 # Linear Coregionalization
-                LCM = GPy.util.multioutput.LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1) 
+                LCM = LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1)
                 if trained_model is None:
                     # Linear coregionalization                    
-                    out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
+                    out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                     out_model.optimize()                    
                 else:                    
                     LCM['.*B'] = trained_model['.*ICM.*B'] 
                     LCM['.*variance'] = trained_model['.*ICM.*var'] 
                     LCM['.*lengthscale'] = trained_model['.*ICM.*lengthscale'] 
                     
-                    out_model = GPy.models.GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())  
+                    out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                     
                     out_model['.*ICM.*B'].constrain_fixed()
                     out_model['.*ICM.*var'].constrain_fixed()

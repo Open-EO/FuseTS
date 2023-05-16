@@ -10,12 +10,16 @@ def generate_whittaker_udp():
     description = read_description('whittaker')
 
     input_cube = Parameter.raster_cube()
-    lambda_param = Parameter.number(name='smoothing_lambda', description='Lambda parameter to change the Whittaker smoothing')
+    lambda_param = Parameter.number(name='smoothing_lambda', default=10000,
+                                    description='Lambda parameter to change the Whittaker smoothing')
+    context = {
+        'test': 10,
+        'smoothing_lambda': {
+            'from_parameter': 'smoothing_lambda'
+        }
+    }
     process = apply_dimension(input_cube, process=lambda x: run_udf(x, udf=load_whittakker_udf(), runtime="Python",
-                                                                    context=dict(smoothing_lambda={
-                                                                        'from_parameter': 'smoothing_lambda'
-                                                                    })),
-                              dimension='t')
+                                                                    context=context), dimension='t')
 
     return publish_service(id="whittaker", summary="Execute a computationally efficient reconstruction method for "
                                                    "smoothing and gap-filling of time series.",

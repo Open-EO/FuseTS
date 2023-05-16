@@ -16,7 +16,9 @@
             "description": "Lambda parameter to change the Whittaker smoothing",
             "schema": {
                 "type": "number"
-            }
+            },
+            "default": 10000,
+            "optional": true
         }
     ],
     "process_graph": {
@@ -33,6 +35,7 @@
                             "process_id": "run_udf",
                             "arguments": {
                                 "context": {
+                                    "test": 10,
                                     "smoothing_lambda": {
                                         "from_parameter": "smoothing_lambda"
                                     }
@@ -41,7 +44,7 @@
                                     "from_parameter": "x"
                                 },
                                 "runtime": "Python",
-                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply whittaker smoothing to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.whittaker import whittaker\n    smoothing_lambda = context.get(\"smoothing_lambda\", None)\n    return XarrayDataCube(whittaker(cube.get_array(), smoothing_lambda=smoothing_lambda))\n\n\ndef load_whittakker_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies whittaker smoothing.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply whittaker smoothing to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    raise Exception('Dict Keys: ' + str(context))\n    load_venv()\n\n    from fusets.whittaker import whittaker\n    smoothing_lambda = context.get(\"smoothing_lambda\", 100)\n    return XarrayDataCube(whittaker(cube.get_array(), smoothing_lambda=smoothing_lambda))\n\n\ndef load_whittakker_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies whittaker smoothing.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
                             },
                             "result": true
                         }

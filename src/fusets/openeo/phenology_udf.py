@@ -25,7 +25,10 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     load_venv()
 
     from fusets.analytics import phenology
-    return XarrayDataCube(phenology(cube.get_array()))
+    data = cube.get_array()
+    data = data.rename({'t': 'time'})
+    phenology_result = phenology(data)
+    return XarrayDataCube(phenology_result.to_array().rename({'variable': 'bands'}))
 
 
 def load_phenology_udf() -> str:

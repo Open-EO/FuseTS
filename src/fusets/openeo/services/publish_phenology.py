@@ -2,7 +2,7 @@
 from openeo.api.process import Parameter
 from openeo.processes import apply_dimension, run_udf
 
-from fusets.openeo import load_phenology_udf
+from fusets.openeo.phenology_udf import load_phenology_udf
 from fusets.openeo.services.helpers import publish_service, read_description
 
 
@@ -12,7 +12,7 @@ def generate_phenology_udp():
     input_cube = Parameter.raster_cube()
     process = apply_dimension(input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"), dimension='t')
 
-    return publish_service(id="phenology",
+    return publish_service(id="phenology", summary='',
                            description=description, parameters=[
             input_cube.to_dict()
         ], process_graph=process.flat_graph())

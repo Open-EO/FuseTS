@@ -1,7 +1,8 @@
+import os
 import sys
+from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
-from configparser import ConfigParser
 
 from openeo.udf import XarrayDataCube
 
@@ -16,16 +17,29 @@ def load_venv():
             sys.path.insert(0, venv_path)
 
 
+def set_home(home):
+    os.environ['HOME'] = home
+
+def create_gpy_cfg():
+    home = os.getenv('HOME')
+    set_home('/tmp')
+    user_file = Path.home() / '.config' / 'GPy' / 'user.cfg'
+    if not user_file.exists():
+        user_file.parent.mkdir(parents=True, exist_ok=True)
+    return user_file, home
+
+
 def write_gpy_cfg():
-    home = Path.home()
-    user_file = os.path.join(home,'.config','GPy', 'user.cfg')
+    user_file, home = create_gpy_cfg()
     config = ConfigParser()
     config['plotting'] = {
-      'library': 'none'
+        'library': 'none'
     }
     with open(user_file, 'w') as cfg:
         config.write(cfg)
         cfg.close()
+    return home
+
 
 def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     """
@@ -36,9 +50,12 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     @return:
     """
     load_venv()
+    home = write_gpy_cfg()
 
     from fusets.mogpr import MOGPRTransformer
-    return XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset()))
+    result = XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset(dim='bands')))
+    set_home(home)
+    return result
 
 
 def load_mogpr_udf() -> str:

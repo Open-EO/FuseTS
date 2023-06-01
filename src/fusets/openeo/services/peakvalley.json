@@ -1,0 +1,80 @@
+{
+    "id": "peakvalley",
+    "summary": "Detect peaks and valleys in a time series.",
+    "description": "# Peak Valley\n\n## Description\n\n\n",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        },
+        {
+            "name": "drop_thr",
+            "description": "Threshold value for the amplitude of the drop in the input feature",
+            "schema": {
+                "type": "number"
+            },
+            "default": 0.15,
+            "optional": true
+        },
+        {
+            "name": "rec_r",
+            "description": "Threshold value for the amplitude of the recovery, relative to the `drop_delta`",
+            "schema": {
+                "type": "number"
+            },
+            "default": 1.0,
+            "optional": true
+        },
+        {
+            "name": "slope_thr",
+            "description": "Threshold value for the slope where the peak should start",
+            "schema": {
+                "type": "number"
+            },
+            "default": -0.007,
+            "optional": true
+        }
+    ],
+    "process_graph": {
+        "applydimension1": {
+            "process_id": "apply_dimension",
+            "arguments": {
+                "data": {
+                    "from_parameter": "data"
+                },
+                "dimension": "t",
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "context": {
+                                    "drop_thr": {
+                                        "from_parameter": "drop_thr"
+                                    },
+                                    "rec_r": {
+                                        "from_parameter": "rec_r"
+                                    },
+                                    "slope_thr": {
+                                        "from_parameter": "slope_thr"
+                                    }
+                                },
+                                "data": {
+                                    "from_parameter": "x"
+                                },
+                                "runtime": "Python",
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets import peakvalley\n\n    drop_thr = context.get('drop_thr', 0.15)\n    rec_r = context.get('rec_r', 1.0)\n    slope_thr = context.get('slope_thr', -0.007)\n\n    result = peakvalley(cube.get_array(), drop_thr=drop_thr, rec_r=rec_r, slope_thr=slope_thr)\n    raise Exception(result)\n    return XarrayDataCube(result)\n\n\ndef load_peakvalley_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies peak valley detection service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            },
+            "result": true
+        }
+    }
+}

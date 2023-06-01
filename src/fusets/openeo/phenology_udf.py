@@ -27,7 +27,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     from fusets.analytics import phenology
     data = cube.get_array()
     data = data.rename({'t': 'time'})
-    phenology_result = phenology(data).to_array().rename({'variable': 'phenology'})
+    phenology_result = phenology(data).to_array().rename({'variable': 'bands'})
     return XarrayDataCube(phenology_result)
 
 

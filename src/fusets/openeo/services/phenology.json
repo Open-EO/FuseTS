@@ -13,24 +13,13 @@
         }
     ],
     "process_graph": {
-        "applyneighborhood1": {
-            "process_id": "apply_neighborhood",
+        "applydimension1": {
+            "process_id": "apply_dimension",
             "arguments": {
                 "data": {
                     "from_parameter": "data"
                 },
-                "overlap": [
-                    {
-                        "dimension": "x",
-                        "value": 32,
-                        "unit": "px"
-                    },
-                    {
-                        "dimension": "y",
-                        "value": 32,
-                        "unit": "px"
-                    }
-                ],
+                "dimension": "t",
                 "process": {
                     "process_graph": {
                         "runudf1": {
@@ -40,53 +29,12 @@
                                     "from_parameter": "x"
                                 },
                                 "runtime": "Python",
-                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.analytics import phenology\n    data = cube.get_array()\n    data = data.rename({'t': 'time'})\n    phenology_result = phenology(data).to_array().rename({'variable': 'phenology'})\n    return XarrayDataCube(phenology_result)\n\n\ndef load_phenology_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies phenology service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.analytics import phenology\n    data = cube.get_array()\n    data = data.rename({'t': 'time'})\n    phenology_result = phenology(data).to_array().rename({'variable': 'bands'})\n    return XarrayDataCube(phenology_result)\n\n\ndef load_phenology_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies phenology service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
                             },
                             "result": true
                         }
                     }
-                },
-                "size": [
-                    {
-                        "dimension": "x",
-                        "value": 64,
-                        "unit": "px"
-                    },
-                    {
-                        "dimension": "y",
-                        "value": 64,
-                        "unit": "px"
-                    }
-                ]
-            }
-        },
-        "adddimension1": {
-            "process_id": "add_dimension",
-            "arguments": {
-                "data": {
-                    "from_node": "applyneighborhood1"
-                },
-                "label": [
-                    "pos_values",
-                    "pos_times",
-                    "mos_values",
-                    "vos_values",
-                    "vos_times",
-                    "bse_values",
-                    "aos_values",
-                    "sos_values",
-                    "sos_times",
-                    "eos_values",
-                    "eos_times",
-                    "los_values",
-                    "roi_values",
-                    "rod_values",
-                    "lios_values",
-                    "sios_values",
-                    "liot_values",
-                    "siot_values"
-                ],
-                "name": "phenology"
+                }
             },
             "result": true
         }

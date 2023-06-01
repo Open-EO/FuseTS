@@ -31,7 +31,6 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     slope_thr = context.get('slope_thr', -0.007)
 
     result = peakvalley(cube.get_array(), drop_thr=drop_thr, rec_r=rec_r, slope_thr=slope_thr)
-    raise Exception(result)
     return XarrayDataCube(result)
 
 

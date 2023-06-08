@@ -28,7 +28,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     data = cube.get_array()
     data = data.rename({'t': 'time'})
     phenology_result = phenology(data)
-    return XarrayDataCube(phenology_result.to_array().rename({'variable': 'bands'}))
+    return XarrayDataCube(phenology_result.to_array()))
 
 
 def load_phenology_udf() -> str:

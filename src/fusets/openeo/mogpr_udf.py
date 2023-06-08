@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from typing import Dict
+from configparser import ConfigParser
 
 from openeo.udf import XarrayDataCube
 
@@ -14,6 +15,17 @@ def load_venv():
         if Path(venv_path).exists():
             sys.path.insert(0, venv_path)
 
+
+def write_gpy_cfg():
+    home = Path.home()
+    user_file = os.path.join(home,'.config','GPy', 'user.cfg')
+    config = ConfigParser()
+    config['plotting'] = {
+      'library': 'none'
+    }
+    with open(user_file, 'w') as cfg:
+        config.write(cfg)
+        cfg.close()
 
 def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     """

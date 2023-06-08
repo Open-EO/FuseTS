@@ -38,7 +38,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     load_venv()
 
     from fusets.mogpr import MOGPRTransformer
-    return XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array()))
+    return XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset()))
 
 
 def load_mogpr_udf() -> str:

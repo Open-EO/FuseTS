@@ -16,6 +16,8 @@ from xarray import DataArray,Dataset
 from fusets._xarray_utils import _extract_dates, _time_dimension
 from fusets.base import BaseEstimator
 
+from openeo.udf.debug import inspect
+
 _openeo_exists = importlib.util.find_spec("openeo") is not None
 if _openeo_exists:
     from openeo import DataCube
@@ -127,6 +129,7 @@ class MOGPRTransformer(BaseEstimator):
 
 
     def fit_transform(self, X:Union[Dataset,DataCube], y=None, **fit_params):
+        inspect(data=[], message="FUSETS - Fit transform")
         if _openeo_exists and isinstance(X, DataCube):
             from .openeo import mogpr as mogpr_openeo
             return mogpr_openeo(X)
@@ -169,10 +172,15 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
     def callback(timeseries):
+        inspect(data=[timeseries], message="FUSETS - Timeseries")
+        inspect(data=[np.array(dates_np) for i in timeseries], message="FUSETS - dates_np")
+        inspect(data=[output_timevec], message="FUSETS - output_timevec")
         out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
         result = np.array(out_mean)
         return result
 
+
+    inspect(data=[], message="FUSETS - VECTORIZING")
 
     #setting vectorize to true is convenient, but has performance similar to for loop
     result = xarray.apply_ufunc(callback, array.to_array(dim="variable"), input_core_dims=[["variable",time_dimension]], output_core_dims=[["variable",output_time_dimension]],vectorize=True)

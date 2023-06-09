@@ -175,7 +175,6 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
         inspect(data=[timeseries], message="FUSETS - Timeseries")
         inspect(data=[np.array(dates_np) for i in timeseries], message="FUSETS - dates_np")
         inspect(data=[output_timevec], message="FUSETS - output_timevec")
-        #raise Exception('TimeSERIES: ' + timeseries + ' output_timevec: ' + output_timevec)
         out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
         result = np.array(out_mean)
         return result

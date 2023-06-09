@@ -53,7 +53,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     home = write_gpy_cfg()
 
     from fusets.mogpr import MOGPRTransformer
-    result = XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset(dim='bands')))
+    result = XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset()))
     set_home(home)
     return result
 

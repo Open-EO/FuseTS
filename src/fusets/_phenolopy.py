@@ -2506,7 +2506,7 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
     ]
 
     # combine data arrays into one dataset
-    ds_phenos = xr.merge(da_list)
+    ds_phenos = xr.merge(da_list, compat='override')
 
     # set original all nan pixels back to nan
     ds_phenos = ds_phenos.where(~da_all_nan_mask)

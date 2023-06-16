@@ -1,0 +1,15 @@
+/.github/
+/.idea/
+
+/build/
+
+/docs/
+
+/fusets_venv/
+/tests/
+
+/venv_foss4g/
+
+/venv_py10/
+/src/fusets.egg-info/
+/notebooks/FOSS4G/infrastructure/

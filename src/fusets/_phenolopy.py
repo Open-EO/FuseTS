@@ -1,4 +1,5 @@
 # phenolopy
+# flake8: noqa
 '''
 COPIED: this library is not yet packaged and distributed!
 

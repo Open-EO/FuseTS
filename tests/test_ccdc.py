@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import numpy.testing
+import pytest
 import requests
 import xarray
 from numpy.testing import assert_allclose

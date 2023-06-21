@@ -32,6 +32,7 @@ def test_fit_simple_harmonics_exact(harmonic_timeseries):
     assert_allclose(coefficients, [5000,5,600,200],atol=3)
 
 
+@pytest.mark.skip(reason="See https://github.com/Open-EO/FuseTS/issues/84#issuecomment-1600702434")
 def test_ccdc_change_detection(harmonic_timeseries):
 
     breaks = ccdc_change_detection(harmonic_timeseries)

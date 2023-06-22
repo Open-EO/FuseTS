@@ -93,14 +93,13 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
 
     dates = _extract_dates(array)
     time_dimension = _time_dimension(array, time_dimension)
+
+    output_dates = dates
     output_time_dimension = time_dimension
 
     if prediction_period is not None:
-        expected_dates = _output_dates(prediction_period,dates[0],dates[-1])
-        output_time_dimension = 't_new'
-    else:
-        expected_dates = dates
-
+        output_dates = _output_dates(prediction_period, dates[0], dates[-1])
+        output_time_dimension = "t_new"
 
     def callback(timeseries):
         z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)

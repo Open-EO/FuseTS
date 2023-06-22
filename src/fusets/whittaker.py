@@ -108,9 +108,10 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
 
     result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
 
-    result = result.rename({output_time_dimension:time_dimension})
+    result[output_time_dimension] = output_dates
+    result = result.rename({output_time_dimension: time_dimension})
 
-    #make sure to preserve dimension order
+    # make sure to preserve dimension order
     return result.transpose(*array.dims)
 
 

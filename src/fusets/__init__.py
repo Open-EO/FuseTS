@@ -3,7 +3,9 @@ Library for multi temporal, multi sensor earth observation data integration and 
 
 """
 
-__version__ = "0.0.1"
+import importlib
+
+__version__ = importlib.metadata.version("fusets")
 
 from .whittaker import whittaker, WhittakerTransformer
 from .mogpr import mogpr, MOGPRTransformer

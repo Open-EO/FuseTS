@@ -1,10 +1,14 @@
 /.github/
 /.idea/
+/.vscode/
+**/.ipynb_checkpoints
+/.mypy_cache/
+/.pytest_cache/
+/.git*/
 
 /build/
-
+/dist/
 /docs/
-
 /fusets_venv/
 /tests/
 
@@ -12,4 +16,7 @@
 
 /venv_py10/
 /src/fusets.egg-info/
+
+/notebooks/
+!/notebooks/FOSS4G
 /notebooks/FOSS4G/infrastructure/

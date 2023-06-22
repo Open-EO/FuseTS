@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # Workaround for vam.whittaker installation issue https://github.com/WFP-VAM/vam.whittaker/issues/4
-        python -m pip install numpy cython furo
+        python -m pip install numpy==1.23.5 cython furo
         python -m pip install .[dev]
 
     - name: Sphinx build

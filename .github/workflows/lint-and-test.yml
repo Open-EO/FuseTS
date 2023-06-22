@@ -25,7 +25,7 @@ jobs:
         pip install flake8 pytest numpy==1.23.5
         # Workaround for vam.whittaker installation issue https://github.com/WFP-VAM/vam.whittaker/issues/4
         pip install  cython 
-        pip install .[dev]
+        pip install .[dev] --no-build-isolation
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

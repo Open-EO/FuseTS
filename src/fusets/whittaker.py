@@ -1,13 +1,12 @@
 import math
 from array import array
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Union
 
 import numpy as np
 import xarray
-from vam.whittaker import ws2d,ws2doptv
+from vam.whittaker import ws2d, ws2doptv
 from xarray import DataArray
-import pandas as pd
 
 from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
 

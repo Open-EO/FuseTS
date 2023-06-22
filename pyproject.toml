@@ -3,6 +3,8 @@ requires = ["setuptools>=42", "numpy==1.23.5"]
 build-backend = "setuptools.build_meta"
 
 [project]
+name = "fusets"
+requires-python = ">=3.8"
 dependencies = [
     'numpy==1.23.5',
     'GPy>=1.10.0',

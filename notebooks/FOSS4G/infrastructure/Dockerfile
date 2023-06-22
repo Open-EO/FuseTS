@@ -15,7 +15,7 @@ ADD ./notebooks/FOSS4G ${workdir}
 
 # Install FuseTS
 RUN \
-    pip install numpy cython && \
+    pip install numpy=1.23.5 cython && \
     pip install ./${codedir} && \
     rm -rf ${codedir}
 

@@ -1,13 +1,12 @@
 import math
 from array import array
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Union
 
 import numpy as np
 import xarray
-from vam.whittaker import ws2d,ws2doptv
+from vam.whittaker import ws2d, ws2doptv
 from xarray import DataArray
-import pandas as pd
 
 from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
 
@@ -94,28 +93,25 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
 
     dates = _extract_dates(array)
     time_dimension = _time_dimension(array, time_dimension)
+
+    output_dates = dates
     output_time_dimension = time_dimension
 
     if prediction_period is not None:
-        expected_dates = _output_dates(prediction_period,dates[0],dates[-1])
-        output_time_dimension = 't_new'
-    else:
-        expected_dates = dates
-
+        output_dates = _output_dates(prediction_period, dates[0], dates[-1])
+        output_time_dimension = "t_new"
 
     def callback(timeseries):
-        z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
-        indices = [XXd.index(date) for date in expected_dates]
-
-        result = list(Zd[i] for i in indices)
-        return np.array(result)
-
+        _, _, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
+        dates_mask = np.in1d(XXd, output_dates)
+        return Zd[dates_mask]
 
     result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
 
-    result = result.rename({output_time_dimension:time_dimension})
+    result[output_time_dimension] = output_dates
+    result = result.rename({output_time_dimension: time_dimension})
 
-    #make sure to preserve dimension order
+    # make sure to preserve dimension order
     return result.transpose(*array.dims)
 
 

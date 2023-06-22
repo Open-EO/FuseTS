@@ -102,12 +102,9 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
         output_time_dimension = "t_new"
 
     def callback(timeseries):
-        z1_, xx, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
-        indices = [XXd.index(date) for date in expected_dates]
-
-        result = list(Zd[i] for i in indices)
-        return np.array(result)
-
+        _, _, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
+        dates_mask = np.in1d(XXd, output_dates)
+        return Zd[dates_mask]
 
     result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
 

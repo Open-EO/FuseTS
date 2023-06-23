@@ -31,20 +31,13 @@ def generate_phenology_udp():
     ]
 
     input_cube = Parameter.raster_cube()
-    # process = reoduce_dimension(dimension='t', data=input_cube,
-    #                            reducer=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"))
-
-    size = 64
-    overlap = 32
+    size = 32
     process = apply_neighborhood(data=input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
     size=[
         {'dimension': 'x', 'value': size, 'unit': 'px'},
         {'dimension': 'y', 'value': size, 'unit': 'px'}
     ],
-    overlap=[
-        {'dimension': 'x', 'value': overlap, 'unit': 'px'},
-        {'dimension': 'y', 'value': overlap, 'unit': 'px'}
-    ])
+    overlap=[])
 
     process = add_dimension(data=process, name='phenology', label=phenology_bands)
 

@@ -13,13 +13,13 @@
         }
     ],
     "process_graph": {
-        "applydimension1": {
-            "process_id": "apply_dimension",
+        "applyneighborhood1": {
+            "process_id": "apply_neighborhood",
             "arguments": {
                 "data": {
                     "from_parameter": "data"
                 },
-                "dimension": "t",
+                "overlap": [],
                 "process": {
                     "process_graph": {
                         "runudf1": {
@@ -34,7 +34,48 @@
                             "result": true
                         }
                     }
-                }
+                },
+                "size": [
+                    {
+                        "dimension": "x",
+                        "value": 32,
+                        "unit": "px"
+                    },
+                    {
+                        "dimension": "y",
+                        "value": 32,
+                        "unit": "px"
+                    }
+                ]
+            }
+        },
+        "adddimension1": {
+            "process_id": "add_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "applyneighborhood1"
+                },
+                "label": [
+                    "pos_values",
+                    "pos_times",
+                    "mos_values",
+                    "vos_values",
+                    "vos_times",
+                    "bse_values",
+                    "aos_values",
+                    "sos_values",
+                    "sos_times",
+                    "eos_values",
+                    "eos_times",
+                    "los_values",
+                    "roi_values",
+                    "rod_values",
+                    "lios_values",
+                    "sios_values",
+                    "liot_values",
+                    "siot_values"
+                ],
+                "name": "phenology"
             },
             "result": true
         }

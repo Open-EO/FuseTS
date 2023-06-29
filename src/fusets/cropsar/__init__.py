@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2021-2023 VITO NV; Sinergise d.o.o.; University of Valencia, Spain;
+#
+# This file is licenced under “CC BY-NC-SA 4.0” – see `licenses/CC BY-NC-SA 4.0.md`
+#
+
+
 import sys
 from openeo.udf import XarrayDataCube
 from typing import Dict, Optional, List, Tuple, Union

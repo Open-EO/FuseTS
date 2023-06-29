@@ -2,7 +2,7 @@
 Copyright (c) 2021-2023 VITO NV; Sinergise d.o.o.; University of Valencia, Spain;
 
 The source code in this repository is licensed as follows:
-- Source code in the folder “src/fusets/cropsar” and all its subfolders is licenced under “CC BY-NC-SA 4.0” – see `src/fusets/cropsar/CC BY-NC-SA 4.0.md`
-- All other source code in this repository is licensed under “APACHE 2.0” license – see `LICENSE_APACHE.txt`
+- Source code in the folder “src/fusets/cropsar” and all its subfolders is licenced under “CC BY-NC-SA 4.0” – see `licenses/CC BY-NC-SA 4.0.md`
+- All other source code in this repository is licensed under “APACHE 2.0” license – see `licenses/Apache.txt`
 
 ------------------------------------------------------------------------------------------------------------------------

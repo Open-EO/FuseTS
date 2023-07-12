@@ -1,41 +1,104 @@
 # Reads contents with UTF-8 encoding and returns str.
+import openeo
+import xarray
 from openeo.api.process import Parameter
-from openeo.processes import apply_dimension, run_udf
+from openeo.processes import apply_dimension, run_udf, reduce_dimension, apply_neighborhood, ProcessBuilder
+from openeo.udf import execute_local_udf
 
+from fusets.analytics import phenology
 from fusets.openeo.phenology_udf import load_phenology_udf
 from fusets.openeo.services.helpers import publish_service, read_description
+
+phenology_bands = [
+    "pos_values",
+    "pos_times",
+    "mos_values",
+    "vos_values",
+    "vos_times",
+    "bse_values",
+    "aos_values",
+    "sos_values",
+    "sos_times",
+    "eos_values",
+    "eos_times",
+    "los_values",
+    "roi_values",
+    "rod_values",
+    "lios_values",
+    "sios_values",
+    "liot_values",
+    "siot_values"
+]
+
+def test_udf():
+    connection = openeo.connect("openeo.vito.be").authenticate_oidc()
+    spat_ext = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    5.170012098271149,
+                    51.25062964728295
+                ],
+                [
+                    5.17085904378298,
+                    51.24882567194015
+                ],
+                [
+                    5.17857421368097,
+                    51.2468515482926
+                ],
+                [
+                    5.178972704726344,
+                    51.24982704376254
+                ],
+                [
+                    5.170012098271149,
+                    51.25062964728295
+                ]
+            ]
+        ]
+    }
+    temp_ext = ["2022-01-01","2022-12-31"]
+    smoothing_lambda = 10000
+    base = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',
+                                      spatial_extent=spat_ext,
+                                      temporal_extent=temp_ext,
+                                      bands=["B04","B08","SCL"])
+    base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
+    base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
+    phenology = base_ndvi.apply_dimension(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+                                              dimension='t')
+    phenology_job = phenology.execute_batch(out_format="netcdf", title=f'FuseTS - Phenology', job_options={
+        'udf-dependency-archives': [
+            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+        ]
+    })
+
+    phenology_job.get_results().download_files('.')
+
+
+def generate_phenology_process(cube):
+    process = apply_dimension(data=cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+                              dimension='t')
+
+    # size = 125
+    # process = apply_neighborhood(data=input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+    #                              size=[
+    #                                  {'dimension': 'x', 'value': size, 'unit': 'px'},
+    #                                  {'dimension': 'y', 'value': size, 'unit': 'px'}
+    #                              ], overlap=[])
+    return process
 
 
 def generate_phenology_udp():
     description = read_description('phenology')
 
-    phenology_bands = [
-        "pos_values",
-        "pos_times",
-        "mos_values",
-        "vos_values",
-        "vos_times",
-        "bse_values",
-        "aos_values",
-        "sos_values",
-        "sos_times",
-        "eos_values",
-        "eos_times",
-        "los_values",
-        "roi_values",
-        "rod_values",
-        "lios_values",
-        "sios_values",
-        "liot_values",
-        "siot_values"
-    ]
+
 
     input_cube = Parameter.raster_cube()
-    size = 32
-    process = apply_dimension(data=input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
-                              dimension='t')
-
-    # process = add_dimension(data=process, name='phenology', label=phenology_bands)
+    process = generate_phenology_process(input_cube)
 
     return publish_service(id="phenology", summary='',
                            description=description, parameters=[
@@ -44,4 +107,18 @@ def generate_phenology_udp():
 
 
 if __name__ == "__main__":
-    generate_phenology_udp()
+
+    test_udf()
+
+    # generate_phenology_udp()
+    # #
+    # data = xarray.load_dataset('./fusets/openeo/services/s2_field.nc')
+    # ndvi = data.NDVI.rename({'t': 'time'})
+
+    # phenology_udf = load_phenology_udf()
+    # result = execute_local_udf(phenology_udf, './fusets/openeo/services/s2_field.nc', fmt='netcdf')
+    # print(result)
+
+
+
+

@@ -1,6 +1,6 @@
 # Reads contents with UTF-8 encoding and returns str.
 from openeo.api.process import Parameter
-from openeo.processes import apply_dimension, run_udf, apply_neighborhood, add_dimension, reduce_dimension
+from openeo.processes import apply_dimension, run_udf
 
 from fusets.openeo.phenology_udf import load_phenology_udf
 from fusets.openeo.services.helpers import publish_service, read_description
@@ -32,14 +32,10 @@ def generate_phenology_udp():
 
     input_cube = Parameter.raster_cube()
     size = 32
-    process = apply_neighborhood(data=input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
-    size=[
-        {'dimension': 'x', 'value': size, 'unit': 'px'},
-        {'dimension': 'y', 'value': size, 'unit': 'px'}
-    ],
-    overlap=[])
+    process = apply_dimension(data=input_cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+                              dimension='t')
 
-    process = add_dimension(data=process, name='phenology', label=phenology_bands)
+    # process = add_dimension(data=process, name='phenology', label=phenology_bands)
 
     return publish_service(id="phenology", summary='',
                            description=description, parameters=[

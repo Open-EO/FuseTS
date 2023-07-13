@@ -87,14 +87,19 @@ def test_udf():
 
 
 def test_udf_locally():
-    # data = xarray.load_dataset('./fusets/openeo/services/s2_field.nc')
-    # data.NDVI.to_netcdf('./fusets/openeo/services/s2_field_ndvi.nc')
+    # data = xarray.load_dataset('./s2_field.nc')
+    # data.NDVI.to_netcdf('./s2_field_ndvi.nc')
 
     phenology_udf = load_phenology_udf()
-    result = execute_local_udf(phenology_udf, './fusets/openeo/services/s2_field_ndvi.nc', fmt='netcdf')
+    result = execute_local_udf(phenology_udf, './s2_field_ndvi.nc', fmt='netcdf')
     result.get_datacube_list()[0].save_to_file('./result.nc')
     print(result)
 
+def test_locally():
+    data = xarray.load_dataset('./s2_field_ndvi.nc')
+    result = phenology(data.to_array().rename({'t': 'time'}))
+    result.to_netcdf('./result_local.nc')
+    print(result.to_array())
 
 def generate_phenology_process(cube):
     process = apply_dimension(data=cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
@@ -127,6 +132,7 @@ if __name__ == "__main__":
     generate_phenology_udp()
     # test_udf()
     # test_udf_locally()
+    # test_locally()
 
 
 

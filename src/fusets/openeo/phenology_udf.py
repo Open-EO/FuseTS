@@ -49,10 +49,11 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     data = cube.get_array()
     data = data.rename({'t': 'time'})
     data = data.isel(bands=0)
-    phenology_result = phenology(data)
+    phenology_result = phenology(data).to_array()
+    phenology_result = phenology_result.rename({'variable': 'bands'})
 #    phenology_result = phenology_result.expand_dims(dim='results', axis=0).assign_coords(results=phenology_bands)
     #    phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])
-    return XarrayDataCube(phenology_result.to_array())
+    return XarrayDataCube(phenology_result)
 
 
 def load_phenology_udf() -> str:

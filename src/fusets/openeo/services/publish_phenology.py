@@ -67,8 +67,12 @@ def test_udf():
                                       bands=["B04","B08","SCL"])
     base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
     base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
-    phenology = base_ndvi.apply_dimension(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
-                                              dimension='t')
+    size = 125
+    phenology = base_ndvi.apply_neighborhood(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+                                              size=[
+                                             {'dimension': 'x', 'value': size, 'unit': 'px'},
+                                             {'dimension': 'y', 'value': size, 'unit': 'px'}
+                                         ], overlap=[])
     phenology_job = phenology.execute_batch(out_format="netcdf", title=f'FuseTS - Phenology', job_options={
         'udf-dependency-archives': [
             'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
@@ -77,6 +81,19 @@ def test_udf():
     })
 
     phenology_job.get_results().download_files('.')
+
+    phenology_result_nc = xarray.load_dataset('./openEO.nc')
+    print(phenology_result_nc)
+
+
+def test_udf_locally():
+    # data = xarray.load_dataset('./fusets/openeo/services/s2_field.nc')
+    # data.NDVI.to_netcdf('./fusets/openeo/services/s2_field_ndvi.nc')
+
+    phenology_udf = load_phenology_udf()
+    result = execute_local_udf(phenology_udf, './fusets/openeo/services/s2_field_ndvi.nc', fmt='netcdf')
+    result.get_datacube_list()[0].save_to_file('./result.nc')
+    print(result)
 
 
 def generate_phenology_process(cube):
@@ -107,17 +124,9 @@ def generate_phenology_udp():
 
 
 if __name__ == "__main__":
-
-    test_udf()
-
-    # generate_phenology_udp()
-    # #
-    # data = xarray.load_dataset('./fusets/openeo/services/s2_field.nc')
-    # ndvi = data.NDVI.rename({'t': 'time'})
-
-    # phenology_udf = load_phenology_udf()
-    # result = execute_local_udf(phenology_udf, './fusets/openeo/services/s2_field.nc', fmt='netcdf')
-    # print(result)
+    generate_phenology_udp()
+    # test_udf()
+    # test_udf_locally()
 
 
 

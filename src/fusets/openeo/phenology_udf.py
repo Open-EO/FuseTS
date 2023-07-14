@@ -52,7 +52,8 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     phenology_result = phenology(data).to_array()
     phenology_result = phenology_result.rename({'variable': 'bands'})
 #    phenology_result = phenology_result.expand_dims(dim='results', axis=0).assign_coords(results=phenology_bands)
-    #    phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])
+    # phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])
+    #  raise Exception(phenology_result)
     return XarrayDataCube(phenology_result)
 
 

@@ -102,7 +102,7 @@ def test_locally():
     print(result.to_array())
 
 def generate_phenology_process(cube):
-    process = apply_dimension(data=cube, process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+    process = reduce_dimension(data=cube, reducer=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
                               dimension='t')
 
     # size = 125

@@ -13,14 +13,14 @@
         }
     ],
     "process_graph": {
-        "applydimension1": {
-            "process_id": "apply_dimension",
+        "reducedimension1": {
+            "process_id": "reduce_dimension",
             "arguments": {
                 "data": {
                     "from_parameter": "data"
                 },
                 "dimension": "t",
-                "process": {
+                "reducer": {
                     "process_graph": {
                         "runudf1": {
                             "process_id": "run_udf",
@@ -29,7 +29,7 @@
                                     "from_parameter": "x"
                                 },
                                 "runtime": "Python",
-                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\nphenology_bands = [\n    \"pos_values\",\n    \"pos_times\",\n    \"mos_values\",\n    \"vos_values\",\n    \"vos_times\",\n    \"bse_values\",\n    \"aos_values\",\n    \"sos_values\",\n    \"sos_times\",\n    \"eos_values\",\n    \"eos_times\",\n    \"los_values\",\n    \"roi_values\",\n    \"rod_values\",\n    \"lios_values\",\n    \"sios_values\",\n    \"liot_values\",\n    \"siot_values\"\n]\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.analytics import phenology\n    data = cube.get_array()\n    data = data.rename({'t': 'time'})\n    data = data.isel(bands=0)\n    phenology_result = phenology(data).to_array()\n    phenology_result = phenology_result.rename({'variable': 'bands'})\n#    phenology_result = phenology_result.expand_dims(dim='results', axis=0).assign_coords(results=phenology_bands)\n    #    phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])\n    return XarrayDataCube(phenology_result)\n\n\ndef load_phenology_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies phenology service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\nphenology_bands = [\n    \"pos_values\",\n    \"pos_times\",\n    \"mos_values\",\n    \"vos_values\",\n    \"vos_times\",\n    \"bse_values\",\n    \"aos_values\",\n    \"sos_values\",\n    \"sos_times\",\n    \"eos_values\",\n    \"eos_times\",\n    \"los_values\",\n    \"roi_values\",\n    \"rod_values\",\n    \"lios_values\",\n    \"sios_values\",\n    \"liot_values\",\n    \"siot_values\"\n]\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.analytics import phenology\n    data = cube.get_array()\n    data = data.rename({'t': 'time'})\n    data = data.isel(bands=0)\n    phenology_result = phenology(data).to_array()\n    phenology_result = phenology_result.rename({'variable': 'bands'})\n#    phenology_result = phenology_result.expand_dims(dim='results', axis=0).assign_coords(results=phenology_bands)\n    # phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])\n    #  raise Exception(phenology_result)\n    return XarrayDataCube(phenology_result)\n\n\ndef load_phenology_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies phenology service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
                             },
                             "result": true
                         }

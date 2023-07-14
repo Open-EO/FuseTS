@@ -2,11 +2,12 @@
 import openeo
 import xarray
 from openeo.api.process import Parameter
+from openeo.metadata import CollectionMetadata, Band
 from openeo.processes import apply_dimension, run_udf, reduce_dimension, apply_neighborhood, ProcessBuilder
-from openeo.udf import execute_local_udf
+from openeo.udf import execute_local_udf, XarrayDataCube
 
 from fusets.analytics import phenology
-from fusets.openeo.phenology_udf import load_phenology_udf
+from fusets.openeo.phenology_udf import load_phenology_udf, apply_datacube
 from fusets.openeo.services.helpers import publish_service, read_description
 
 phenology_bands = [
@@ -67,12 +68,21 @@ def test_udf():
                                       bands=["B04","B08","SCL"])
     base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
     base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
-    size = 125
-    phenology = base_ndvi.apply_neighborhood(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
-                                              size=[
-                                             {'dimension': 'x', 'value': size, 'unit': 'px'},
-                                             {'dimension': 'y', 'value': size, 'unit': 'px'}
-                                         ], overlap=[])
+    phenology = base_ndvi.apply_dimension(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+                                           dimension='t', target_dimension='phenology')
+    # metadata = CollectionMetadata({})
+    # metadata = metadata.add_dimension('bands', '', 'bands')
+    # #    .rename_labels(dimension='var', target=phenology_bands)
+    # phenology.metadata = metadata
+
+    # phenology = phenology.rename_labels(dimension='bands', target=phenology_bands)
+
+    # size = 125
+    # phenology = base_ndvi.apply_neighborhood(process=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
+    #                                           size=[
+    #                                          {'dimension': 'x', 'value': size, 'unit': 'px'},
+    #                                          {'dimension': 'y', 'value': size, 'unit': 'px'}
+    #                                      ], overlap=[])
     phenology_job = phenology.execute_batch(out_format="netcdf", title=f'FuseTS - Phenology', job_options={
         'udf-dependency-archives': [
             'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
@@ -80,9 +90,12 @@ def test_udf():
         ]
     })
 
-    phenology_job.get_results().download_files('.')
 
-    phenology_result_nc = xarray.load_dataset('./openEO.nc')
+
+
+    output_file = './phenology.nc'
+    phenology_job.get_results().download_file(output_file)
+    phenology_result_nc = xarray.load_dataset(output_file)
     print(phenology_result_nc)
 
 
@@ -97,9 +110,8 @@ def test_udf_locally():
 
 def test_locally():
     data = xarray.load_dataset('./s2_field_ndvi.nc')
-    result = phenology(data.to_array().rename({'t': 'time'}))
-    result.to_netcdf('./result_local.nc')
-    print(result.to_array())
+    result = apply_datacube(XarrayDataCube(data.to_array().rename({ 'variable': 'bands' })), context=None)
+    result.array.to_netcdf('./result_local.nc')
 
 def generate_phenology_process(cube):
     process = reduce_dimension(data=cube, reducer=lambda x: run_udf(x, udf=load_phenology_udf(), runtime="Python"),
@@ -129,8 +141,8 @@ def generate_phenology_udp():
 
 
 if __name__ == "__main__":
-    generate_phenology_udp()
-    # test_udf()
+    # generate_phenology_udp()
+    test_udf()
     # test_udf_locally()
     # test_locally()
 

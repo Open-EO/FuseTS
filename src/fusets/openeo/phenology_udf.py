@@ -2,8 +2,28 @@ import sys
 from pathlib import Path
 from typing import Dict
 
-from openeo.udf import XarrayDataCube
+from openeo.udf import XarrayDataCube, inspect
 
+phenology_bands = [
+    "pos_values",
+    "pos_times",
+    "mos_values",
+    "vos_values",
+    "vos_times",
+    "bse_values",
+    "aos_values",
+    "sos_values",
+    "sos_times",
+    "eos_values",
+    "eos_times",
+    "los_values",
+    "roi_values",
+    "rod_values",
+    "lios_values",
+    "sios_values",
+    "liot_values",
+    "siot_values"
+]
 
 def load_venv():
     """
@@ -27,8 +47,14 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     from fusets.analytics import phenology
     data = cube.get_array()
     data = data.rename({'t': 'time'})
+    data = data.isel(bands=0)
     phenology_result = phenology(data)
-    return XarrayDataCube(phenology_result.to_array()))
+    phenology_result = phenology_result.to_array(dim='bands')
+    phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])
+    # phenology_result = phenology_result.transpose('t', 'bands', 'x', 'y')
+    # raise Exception(phenology_result)
+    inspect(data=phenology_result, message="Phenology result")
+    return XarrayDataCube(phenology_result)
 
 
 def load_phenology_udf() -> str:

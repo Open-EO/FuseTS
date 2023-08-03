@@ -25,6 +25,7 @@ phenology_bands = [
     "siot_values"
 ]
 
+
 def load_venv():
     """
     Add the virtual environment to the system path if the folder `/tmp/venv_static` exists
@@ -51,8 +52,6 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     phenology_result = phenology(data)
     phenology_result = phenology_result.to_array(dim='bands')
     phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])
-    # phenology_result = phenology_result.transpose('t', 'bands', 'x', 'y')
-    # raise Exception(phenology_result)
     inspect(data=phenology_result, message="Phenology result")
     return XarrayDataCube(phenology_result)
 

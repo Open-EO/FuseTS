@@ -17,5 +17,70 @@ the larger lambda the smoother the time series at the cost of the fit to the dat
 10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be
 found in the original work of Eilers 2003.
 
+## Usage
 
+### Python
+
+```python
+import openeo
+
+## Setup of parameters
+spat_ext = {
+    "type": "Polygon",
+    "coordinates": [
+        [
+            [
+                5.170012098271149,
+                51.25062964728295
+            ],
+            [
+                5.17085904378298,
+                51.24882567194015
+            ],
+            [
+                5.17857421368097,
+                51.2468515482926
+            ],
+            [
+                5.178972704726344,
+                51.24982704376254
+            ],
+            [
+                5.170012098271149,
+                51.25062964728295
+            ]
+        ]
+    ]
+}
+temp_ext = ["2022-01-01", "2022-12-31"]
+smoothing_lambda = 10000
+
+## Setup connection to openEO
+connection = openeo.connect("openeo.vito.be").authenticate_oidc()
+service = 'whittaker'
+namespace = 'FuseTS'
+
+## Create a base NDVI datacube that can be used as input for the service
+base = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',
+                                  spatial_extent=spat_ext,
+                                  temporal_extent=temp_ext,
+                                  bands=["B04", "B08", "SCL"])
+base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
+base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
+
+## Create a processing graph from the Whittaker process using an active openEO connection
+whittaker = connection.datacube_from_process(service,
+                                             namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',
+                                             data=base_ndvi, smoothing_lambda=smoothing_lambda)
+
+## Calculate the average time series value for the given area of interest
+whittaker = whittaker.aggregate_spatial(spat_ext, reducer='mean')
+
+# Execute the service as a batch process
+whittaker.execute_batch('./whittaker.json', title=f'FuseTS - Whittaker', job_options={
+    'udf-dependency-archives': [
+        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+    ]})
+```
 

@@ -20,7 +20,7 @@ temp_ext = ["2021-01-01", "2021-12-31"]
 ## Setup connection to openEO
 connection = openeo.connect("openeo.vito.be").authenticate_oidc()
 service = 'peakvalley'
-namespace = 'FuseTS'
+namespace = 'u:fusets'
 
 ## Creation of the base NDVI data cube upon which the peak valley detection is executed
 s2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',

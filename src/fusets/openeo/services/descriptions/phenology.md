@@ -52,7 +52,7 @@ temp_ext = [f"{year}-05-01", f"{year}-09-30"]
 ## Setup connection to openEO
 connection = openeo.connect("openeo.vito.be").authenticate_oidc()
 service = 'phenology'
-namespace = 'FuseTS'
+namespace = 'u:fusets'
 
 ## Setup of the base NDVI data cube upon which to execute the phenology calculation. 
 ## To improve results, a smoothed data cube can be constructed.

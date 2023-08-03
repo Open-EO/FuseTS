@@ -58,7 +58,7 @@ smoothing_lambda = 10000
 ## Setup connection to openEO
 connection = openeo.connect("openeo.vito.be").authenticate_oidc()
 service = 'whittaker'
-namespace = 'FuseTS'
+namespace = 'u:fusets'
 
 ## Create a base NDVI datacube that can be used as input for the service
 base = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',

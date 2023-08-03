@@ -1,17 +1,4 @@
 {
-    "id": "phenology",
-    "summary": "",
-    "description": "# Phenology\n\n## Description\n\nComputes phenology metrics based on the [Phenolopy](https://github.com/lewistrotter/PhenoloPy) implementation.\nPhenolopy (phenology + python) is a python-based library for analysing satellite timeseries data.\nPhenolopy has been designed to investigate the seasonality of satellite timeseries data and their relationship with\ndynamic vegetation properties such as phenology and temporal growth patterns.\nThe temporal domain holds important information about short- and long-term changes within vegetation lifecycles.\nPhenolopy can be applied to derive numerous phenometrics from satellite imagery.\n\n![image.png](https://github.com/lewistrotter/Phenolopy/raw/main/documentation/images/pheno_explain.png?raw=trueg)\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nyear = 2022\nspat_ext = {\n    \"coordinates\": [\n        [\n            [\n                5.179169745059369,\n                51.24984286550534\n            ],\n            [\n                5.170016107999743,\n                51.25052999567865\n            ],\n            [\n                5.171081610725707,\n                51.24861004739975\n            ],\n            [\n                5.178604705735125,\n                51.246720335821465\n            ],\n            [\n                5.179169745059369,\n                51.24984286550534\n            ]\n        ]\n    ],\n    \"type\": \"Polygon\"\n}\ntemp_ext = [f\"{year}-05-01\", f\"{year}-09-30\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'phenology'\nnamespace = 'u:fusets'\n\n## Setup of the base NDVI data cube upon which to execute the phenology calculation. \n## To improve results, a smoothed data cube can be constructed.\ns2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                spatial_extent=spat_ext,\n                                temporal_extent=temp_ext,\n                                bands=[\"B04\", \"B08\", \"SCL\"])\ns2 = s2.process(\"mask_scl_dilation\", data=s2, scl_band_name=\"SCL\")\ns2 = s2.mask_polygon(spat_ext)\nbase_ndvi = s2.ndvi(red=\"B04\", nir=\"B08\")\n\nphenology = connection.datacube_from_process(service,\n                                             namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                             data=base_ndvi)\n\nphenology_job = phenology.execute_batch('./phenology.nc', out_format=\"netcdf\", title=f'FuseTS - Phenology',\n                                        job_options={\n                                            'udf-dependency-archives': [\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n                                            ]\n                                        })\n```",
-    "parameters": [
-        {
-            "name": "data",
-            "description": "A data cube.",
-            "schema": {
-                "type": "object",
-                "subtype": "raster-cube"
-            }
-        }
-    ],
     "process_graph": {
         "applydimension1": {
             "process_id": "apply_dimension",
@@ -79,5 +66,18 @@
             },
             "result": true
         }
-    }
+    },
+    "id": "phenology",
+    "summary": "",
+    "description": "# Phenology\n\n## Description\n\nComputes phenology metrics based on the [Phenolopy](https://github.com/lewistrotter/PhenoloPy) implementation.\nPhenolopy (phenology + python) is a python-based library for analysing satellite timeseries data.\nPhenolopy has been designed to investigate the seasonality of satellite timeseries data and their relationship with\ndynamic vegetation properties such as phenology and temporal growth patterns.\nThe temporal domain holds important information about short- and long-term changes within vegetation lifecycles.\nPhenolopy can be applied to derive numerous phenometrics from satellite imagery.\n\n![image.png](https://github.com/lewistrotter/Phenolopy/raw/main/documentation/images/pheno_explain.png?raw=trueg)\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nyear = 2022\nspat_ext = {\n    \"coordinates\": [\n        [\n            [\n                5.179169745059369,\n                51.24984286550534\n            ],\n            [\n                5.170016107999743,\n                51.25052999567865\n            ],\n            [\n                5.171081610725707,\n                51.24861004739975\n            ],\n            [\n                5.178604705735125,\n                51.246720335821465\n            ],\n            [\n                5.179169745059369,\n                51.24984286550534\n            ]\n        ]\n    ],\n    \"type\": \"Polygon\"\n}\ntemp_ext = [f\"{year}-05-01\", f\"{year}-09-30\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'phenology'\nnamespace = 'u:fusets'\n\n## Setup of the base NDVI data cube upon which to execute the phenology calculation. \n## To improve results, a smoothed data cube can be constructed.\ns2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                spatial_extent=spat_ext,\n                                temporal_extent=temp_ext,\n                                bands=[\"B04\", \"B08\", \"SCL\"])\ns2 = s2.process(\"mask_scl_dilation\", data=s2, scl_band_name=\"SCL\")\ns2 = s2.mask_polygon(spat_ext)\nbase_ndvi = s2.ndvi(red=\"B04\", nir=\"B08\")\n\nphenology = connection.datacube_from_process(service,\n                                             namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                             data=base_ndvi)\n\nphenology_job = phenology.execute_batch('./phenology.nc', out_format=\"netcdf\", title=f'FuseTS - Phenology',\n                                        job_options={\n                                            'udf-dependency-archives': [\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n                                            ]\n                                        })\n```",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        }
+    ]
 }

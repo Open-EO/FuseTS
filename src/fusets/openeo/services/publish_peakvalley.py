@@ -2,7 +2,6 @@
 from openeo.api.process import Parameter
 from openeo.processes import apply_dimension, run_udf
 
-from fusets.openeo import load_whittakker_udf
 from fusets.openeo.peakvalley_udf import load_peakvalley_udf
 from fusets.openeo.services.helpers import publish_service, read_description
 
@@ -37,8 +36,8 @@ def generate_peakvalley_udp():
 
     return publish_service(id="peakvalley", summary="Detect peaks and valleys in a time series.",
                            description=description, parameters=[
-            input_cube.to_dict(),  drop_param.to_dict(), rec_param.to_dict(), slope_param.to_dict()
-        ], process_graph=process.flat_graph())
+            input_cube.to_dict(), drop_param.to_dict(), rec_param.to_dict(), slope_param.to_dict()
+        ], process_graph=process)
 
 
 if __name__ == "__main__":

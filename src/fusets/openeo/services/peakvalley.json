@@ -1,44 +1,4 @@
 {
-    "id": "peakvalley",
-    "summary": "Detect peaks and valleys in a time series.",
-    "description": "# Peak Valley\n\n## Overview\n\nIdentify the highest and lowest points in the data and gain a better understanding of the underlying patterns and\ntrends.\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nminx, miny, maxx, maxy = (15.179421073198585, 45.80924633589998, 15.185336903822831, 45.81302555710934)\nspat_ext = dict(west=minx, east=maxx, north=maxy, south=miny, crs=4326)\ntemp_ext = [\"2021-01-01\", \"2021-12-31\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'peakvalley'\nnamespace = 'u:fusets'\n\n## Creation of the base NDVI data cube upon which the peak valley detection is executed\ns2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                spatial_extent=spat_ext,\n                                temporal_extent=temp_ext,\n                                bands=[\"B04\", \"B08\", \"SCL\"])\ns2 = s2.process(\"mask_scl_dilation\", data=s2, scl_band_name=\"SCL\")\nbase_ndvi = s2.ndvi(red=\"B04\", nir=\"B08\", target_band='NDVI').band('NDVI')\n\n## Creation peak valley detection data cube\npeakvalley = connection.datacube_from_process(service,\n                                              namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                              data=base_ndvi)\n\n## Execute the service through an openEO batch job\npeakvalley_job = peakvalley.execute_batch('./peakvalley.nc', out_format=\"netcdf\",\n                                          title=f'FuseTS - Peak Valley Detection', job_options={\n        'udf-dependency-archives': [\n            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n        ]\n    })\n```\n",
-    "parameters": [
-        {
-            "name": "data",
-            "description": "A data cube.",
-            "schema": {
-                "type": "object",
-                "subtype": "raster-cube"
-            }
-        },
-        {
-            "name": "drop_thr",
-            "description": "Threshold value for the amplitude of the drop in the input feature",
-            "schema": {
-                "type": "number"
-            },
-            "default": 0.15,
-            "optional": true
-        },
-        {
-            "name": "rec_r",
-            "description": "Threshold value for the amplitude of the recovery, relative to the `drop_delta`",
-            "schema": {
-                "type": "number"
-            },
-            "default": 1.0,
-            "optional": true
-        },
-        {
-            "name": "slope_thr",
-            "description": "Threshold value for the slope where the peak should start",
-            "schema": {
-                "type": "number"
-            },
-            "default": -0.007,
-            "optional": true
-        }
-    ],
     "process_graph": {
         "applydimension1": {
             "process_id": "apply_dimension",
@@ -76,5 +36,45 @@
             },
             "result": true
         }
-    }
+    },
+    "id": "peakvalley",
+    "summary": "Detect peaks and valleys in a time series.",
+    "description": "# Peak Valley\n\n## Overview\n\nIdentify the highest and lowest points in the data and gain a better understanding of the underlying patterns and\ntrends.\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nminx, miny, maxx, maxy = (15.179421073198585, 45.80924633589998, 15.185336903822831, 45.81302555710934)\nspat_ext = dict(west=minx, east=maxx, north=maxy, south=miny, crs=4326)\ntemp_ext = [\"2021-01-01\", \"2021-12-31\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'peakvalley'\nnamespace = 'u:fusets'\n\n## Creation of the base NDVI data cube upon which the peak valley detection is executed\ns2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                spatial_extent=spat_ext,\n                                temporal_extent=temp_ext,\n                                bands=[\"B04\", \"B08\", \"SCL\"])\ns2 = s2.process(\"mask_scl_dilation\", data=s2, scl_band_name=\"SCL\")\nbase_ndvi = s2.ndvi(red=\"B04\", nir=\"B08\", target_band='NDVI').band('NDVI')\n\n## Creation peak valley detection data cube\npeakvalley = connection.datacube_from_process(service,\n                                              namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                              data=base_ndvi)\n\n## Execute the service through an openEO batch job\npeakvalley_job = peakvalley.execute_batch('./peakvalley.nc', out_format=\"netcdf\",\n                                          title=f'FuseTS - Peak Valley Detection', job_options={\n        'udf-dependency-archives': [\n            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n        ]\n    })\n```\n",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        },
+        {
+            "name": "drop_thr",
+            "description": "Threshold value for the amplitude of the drop in the input feature",
+            "schema": {
+                "type": "number"
+            },
+            "optional": true,
+            "default": 0.15
+        },
+        {
+            "name": "rec_r",
+            "description": "Threshold value for the amplitude of the recovery, relative to the `drop_delta`",
+            "schema": {
+                "type": "number"
+            },
+            "optional": true,
+            "default": 1.0
+        },
+        {
+            "name": "slope_thr",
+            "description": "Threshold value for the slope where the peak should start",
+            "schema": {
+                "type": "number"
+            },
+            "optional": true,
+            "default": -0.007
+        }
+    ]
 }

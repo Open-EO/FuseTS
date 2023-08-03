@@ -126,7 +126,7 @@ def publish_phenology():
     return publish_service(id="phenology", summary='',
                            description=description, parameters=[
             input_cube.to_dict()
-        ], process_graph=process.flat_graph())
+        ], process_graph=process)
 
 
 if __name__ == "__main__":

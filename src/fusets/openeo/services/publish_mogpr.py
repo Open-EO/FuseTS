@@ -21,7 +21,7 @@ def generate_mogpr_udp():
     return publish_service(id="mogpr", summary="Integrates timeseries in data cube using multi-output gaussian "
                                                "process regression.", description=description, parameters=[
         input_cube.to_dict()
-    ], process_graph=process.flat_graph())
+    ], process_graph=process)
 
 
 if __name__ == "__main__":

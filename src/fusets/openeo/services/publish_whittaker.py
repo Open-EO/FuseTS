@@ -25,7 +25,7 @@ def generate_whittaker_udp():
                                                    "smoothing and gap-filling of time series.",
                            description=description, parameters=[
             input_cube.to_dict(), lambda_param.to_dict()
-        ], process_graph=process.flat_graph())
+        ], process_graph=process)
 
 
 if __name__ == "__main__":

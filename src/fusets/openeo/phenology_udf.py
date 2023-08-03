@@ -4,27 +4,6 @@ from typing import Dict
 
 from openeo.udf import XarrayDataCube, inspect
 
-phenology_bands = [
-    "pos_values",
-    "pos_times",
-    "mos_values",
-    "vos_values",
-    "vos_times",
-    "bse_values",
-    "aos_values",
-    "sos_values",
-    "sos_times",
-    "eos_values",
-    "eos_times",
-    "los_values",
-    "roi_values",
-    "rod_values",
-    "lios_values",
-    "sios_values",
-    "liot_values",
-    "siot_values"
-]
-
 
 def load_venv():
     """

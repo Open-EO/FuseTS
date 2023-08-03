@@ -36,12 +36,11 @@ peakvalley = connection.datacube_from_process(service,
                                               data=base_ndvi)
 
 ## Execute the service through an openEO batch job
-output_file = './peakvalley.nc'
-peakvalley_job = peakvalley.execute_batch(out_format="netcdf", title=f'FuseTS - Peak Valley Detection', job_options={
-    'udf-dependency-archives': [
-        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
-    ]
-})
-peakvalley_job.get_results().download_file(output_file)
+peakvalley_job = peakvalley.execute_batch('./peakvalley.nc', out_format="netcdf",
+                                          title=f'FuseTS - Peak Valley Detection', job_options={
+        'udf-dependency-archives': [
+            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+        ]
+    })
 ```

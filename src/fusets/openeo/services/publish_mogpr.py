@@ -93,5 +93,5 @@ def generate_mogpr_udp():
 
 if __name__ == "__main__":
     # test_udf_locally()
-    test_udf()
-    # generate_mogpr_udp()
+    # test_udf()
+    generate_mogpr_udp()

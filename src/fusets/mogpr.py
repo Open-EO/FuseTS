@@ -166,6 +166,9 @@ def mogpr(array: Dataset, variables: List[str] = None, time_dimension="t") -> xa
     output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), tstep), dtype=np.float64)
     output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
+    if len(output_time) == 0:
+        raise Exception('The result does not contain any output times, please select a larger range')
+
     def callback(timeseries):
         out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]),
                                                            0, output_timevec=output_timevec, nt=1, trained_model=None)

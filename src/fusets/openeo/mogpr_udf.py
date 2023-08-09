@@ -20,6 +20,7 @@ def load_venv():
 def set_home(home):
     os.environ['HOME'] = home
 
+
 def create_gpy_cfg():
     home = os.getenv('HOME')
     set_home('/tmp')
@@ -52,10 +53,13 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     load_venv()
     home = write_gpy_cfg()
 
-    from fusets.mogpr import MOGPRTransformer
-    result = XarrayDataCube(MOGPRTransformer().fit_transform(cube.get_array().to_dataset()))
+    from fusets.mogpr import mogpr
+    dims = cube.get_array().dims
+    result = mogpr(cube.get_array().to_dataset(name='data'))
+    result_array = result.to_array().transpose(*dims)
+    result_dc = XarrayDataCube(result_array)
     set_home(home)
-    return result
+    return result_dc
 
 
 def load_mogpr_udf() -> str:

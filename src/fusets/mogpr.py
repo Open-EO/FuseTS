@@ -11,16 +11,15 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 import xarray
-from xarray import DataArray,Dataset
+from xarray import Dataset
 
 from fusets._xarray_utils import _extract_dates, _time_dimension
 from fusets.base import BaseEstimator
 
-from openeo.udf.debug import inspect
-
 _openeo_exists = importlib.util.find_spec("openeo") is not None
 if _openeo_exists:
     from openeo import DataCube
+
 
 class MOGPRTransformer(BaseEstimator):
     """
@@ -57,8 +56,6 @@ class MOGPRTransformer(BaseEstimator):
                     data.append(y)
                     var_names.append(d)
 
-
-
                 time_vec_min = np.min(list(pd.core.common.flatten(time)))
                 time_vec_max = np.max(list(pd.core.common.flatten(time)))
                 output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), 5), dtype=np.float64)
@@ -70,7 +67,7 @@ class MOGPRTransformer(BaseEstimator):
                     self.model = out_model
                     return
 
-    def transform(self, X ):
+    def transform(self, X):
         array = X
         ds = array
         variables = None
@@ -105,31 +102,30 @@ class MOGPRTransformer(BaseEstimator):
                 output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), 5), dtype=np.float64)
                 output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
-                out_mean, out_std, out_qflag, out_model = mogpr_1D(data[:], time[:], master_ind, output_timevec, nt,trained_model=self.model)
+                out_mean, out_std, out_qflag, out_model = mogpr_1D(data[:], time[:], master_ind, output_timevec, nt,
+                                                                   trained_model=self.model)
 
                 output.append(out_mean)
         array_x_y_ds_t = np.array(output).reshape((len(ds.coords['x'].values), len(ds.coords['y'].values), len(ds), -1))
         array_ds_t_x_y = np.moveaxis(np.moveaxis(array_x_y_ds_t, 0, -1), 0, -1)
 
-        #TODO rudimentary dataset construction, needs to be better
+        # TODO rudimentary dataset construction, needs to be better
 
         vars = {}
         c = 0
         for var in ds:
-            vars[var] = (('t','x','y'), array_ds_t_x_y[c])
-            c = c+1
+            vars[var] = (('t', 'x', 'y'), array_ds_t_x_y[c])
+            c = c + 1
 
-        out_ds = xarray.Dataset(data_vars=vars,coords=dict(
-             x=ds.x,
-             y=ds.y,
-             t=output_time,
+        out_ds = xarray.Dataset(data_vars=vars, coords=dict(
+            x=ds.x,
+            y=ds.y,
+            t=output_time,
 
-         ))
+        ))
         return out_ds
 
-
-    def fit_transform(self, X:Union[Dataset,DataCube], y=None, **fit_params):
-        inspect(data=[], message="FUSETS - Fit transform")
+    def fit_transform(self, X: Union[Dataset, DataCube], y=None, **fit_params):
         if _openeo_exists and isinstance(X, DataCube):
             from .openeo import mogpr as mogpr_openeo
             return mogpr_openeo(X)
@@ -137,8 +133,7 @@ class MOGPRTransformer(BaseEstimator):
         return mogpr(X)
 
 
-
-def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
+def mogpr(array: Dataset, variables: List[str] = None, time_dimension="t") -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
     fill gaps based on other indicators that are correlated with each other.
@@ -160,7 +155,7 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
 
     dates_np = [d.toordinal() for d in dates]
 
-    if isinstance(array,xarray.Dataset):
+    if isinstance(array, xarray.Dataset):
         selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
     else:
         selected_values = [array]
@@ -171,25 +166,24 @@ def mogpr(array:Dataset,variables:List[str]=None,  time_dimension="t"):
     output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), tstep), dtype=np.float64)
     output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
+    if len(output_time) == 0:
+        raise Exception('The result does not contain any output times, please select a larger range')
+
     def callback(timeseries):
-        inspect(data=[timeseries], message="FUSETS - Timeseries")
-        inspect(data=[np.array(dates_np) for i in timeseries], message="FUSETS - dates_np")
-        inspect(data=[output_timevec], message="FUSETS - output_timevec")
-        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]), 0, output_timevec=output_timevec, nt=1, trained_model=None)
+        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]),
+                                                           0, output_timevec=output_timevec, nt=1, trained_model=None)
         result = np.array(out_mean)
         return result
 
+    # setting vectorize to true is convenient, but has performance similar to for loop
+    result = xarray.apply_ufunc(callback, array.to_array(dim="variable"),
+                                input_core_dims=[["variable", time_dimension]],
+                                output_core_dims=[["variable", output_time_dimension]], vectorize=True)
 
-    inspect(data=[], message="FUSETS - VECTORIZING")
-
-    #setting vectorize to true is convenient, but has performance similar to for loop
-    result = xarray.apply_ufunc(callback, array.to_array(dim="variable"), input_core_dims=[["variable",time_dimension]], output_core_dims=[["variable",output_time_dimension]],vectorize=True)
-
-    result=result.assign_coords({output_time_dimension: output_time})
-    result = result.rename({output_time_dimension:time_dimension})
+    result = result.assign_coords({output_time_dimension: output_time})
+    result = result.rename({output_time_dimension: time_dimension})
 
     return result.to_dataset("variable").transpose(*array.dims)
-
 
 
 def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
@@ -267,8 +261,8 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                 Vp = np.zeros((nsamples, noutputs))
                 K = Matern32(1)
                 LCM = LCM(input_dim=1,
-                                               num_outputs=noutputs,
-                                               kernels_list=[K] * noutputs, W_rank=1)
+                          num_outputs=noutputs,
+                          kernels_list=[K] * noutputs, W_rank=1)
                 model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                 if not np.isnan(Ytrain[1]).all():
 
@@ -301,8 +295,10 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
 
                     else:
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
-                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
+                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (
+                                    Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (
+                                    Vp[:, None, ind] * Y_std_vec[ind]) / nt
 
                     del Yp, Vp
 
@@ -335,99 +331,99 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
     noutputs = len(data_in)
     # Number of output samples
     outputs_len = output_timevec.shape[0]
-    
-    out_mean  = []
-    out_std   = []
+
+    out_mean = []
+    out_std = []
     out_model = []
-    
+
     X_vec = []
     Y_vec = []
     Y_mean_vec = []
-    Y_std_vec  = []
+    Y_std_vec = []
 
     out_qflag = True
-    
-    #Variable is initialized to take into account possibility of no valid pixels present
-    for ind in range(noutputs):           
-        
-        out_mean.append(np.full(outputs_len,np.nan))
-        out_std.append(np.full(outputs_len,np.nan))
-        
-        X_tmp  = time_in[ind]
-        Y_tmp  = data_in[ind]
-        X_tmp  = X_tmp[~np.isnan(Y_tmp), np.newaxis]
-        Y_tmp  = Y_tmp[~np.isnan(Y_tmp), np.newaxis]        
+
+    # Variable is initialized to take into account possibility of no valid pixels present
+    for ind in range(noutputs):
+        out_mean.append(np.full(outputs_len, np.nan))
+        out_std.append(np.full(outputs_len, np.nan))
+
+        X_tmp = time_in[ind]
+        Y_tmp = data_in[ind]
+        X_tmp = X_tmp[~np.isnan(Y_tmp), np.newaxis]
+        Y_tmp = Y_tmp[~np.isnan(Y_tmp), np.newaxis]
         X_vec.append(X_tmp)
         Y_vec.append(Y_tmp)
-        del X_tmp,Y_tmp
-        
+        del X_tmp, Y_tmp
+
         # Data Normalization        
-        Y_mean_vec.append(np.mean(Y_vec[ind])) 
+        Y_mean_vec.append(np.mean(Y_vec[ind]))
         Y_std_vec.append(np.std(Y_vec[ind]))
-        Y_vec[ind] = (Y_vec[ind]-Y_mean_vec[ind])/Y_std_vec[ind]          
-        
-    if np.size(Y_vec[master_ind])>0:        
+        Y_vec[ind] = (Y_vec[ind] - Y_mean_vec[ind]) / Y_std_vec[ind]
+
+    if np.size(Y_vec[master_ind]) > 0:
         # Multi-output train and test sets
         Xtrain = X_vec
-        Ytrain = Y_vec       
-        
+        Ytrain = Y_vec
+
         Yp = np.zeros((outputs_len, noutputs))
         Vp = np.zeros((outputs_len, noutputs))
-        
+
         for i_test in range(nt):
-            try:    
+            try:
                 # Kernel
                 K = Matern32(input_dim=1)
                 # Linear Coregionalization
-                LCM = LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K]*noutputs, W_rank=1)
+                LCM = LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K] * noutputs, W_rank=1)
                 if trained_model is None:
                     # Linear coregionalization                    
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
-                    out_model.optimize()                    
-                else:                    
+                    out_model.optimize()
+                else:
                     # Extract hyperparams
                     l = trained_model['.*ICM.*lengthscale'][0]
                     v = trained_model['.*ICM.*var'][0]
                     k = trained_model['.*ICM.*B.kappa'].values
-                    w = trained_model['.*ICM.*B.W'].values                    
-                    
+                    w = trained_model['.*ICM.*B.W'].values
+
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
-                    
+
                     # Fix hyperparams
                     out_model['.*ICM.*len'].constrain_fixed(l)
                     out_model['.*ICM.*var'].constrain_fixed(v)
                     out_model['.*ICM.*B.kappa'].constrain_fixed(k)
                     out_model['.*ICM.*B.W'].constrain_fixed(w)
-                    
-                    out_model.optimize()                    
-                            
+
+                    out_model.optimize()
+
             except:
-                out_qflag=False
+                out_qflag = False
                 continue
 
-            for out in range(noutputs):                
-                newX =  output_timevec[:, np.newaxis]
+            for out in range(noutputs):
+                newX = output_timevec[:, np.newaxis]
                 newX = np.hstack([newX, out * np.ones((newX.shape[0], 1))])
 
-                noise_dict = {'output_index': newX[:, -1:].astype(int)} 
+                noise_dict = {'output_index': newX[:, -1:].astype(int)}
                 # Prediction
-                Yp[:, None, out], Vp[:, None, out] = out_model.predict(newX, Y_metadata=noise_dict)                        
+                Yp[:, None, out], Vp[:, None, out] = out_model.predict(newX, Y_metadata=noise_dict)
 
-                if i_test==0:
-                    out_mean[out][:, None] = (Yp[:,None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
-                    out_std[out][:, None]  = (Vp[:,None, out]*Y_std_vec[out])/nt       
-                else:                
-                    out_mean[out][:, None] = out_mean[out][:, None] + (Yp[:, None, out]*Y_std_vec[out]+Y_mean_vec[out])/nt       
-                    out_std[out][:, None]  = out_std[out][:, None]  + (Vp[:, None, out]*Y_std_vec[out])/nt        
+                if i_test == 0:
+                    out_mean[out][:, None] = (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                    out_std[out][:, None] = (Vp[:, None, out] * Y_std_vec[out]) / nt
+                else:
+                    out_mean[out][:, None] = out_mean[out][:, None] + (
+                            Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                    out_std[out][:, None] = out_std[out][:, None] + (Vp[:, None, out] * Y_std_vec[out]) / nt
 
-            del Yp,Vp
-            
+            del Yp, Vp
+
     # Flatten the series    
     out_mean_list = []
     out_std_list = []
-    
+
     for ind in range(noutputs):
         out_mean_list.append(out_mean[ind].ravel())
-        out_std_list.append(out_std[ind].ravel())    
-        
-    return  out_mean_list, out_std_list, out_qflag, out_model 
+        out_std_list.append(out_std[ind].ravel())
+
+    return out_mean_list, out_std_list, out_qflag, out_model

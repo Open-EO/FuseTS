@@ -7,6 +7,8 @@ from openeo.udf import execute_local_udf
 from fusets.openeo import load_mogpr_udf
 from fusets.openeo.services.helpers import read_description, publish_service
 
+NEIGHBORHOOD_SIZE = 32
+
 
 def test_udf():
     connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
@@ -44,12 +46,12 @@ def test_udf():
                                       bands=["B04", "B08", "SCL"])
     base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
     base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
-    size = 32
+
     mogpr = base_ndvi.apply_neighborhood(
         lambda data: data.run_udf(udf=load_mogpr_udf(), runtime='Python', context=dict()),
         size=[
-            {'dimension': 'x', 'value': size, 'unit': 'px'},
-            {'dimension': 'y', 'value': size, 'unit': 'px'}
+            {'dimension': 'x', 'value': NEIGHBORHOOD_SIZE, 'unit': 'px'},
+            {'dimension': 'y', 'value': NEIGHBORHOOD_SIZE, 'unit': 'px'}
         ], overlap=[])
     mogpr.execute_batch('./result_mogpr.nc', title=f'FuseTS - MOGPR - Local', job_options={
         'udf-dependency-archives': [
@@ -75,12 +77,12 @@ def generate_mogpr_udp():
     description = read_description('mogpr')
 
     input_cube = Parameter.raster_cube()
-    size = 32
+
     process = apply_neighborhood(input_cube,
                                  lambda data: data.run_udf(udf=load_mogpr_udf(), runtime='Python', context=dict()),
                                  size=[
-                                     {'dimension': 'x', 'value': size, 'unit': 'px'},
-                                     {'dimension': 'y', 'value': size, 'unit': 'px'}
+                                     {'dimension': 'x', 'value': NEIGHBORHOOD_SIZE, 'unit': 'px'},
+                                     {'dimension': 'y', 'value': NEIGHBORHOOD_SIZE, 'unit': 'px'}
                                  ], overlap=[])
 
     return publish_service(id="mogpr", summary="Integrates timeseries in data cube using multi-output gaussian "
@@ -90,6 +92,6 @@ def generate_mogpr_udp():
 
 
 if __name__ == "__main__":
-    test_udf_locally()
-    # test_udf()
+    # test_udf_locally()
+    test_udf()
     # generate_mogpr_udp()

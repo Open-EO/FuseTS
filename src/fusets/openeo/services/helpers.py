@@ -2,7 +2,11 @@ import json
 import os
 
 import openeo
-from importlib_resources import files
+
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import  files
 from openeo.processes import ProcessBuilder
 from openeo.rest.udp import build_process_dict
 

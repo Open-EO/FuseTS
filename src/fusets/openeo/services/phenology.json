@@ -1,0 +1,83 @@
+{
+    "process_graph": {
+        "applydimension1": {
+            "process_id": "apply_dimension",
+            "arguments": {
+                "data": {
+                    "from_parameter": "data"
+                },
+                "dimension": "t",
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "x"
+                                },
+                                "runtime": "Python",
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube, inspect\n\nphenology_bands = [\n    \"pos_values\",\n    \"pos_times\",\n    \"mos_values\",\n    \"vos_values\",\n    \"vos_times\",\n    \"bse_values\",\n    \"aos_values\",\n    \"sos_values\",\n    \"sos_times\",\n    \"eos_values\",\n    \"eos_times\",\n    \"los_values\",\n    \"roi_values\",\n    \"rod_values\",\n    \"lios_values\",\n    \"sios_values\",\n    \"liot_values\",\n    \"siot_values\"\n]\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply phenology to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.analytics import phenology\n    data = cube.get_array()\n    data = data.rename({'t': 'time'})\n    data = data.isel(bands=0)\n    phenology_result = phenology(data)\n    phenology_result = phenology_result.to_array(dim='bands')\n    phenology_result = phenology_result.expand_dims(dim='t', axis=0).assign_coords(t=[data.time.values[0]])\n    # phenology_result = phenology_result.transpose('t', 'bands', 'x', 'y')\n    # raise Exception(phenology_result)\n    inspect(data=phenology_result, message=\"Phenology result\")\n    return XarrayDataCube(phenology_result)\n\n\ndef load_phenology_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies phenology service.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                },
+                "target_dimension": "phenology"
+            }
+        },
+        "adddimension1": {
+            "process_id": "add_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "applydimension1"
+                },
+                "label": "pos_values",
+                "name": "var",
+                "type": "bands"
+            }
+        },
+        "renamelabels1": {
+            "process_id": "rename_labels",
+            "arguments": {
+                "data": {
+                    "from_node": "adddimension1"
+                },
+                "dimension": "var",
+                "target": [
+                    "pos_values",
+                    "pos_times",
+                    "mos_values",
+                    "vos_values",
+                    "vos_times",
+                    "bse_values",
+                    "aos_values",
+                    "sos_values",
+                    "sos_times",
+                    "eos_values",
+                    "eos_times",
+                    "los_values",
+                    "roi_values",
+                    "rod_values",
+                    "lios_values",
+                    "sios_values",
+                    "liot_values",
+                    "siot_values"
+                ]
+            },
+            "result": true
+        }
+    },
+    "id": "phenology",
+    "summary": "",
+    "description": "# Phenology\n\n## Description\n\nComputes phenology metrics based on the [Phenolopy](https://github.com/lewistrotter/PhenoloPy) implementation.\nPhenolopy (phenology + python) is a python-based library for analysing satellite timeseries data.\nPhenolopy has been designed to investigate the seasonality of satellite timeseries data and their relationship with\ndynamic vegetation properties such as phenology and temporal growth patterns.\nThe temporal domain holds important information about short- and long-term changes within vegetation lifecycles.\nPhenolopy can be applied to derive numerous phenometrics from satellite imagery.\n\n![image.png](https://github.com/lewistrotter/Phenolopy/raw/main/documentation/images/pheno_explain.png?raw=trueg)\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nyear = 2022\nspat_ext = {\n    \"coordinates\": [\n        [\n            [\n                5.179169745059369,\n                51.24984286550534\n            ],\n            [\n                5.170016107999743,\n                51.25052999567865\n            ],\n            [\n                5.171081610725707,\n                51.24861004739975\n            ],\n            [\n                5.178604705735125,\n                51.246720335821465\n            ],\n            [\n                5.179169745059369,\n                51.24984286550534\n            ]\n        ]\n    ],\n    \"type\": \"Polygon\"\n}\ntemp_ext = [f\"{year}-05-01\", f\"{year}-09-30\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'phenology'\nnamespace = 'u:fusets'\n\n## Setup of the base NDVI data cube upon which to execute the phenology calculation. \n## To improve results, a smoothed data cube can be constructed.\ns2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                spatial_extent=spat_ext,\n                                temporal_extent=temp_ext,\n                                bands=[\"B04\", \"B08\", \"SCL\"])\ns2 = s2.process(\"mask_scl_dilation\", data=s2, scl_band_name=\"SCL\")\ns2 = s2.mask_polygon(spat_ext)\nbase_ndvi = s2.ndvi(red=\"B04\", nir=\"B08\")\n\nphenology = connection.datacube_from_process(service,\n                                             namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                             data=base_ndvi)\n\nphenology_job = phenology.execute_batch('./phenology.nc', out_format=\"netcdf\", title=f'FuseTS - Phenology',\n                                        job_options={\n                                            'udf-dependency-archives': [\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n                                            ]\n                                        })\n```",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        }
+    ]
+}

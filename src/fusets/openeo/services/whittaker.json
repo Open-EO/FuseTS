@@ -1,0 +1,57 @@
+{
+    "process_graph": {
+        "applydimension1": {
+            "process_id": "apply_dimension",
+            "arguments": {
+                "data": {
+                    "from_parameter": "data"
+                },
+                "dimension": "t",
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "context": {
+                                    "test": 10,
+                                    "smoothing_lambda": {
+                                        "from_parameter": "smoothing_lambda"
+                                    }
+                                },
+                                "data": {
+                                    "from_parameter": "x"
+                                },
+                                "runtime": "Python",
+                                "udf": "import sys\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply whittaker smoothing to a datacube\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n\n    from fusets.whittaker import whittaker\n    smoothing_lambda = context.get(\"smoothing_lambda\", None)\n    return XarrayDataCube(whittaker(cube.get_array(), smoothing_lambda=smoothing_lambda))\n\n\ndef load_whittakker_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies whittaker smoothing.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            },
+            "result": true
+        }
+    },
+    "id": "whittaker",
+    "summary": "Execute a computationally efficient reconstruction method for smoothing and gap-filling of time series.",
+    "description": "# Whittaker\n\n## Description\n\nWhittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.\nThe main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the\ncorresponding temporal vector (date format) x, comprised between the start and end dates of a satellite image\ncollection. Missing or null values as well as the cloud-masked values (i.e. NaN), are handled by introducing a\nvector of 0-1 weights w, with wi = 0 for missing observations and wi=1 otherwise. Following, the Whittaker smoother\nis applied to the time series profiles, computing therefore a daily smoothing interpolation.\n\nWhittaker's fast processing speed was assessed through an initial performance testing by comparing different\ntime series fitting methods. Average runtime takes 0.0107 seconds to process a single NDVI temporal profile.\n\nThe smoother performance can be adjusted by tuning the lambda parameter, which penalizes the time series roughness:\nthe larger lambda the smoother the time series at the cost of the fit to the data getting worse. We found a lambda of\n10000 adequate for obtaining more convenient results. A more detailed description of the algorithm can be\nfound in the original work of Eilers 2003.\n\n## Usage\n\n### Python\n\n```python\nimport openeo\n\n## Setup of parameters\nspat_ext = {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n        [\n            [\n                5.170012098271149,\n                51.25062964728295\n            ],\n            [\n                5.17085904378298,\n                51.24882567194015\n            ],\n            [\n                5.17857421368097,\n                51.2468515482926\n            ],\n            [\n                5.178972704726344,\n                51.24982704376254\n            ],\n            [\n                5.170012098271149,\n                51.25062964728295\n            ]\n        ]\n    ]\n}\ntemp_ext = [\"2022-01-01\", \"2022-12-31\"]\nsmoothing_lambda = 10000\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'whittaker'\nnamespace = 'u:fusets'\n\n## Create a base NDVI datacube that can be used as input for the service\nbase = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',\n                                  spatial_extent=spat_ext,\n                                  temporal_extent=temp_ext,\n                                  bands=[\"B04\", \"B08\", \"SCL\"])\nbase_cloudmasked = base.process(\"mask_scl_dilation\", data=base, scl_band_name=\"SCL\")\nbase_ndvi = base_cloudmasked.ndvi(red=\"B04\", nir=\"B08\")\n\n## Create a processing graph from the Whittaker process using an active openEO connection\nwhittaker = connection.datacube_from_process(service,\n                                             namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                             data=base_ndvi, smoothing_lambda=smoothing_lambda)\n\n## Calculate the average time series value for the given area of interest\nwhittaker = whittaker.aggregate_spatial(spat_ext, reducer='mean')\n\n# Execute the service as a batch process\nwhittaker.execute_batch('./whittaker.json', title=f'FuseTS - Whittaker', job_options={\n    'udf-dependency-archives': [\n        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n    ]})\n```\n\n",
+    "parameters": [
+        {
+            "name": "data",
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        },
+        {
+            "name": "smoothing_lambda",
+            "description": "Lambda parameter to change the Whittaker smoothing",
+            "schema": {
+                "type": "number"
+            },
+            "optional": true,
+            "default": 10000
+        }
+    ]
+}

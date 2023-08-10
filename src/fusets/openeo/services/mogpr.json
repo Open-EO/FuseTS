@@ -1,7 +1,47 @@
 {
+    "process_graph": {
+        "applyneighborhood1": {
+            "process_id": "apply_neighborhood",
+            "arguments": {
+                "data": {
+                    "from_parameter": "data"
+                },
+                "overlap": [],
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "context": {},
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "runtime": "Python",
+                                "udf": "import os\nimport sys\nfrom configparser import ConfigParser\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.udf import XarrayDataCube\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in ['tmp/venv_static', 'tmp/venv']:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef set_home(home):\n    os.environ['HOME'] = home\n\n\ndef create_gpy_cfg():\n    home = os.getenv('HOME')\n    set_home('/tmp')\n    user_file = Path.home() / '.config' / 'GPy' / 'user.cfg'\n    if not user_file.exists():\n        user_file.parent.mkdir(parents=True, exist_ok=True)\n    return user_file, home\n\n\ndef write_gpy_cfg():\n    user_file, home = create_gpy_cfg()\n    config = ConfigParser()\n    config['plotting'] = {\n        'library': 'none'\n    }\n    with open(user_file, 'w') as cfg:\n        config.write(cfg)\n        cfg.close()\n    return home\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply mogpr integration to a datacube.\n    MOGPR requires a full timeseries for multiple bands, so it needs to be invoked in the context of an apply_neighborhood process.\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n    home = write_gpy_cfg()\n\n    from fusets.mogpr import mogpr\n    dims = cube.get_array().dims\n    result = mogpr(cube.get_array().to_dataset(name='data'))\n    result_dc = XarrayDataCube(result.to_array())\n    set_home(home)\n    return result_dc\n\n\ndef load_mogpr_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies mogpr.\n    @return:\n    \"\"\"\n    import os\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                },
+                "size": [
+                    {
+                        "dimension": "x",
+                        "value": 32,
+                        "unit": "px"
+                    },
+                    {
+                        "dimension": "y",
+                        "value": 32,
+                        "unit": "px"
+                    }
+                ]
+            },
+            "result": true
+        }
+    },
     "id": "mogpr",
     "summary": "Integrates timeseries in data cube using multi-output gaussian process regression.",
-    "description": "# Multi output gaussian process regression\n\n## Description\nCompute an integrated timeseries based on multiple inputs.\nFor instance, combine Sentinel-2 NDVI with Sentinel-1 RVI into one integrated NDVI. \n\n\n## Usage\nUsage examples for the MOGPR process.\n\n### Python\nThis code example highlights the usage of the MOGPR process in an OpenEO batch job. \nThe result of this batch job will consist of individual GeoTIFF files per date. \nGenerating multiple GeoTIFF files as output is only possible in a batch job.  \n```python\nimport openeo\n\n# define ROI and TOI\nextent = {\n    \"west\": 640860,\n    \"south\": 5676170,\n    \"east\": 643420,\n    \"north\": 5678730,\n    \"crs\": \"EPSG:32631\"\n}\n\nstartdate = \"2020-05-01\"\nenddate = \"2020-06-01\"\n\n# get datacube\nconnection = openeo.connect(\"https://openeo.cloud\")\ncube = connection.datacube_from_process(\n    \"MOGPR\", \n    namespace=\"FuseTS\", \n)\njob = cube.execute_batch(out_format=\"GTIFF\")\nresults = job.get_results()\nresults.download_files(\"out\")  # write files to output directory\n```\n\nFor small spatial and temporal extents, it is possible to get the results directly in a synchronous call:\n```python\ncube = connection.datacube_from_process(\n    \"MOGPR\", \n    namespace=\"FuseTS\" \n)\ncube.download(\"output.nc\", format=\"NetCDF\")\n```\n\n\n## Limitations\nThe spatial extent is limited to a maximum size equal to a Sentinel-2 MGRS tile (100 km x 100 km).\n\n\n\n## Configuration & Resource Usage\nRun configurations for different ROI/TOI with memory requirements and estimated run durations.\n\n### Synchronous calls\nTODO: Replace with actual measurements!!!\n\n| Spatial extent | Run duration |\n|----------------|--------------|\n| 100 m x 100 m | 1 minute |\n| 500m x 500 m | 1 minute |\n| 1 km x 1 km | 1 minute |\n| 5 km x 5 km | 2 minutes |\n| 10 km x 10 km | 3 minutes |\n| 50 km x 50 km | 9 minutes |\n\nThe maximum duration of a synchronous run is 15 minutes. \nFor long running computations, you can use batch jobs. \n\n### Batch jobs\nTODO: Replace with actual measurements!!!\n\n\n| Spatial extent | Temporal extent | Executor memory | Run duration |\n|----------------|-----------------|-----------------|---------|\n| 100 m x 100 m | 1 month | default | 7 minutes |\n| 500 m x 100 m | 1 month | default | 7 minutes |\n| 1 km x 1 km | 1 month | default | 7 minutes |\n| 5 km x 5 km | 1 month | default | 10 minutes |\n| 10 km x 10 km | 1 month | default | 11 minutes |\n| 50 km x 50 km | 1 month | 6 GB | 20 minutes |\n| 100 km x 100 km | 1 month | 7 GB | 34 minutes |\n| 100m x 100 m | 7 months | default | 10 minutes |\n| 500 m x 500 m | 7 months | default | 10 minutes |\n| 1 km x 1 km | 7 months | default | 14 minutes |\n| 5 km x 5 km | 7 months | default | 14 minutes |\n| 10 km x 10 km | 7 months | default | 19 minutes |\n| 50 km x 50 km | 7 months | 6 GB | 45 minutes |\n| 100 km x 100 km | 7 months | 8 GB | 65 minutes |\n\nThe executor memory defaults to 5 GB. You can increase the executor memory by specifying it as a job option, eg:\n```python\njob = cube.execute_batch(out_format=\"GTIFF\", job_options={\"executor-memory\": \"7g\"})\n```",
+    "description": "# Multi output gaussian process regression\n\n## Description\n\nCompute an integrated timeseries based on multiple inputs.\nFor instance, combine Sentinel-2 NDVI with Sentinel-1 RVI into one integrated NDVI.\n\n## Usage\n\nUsage examples for the MOGPR process.\n\n### Python\n\nThis code example highlights the usage of the MOGPR process in an OpenEO batch job.\nThe result of this batch job will consist of individual GeoTIFF files per date.\nGenerating multiple GeoTIFF files as output is only possible in a batch job.\n\n```python\nimport openeo\n\n# define ROI and TOI\nextent = {\n    \"west\": 640860,\n    \"south\": 5676170,\n    \"east\": 643420,\n    \"north\": 5678730,\n    \"crs\": \"EPSG:32631\"\n}\n\nstartdate = \"2020-05-01\"\nenddate = \"2020-06-01\"\n\n# get datacube\nconnection = openeo.connect(\"https://openeo.cloud\")\ncube = connection.datacube_from_process(\n    \"MOGPR\",\n    namespace=\"u:fusets\",\n)\njob = cube.execute_batch(out_format=\"GTIFF\")\nresults = job.get_results()\nresults.download_files(\"out\")  # write files to output directory\n```\n\nFor small spatial and temporal extents, it is possible to get the results directly in a synchronous call:\n\n```python\ncube = connection.datacube_from_process(\n    \"MOGPR\",\n    namespace=\"u:fusets\",\n)\ncube.download(\"output.nc\", format=\"NetCDF\")\n```\n\n## Limitations\n\nThe spatial extent is limited to a maximum size equal to a Sentinel-2 MGRS tile (100 km x 100 km).\n\n## Configuration & Resource Usage\n\nRun configurations for different ROI/TOI with memory requirements and estimated run durations.\n\n### Synchronous calls\n\nTODO: Replace with actual measurements!!!\n\n| Spatial extent | Run duration |\n|----------------|--------------|\n| 100 m x 100 m  | 1 minute     |\n| 500m x 500 m   | 1 minute     |\n| 1 km x 1 km    | 1 minute     |\n| 5 km x 5 km    | 2 minutes    |\n| 10 km x 10 km  | 3 minutes    |\n| 50 km x 50 km  | 9 minutes    |\n\nThe maximum duration of a synchronous run is 15 minutes.\nFor long running computations, you can use batch jobs.\n\n### Batch jobs\n\nTODO: Replace with actual measurements!!!\n\n| Spatial extent  | Temporal extent | Executor memory | Run duration |\n|-----------------|-----------------|-----------------|--------------|\n| 100 m x 100 m   | 1 month         | default         | 7 minutes    |\n| 500 m x 100 m   | 1 month         | default         | 7 minutes    |\n| 1 km x 1 km     | 1 month         | default         | 7 minutes    |\n| 5 km x 5 km     | 1 month         | default         | 10 minutes   |\n| 10 km x 10 km   | 1 month         | default         | 11 minutes   |\n| 50 km x 50 km   | 1 month         | 6 GB            | 20 minutes   |\n| 100 km x 100 km | 1 month         | 7 GB            | 34 minutes   |\n| 100m x 100 m    | 7 months        | default         | 10 minutes   |\n| 500 m x 500 m   | 7 months        | default         | 10 minutes   |\n| 1 km x 1 km     | 7 months        | default         | 14 minutes   |\n| 5 km x 5 km     | 7 months        | default         | 14 minutes   |\n| 10 km x 10 km   | 7 months        | default         | 19 minutes   |\n| 50 km x 50 km   | 7 months        | 6 GB            | 45 minutes   |\n| 100 km x 100 km | 7 months        | 8 GB            | 65 minutes   |\n\nThe executor memory defaults to 5 GB. You can increase the executor memory by specifying it as a job option, eg:\n\n```python\njob = cube.execute_batch(out_format=\"GTIFF\", job_options={\"executor-memory\": \"7g\"})\n```",
     "parameters": [
         {
             "name": "data",
@@ -11,32 +51,5 @@
                 "subtype": "raster-cube"
             }
         }
-    ],
-    "process_graph": {
-        "applydimension1": {
-            "process_id": "apply_dimension",
-            "arguments": {
-                "data": {
-                    "from_parameter": "data"
-                },
-                "dimension": "t",
-                "process": {
-                    "process_graph": {
-                        "runudf1": {
-                            "process_id": "run_udf",
-                            "arguments": {
-                                "data": {
-                                    "from_parameter": "x"
-                                },
-                                "runtime": "Python",
-                                "udf": "#mogpr"
-                            },
-                            "result": true
-                        }
-                    }
-                }
-            },
-            "result": true
-        }
-    }
+    ]
 }

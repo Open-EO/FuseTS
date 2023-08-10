@@ -22,10 +22,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest numpy==1.23.5
+        pip install flake8 pytest
         # Workaround for vam.whittaker installation issue https://github.com/WFP-VAM/vam.whittaker/issues/4
         pip install numpy==1.23.5 cython 
-        pip install .[dev]
+        pip install -e .[dev]
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

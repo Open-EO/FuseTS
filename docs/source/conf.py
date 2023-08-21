@@ -14,23 +14,21 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import datetime
 import inspect
 import os
 import sys
-import fusets
 
+import fusets
 
 # -- Project information -----------------------------------------------------
 
-title= 'System Design Document'
+title = 'System Design Document'
 project = 'FuseTS'
 copyright = '2022, Stefaan Lippens'
 author = 'Stefaan Lippens, Jeroen Dries'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
-
+release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -46,7 +44,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinxcontrib.rsvgconverter"
 ]
-
 
 myst_enable_extensions = [
     "amsmath",
@@ -121,7 +118,7 @@ latex_maketitle = r'''
 \end{center}
 \end{titlepage}
 '''
-latex_logo='images/AI4Food.png'
+latex_logo = 'images/AI4Food.png'
 latex_elements = {
     'preamble': r'''
 \usepackage{pdfpages}
@@ -134,7 +131,7 @@ latex_elements = {
 \setlength{\cftsecindent}{\cftchapnumwidth}
 \setlength{\cftsecnumwidth}{1.25cm}
 ''',
-    #'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
+    # 'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
     'printindex': r'\footnotesize\raggedright\printindex',
     'maketitle': latex_maketitle,
 }
@@ -197,6 +194,7 @@ intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "openeo": ("https://open-eo.github.io/openeo-python-client/", None),
 }
+
 
 # based on numpy doc/source/conf.py
 def linkcode_resolve(domain, info):

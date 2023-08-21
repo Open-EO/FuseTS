@@ -3,8 +3,8 @@ Library for multi temporal, multi sensor earth observation data integration and 
 
 """
 
-__version__ = "0.0.1"
+__version__ = "2.0.0"
 
-from .whittaker import whittaker, WhittakerTransformer
 from .mogpr import mogpr, MOGPRTransformer
 from .peakvalley import peakvalley
+from .whittaker import whittaker, WhittakerTransformer

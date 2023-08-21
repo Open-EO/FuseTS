@@ -1,18 +1,18 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/guides/building-and-testing-python
 
-name: Lint and Test
+name: Lint, Test and Build
 
 on: [ push, pull_request ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    env:
+      BUILD_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         python-version: [ "3.8", "3.9" ]
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -36,7 +36,9 @@ jobs:
         run: |
           pytest
       - name: Build bdist_wheel
+        if: ${{ env.BUILD_PACKAGES }}
         run: python setup.py bdist_wheel
       - uses: actions/upload-artifact@v3
+        if: ${{ env.BUILD_PACKAGES }}
         with:
           path: dist/*.whl

@@ -35,3 +35,8 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
+      - name: Build bdist_wheel
+        run: python setup.py bdist_wheel
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.whl

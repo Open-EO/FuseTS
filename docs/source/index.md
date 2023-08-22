@@ -16,6 +16,7 @@ design
 openeo
 api
 maintenance
+changelog
 
 ```
 

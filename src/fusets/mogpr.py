@@ -181,9 +181,9 @@ def mogpr(array: Dataset, variables: List[str] = None, time_dimension="t") -> xa
                                 output_core_dims=[["variable", output_time_dimension]], vectorize=True)
 
     result = result.assign_coords({output_time_dimension: output_time})
-    result = result.rename({output_time_dimension: time_dimension})
+    result = result.rename({output_time_dimension: time_dimension, "variable": "bands"})
 
-    return result.to_dataset("variable").transpose(*array.dims)
+    return result.to_dataset(dim="bands")
 
 
 def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):

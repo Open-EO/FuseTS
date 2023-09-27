@@ -55,8 +55,8 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
 
     from fusets.mogpr import mogpr
     dims = cube.get_array().dims
-    result = mogpr(cube.get_array().to_dataset(name='data'))
-    result_dc = XarrayDataCube(result.to_array())
+    result = mogpr(cube.get_array().to_dataset(dim="bands"))
+    result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
     set_home(home)
     return result_dc
 

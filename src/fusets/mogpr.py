@@ -153,9 +153,10 @@ def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension: st
     time_dimension = _time_dimension(array, time_dimension)
 
     output_dates = dates
+    output_time_dimension = "t_new"
+    
     if prediction_period is not None:
         output_dates = _output_dates(prediction_period, dates[0], dates[-1])
-        output_time_dimension = "t_new"
 
     dates_np = np.array([d.toordinal() for d in dates], dtype=np.float64)
     output_dates_np = np.array([d.toordinal() for d in output_dates], dtype=np.float64)

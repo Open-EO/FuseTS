@@ -167,8 +167,8 @@ def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension="t"
         raise Exception('The result does not contain any output times, please select a larger range')
 
     def callback(timeseries):
-        out_mean, out_std, out_qflag, out_model = mogpr_1D(timeseries, list([np.array(dates_np) for i in timeseries]),
-                                                           0, output_timevec=output_dates_np, nt=1, trained_model=None)
+        out_mean, _, _, _ = mogpr_1D(timeseries, list([dates_np for _ in timeseries]),
+                                     0, output_timevec=output_dates_np, nt=1, trained_model=None)
         result = np.array(out_mean)
         return result
 

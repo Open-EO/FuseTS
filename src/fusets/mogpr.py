@@ -154,10 +154,8 @@ def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension="t"
 
     dates_np = [d.toordinal() for d in dates]
 
-    if isinstance(array, xarray.Dataset):
-        selected_values = [v.values for v in array.values() if variables is None or v.name in variables]
-    else:
-        selected_values = [array]
+    if variables is not None:
+        array = array.drop_vars([var for var in list(array.data_vars) if var not in variables])
 
     tstep = 5
     time_vec_min = np.min(dates_np)

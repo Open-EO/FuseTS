@@ -132,7 +132,7 @@ class MOGPRTransformer(BaseEstimator):
         return mogpr(X)
 
 
-def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension="t", prediction_period=None) -> xarray.Dataset:
+def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension: str="t", prediction_period: str=None) -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
     fill gaps based on other indicators that are correlated with each other.

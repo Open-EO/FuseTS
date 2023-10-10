@@ -23,10 +23,10 @@ if _openeo_exists:
 
 class MOGPRTransformer(BaseEstimator):
     """
-    
+
     MOGPR (multi-output gaussia-process regression) integrates various timeseries and delivers the same amount of reconstructed timeseries. This allows to
     fill gaps based on other indicators that are correlated with each other.
-    
+
     """
 
     def __init__(self) -> None:

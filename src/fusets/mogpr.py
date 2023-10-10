@@ -11,7 +11,6 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 import xarray
-from xarray import Dataset
 
 from fusets._xarray_utils import _extract_dates, _time_dimension
 from fusets.base import BaseEstimator
@@ -125,7 +124,7 @@ class MOGPRTransformer(BaseEstimator):
         ))
         return out_ds
 
-    def fit_transform(self, X: Union[Dataset, DataCube], y=None, **fit_params):
+    def fit_transform(self, X: Union[xarray.Dataset, DataCube], y=None, **fit_params):
         if _openeo_exists and isinstance(X, DataCube):
             from .openeo import mogpr as mogpr_openeo
             return mogpr_openeo(X)
@@ -133,7 +132,7 @@ class MOGPRTransformer(BaseEstimator):
         return mogpr(X)
 
 
-def mogpr(array: Dataset, variables: List[str] = None, time_dimension="t") -> xarray.Dataset:
+def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension="t") -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
     fill gaps based on other indicators that are correlated with each other.
@@ -308,7 +307,7 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
 def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=None):
     """
     Function performing the multioutput gaussian-process regression at pixel level for gapfilling purposes
-    
+
     Args:
         data_in (list): List of numpy 1D arrays containing data to be processed
         time_in (list): List of numpy 1D arrays containing the (ordinal)dates of each variable in the time dimension
@@ -356,7 +355,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         Y_vec.append(Y_tmp)
         del X_tmp, Y_tmp
 
-        # Data Normalization        
+        # Data Normalization
         Y_mean_vec.append(np.mean(Y_vec[ind]))
         Y_std_vec.append(np.std(Y_vec[ind]))
         Y_vec[ind] = (Y_vec[ind] - Y_mean_vec[ind]) / Y_std_vec[ind]
@@ -376,7 +375,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                 # Linear Coregionalization
                 LCM = LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K] * noutputs, W_rank=1)
                 if trained_model is None:
-                    # Linear coregionalization                    
+                    # Linear coregionalization
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                     out_model.optimize()
                 else:
@@ -418,7 +417,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
 
             del Yp, Vp
 
-    # Flatten the series    
+    # Flatten the series
     out_mean_list = []
     out_std_list = []
 

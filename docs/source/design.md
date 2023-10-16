@@ -39,7 +39,7 @@ virtual cubes as defined by [**openEO**](https://openeo.org).
 - Code should be the same when working with openEO or XArray datacubes.
 
 - The general framework for timeseries processing is based on [sktime](https://www.sktime.org), which in turn
-is based on [scikit-learn](https://scikit-learn.org). These libraries have an API that has proven
+is based on [scikit-learn](https://scikit-learn.net). These libraries have an API that has proven
 to be generic enough to support many timeseries transformation algorithms. 
 
 - Prefer *[convention over configuration](https://en.wikipedia.org/wiki/Convention_over_configuration)* to allow functions

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Updated CropSAR notebook with the latest changes.
+* Fixed the version of whittaker after a new release of the library.
 
 ## [2.0.0] - 2023-08-21
 

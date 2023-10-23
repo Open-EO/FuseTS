@@ -54,8 +54,12 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     home = write_gpy_cfg()
 
     from fusets.mogpr import mogpr
+    variables = context.get('variables')
+    time_dimension = context.get('time_dimension', 't')
+    prediction_period = context.get('prediction_period', '5D')
+
     dims = cube.get_array().dims
-    result = mogpr(cube.get_array().to_dataset(dim="bands"))
+    result = mogpr(cube.get_array().to_dataset(dim="bands"), variables=variables, time_dimension=time_dimension, prediction_period=prediction_period)
     result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
     set_home(home)
     return result_dc

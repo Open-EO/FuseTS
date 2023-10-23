@@ -3,7 +3,7 @@ Library for multi temporal, multi sensor earth observation data integration and 
 
 """
 
-__version__ = "2.0.1a1"
+__version__ = "2.0.2a1"
 
 from .mogpr import mogpr, MOGPRTransformer
 from .peakvalley import peakvalley

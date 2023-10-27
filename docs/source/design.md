@@ -127,6 +127,57 @@ It is also possible to harmonize band names across sensors, this has been done a
 In a similar manner, it may be necessary to standardize specific variable names, we for now assume however the use
 of generally accepted names such as 'NDVI', 'FAPAR', 'LAI' and so on.
 
+### Reducing Dimensions of a Data Cube
+
+This method is used to condense data into a more manageable format. Data Cube aggregation is a multidimensional aggregation that represents the original data set by aggregating at one or multiple layers of a data cube, resulting in data reduction.
+
+A few examples of such reductions are:
+
+- taking a slice of data at a specific date (selectign 1 temporal point)
+- calculating max NDVI for an area over a period (reducing temporal dimension with the `max` operation)
+- spatially averaging data over a given geometry (reducing both spatial dimensions with the `mean` operation)
+
+For example, let's say we are working with the following `xarray.Dataset` data cube:
+
+![cube](./images/example_cube.png)
+
+If we want to reduce the temporal dimension of the cube by extracting max values of NDVI, once can do
+
+.. code-block::
+:caption: Reducing the temporal dim of the data cube with the `max` operator
+
+    # perform operation on full datacube
+    max_dataset = cube.max(dim='t')
+
+    # perform operation on a specific variable only
+    max_ndvi_dataarray = cube.NDVI.max(dim='t')
+
+where the outputs above only have the two spatial dimensions `x` and `y`.
+
+Similarly one can perform the reduction on multiple dimensions at once, e.g., for obtaining spatially aggregated time series
+
+.. code-block::
+:caption: Reducing the spatial dims of the data cube with the `mean` operator
+
+    # perform operation on full datacube
+    cube_timeseries = cube.mean(dim=['x', 'y'])
+
+    # perform operation on a specific variable only
+    ndvi_timeseries = cube.NDVI.max(dim=['x', 'y'])
+
+where the outputs above only have the one temporal dimension `t`.
+
+#### Reducing dimensionality in openEO pipelines
+
+It is also possible to do dimensionality reduction via openEO processes. Many defined functions already exist and are ready to be used, such as:
+
+- [reduce_spatial](https://openeo.org/documentation/1.0/processes.html#reduce_dimension)
+- [aggregate_spatial](https://openeo.org/documentation/1.0/processes.html#aggregate_spatial)
+- [aggregate_temporal](https://openeo.org/documentation/1.0/processes.html#aggregate_temporal)
+- [reduce_dimension](https://openeo.org/documentation/1.0/processes.html#reduce_dimension)
+
+These functions and more, along with the `max`, `min`, `mean`, `median`, and other reducers can be found in the page [listing all the openEO processes](https://openeo.org/documentation/1.0/processes.html).
+
 ### openEO Data Cubes
 
 The methods in this library are designed to work both on openEO and XArray datacubes. This allows the user code to work

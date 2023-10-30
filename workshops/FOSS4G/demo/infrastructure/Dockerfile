@@ -7,7 +7,7 @@ ARG codedir=./work/fusets
 USER root
 
 RUN apt-get update
-RUN apt-get install -y build-essential
+RUN apt-get install -y build-essential libhdf5-serial-dev netcdf-bin libnetcdf-dev
 
 # copy contents
 ADD . ${codedir}

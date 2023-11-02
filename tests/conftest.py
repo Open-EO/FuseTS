@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray
+
 
 @pytest.fixture
 def connection():
@@ -60,6 +62,15 @@ def harmonic_timeseries():
     return xarray.DataArray(data=ys,
                      dims=["time"],
                      coords=dict(time=ts))
+
+@pytest.fixture
+def outlier_timeseries():
+    rng = np.random.default_rng(42)
+    dates = pd.date_range('2019-01-01', '2019-12-31', periods=300)
+    values = np.sin(np.linspace(0, 4*np.pi, len(dates))) + rng.random(len(dates))*0.2
+    values[rng.choice(range(len(dates)), 4).astype(int)] += rng.choice([-1, 1], 4) * 5
+
+    return xarray.DataArray(data=values, dims=["time"], coords=dict(time=dates))
 
 @pytest.fixture
 def areas():

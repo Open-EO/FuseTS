@@ -5,7 +5,6 @@ from typing import Union
 
 import numpy as np
 import xarray
-from vam.whittaker import ws2d, ws2doptv
 from xarray import DataArray
 
 from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
@@ -144,6 +143,9 @@ def whittaker_f(x, y, lmbd, d):
     Returns:
         Returns daily (default) and d spacing (d in days defined by the user) smoothed and gap-filled time series and the corresponding time date vector.
     """
+
+    # deferred import to avoid dependency issues with the whitakker library
+    from vam.whittaker import ws2d, ws2doptv
     # minimum and maximum dates
     D1 = get_all_dates(x)
     D11 = D1[~np.isnan(y)]

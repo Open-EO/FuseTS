@@ -36,7 +36,7 @@ def temporal_outliers(
 
     result = xarray.apply_ufunc(
         callback,
-        array
+        array,
         input_core_dims=[[time_dimension]],
         output_core_dims=[[time_dimension]],
         vectorize=True,

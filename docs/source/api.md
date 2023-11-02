@@ -53,3 +53,7 @@ This section contains the API reference, generated from the current state of the
     :members:
     
 ```
+
+## [fusets examples](https://github.com/Open-EO/FuseTS/tree/main/notebooks)
+
+You can delve into practical examples of how to utilize the Fusets library by examining these provided [notebooks](https://github.com/Open-EO/FuseTS/tree/main/notebooks).

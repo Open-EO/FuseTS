@@ -18,7 +18,8 @@ openeo
 api
 maintenance
 changelog
-
+notebooks
+workshops
 ```
 
 

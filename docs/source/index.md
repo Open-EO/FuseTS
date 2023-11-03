@@ -12,14 +12,15 @@ FuseTS is a Python package for Time Series Fusion, integrated with openEO.
 ```{toctree}
 :maxdepth: 2
 
+installation
 design
 openeo
 api
 maintenance
 changelog
-faq
 
 ```
+
 
 Indices and tables
 ==================

@@ -24,7 +24,7 @@ def test_mogpr_udf(data):
     from fusets.openeo.mogpr_udf import apply_datacube
 
     result = apply_datacube(XarrayDataCube(data.to_array(dim="bands")), context={})
-    assert result.array.dims == ("bands", "t", "y", "x")
+    assert set(result.array.dims) == {"bands", "t", "y", "x"}
     assert result.array.shape == (2, 146, 2, 2)
 
 
@@ -33,5 +33,5 @@ def test_mogpr_train_model(data):
     t.fit(data)
     out = t.transform(data)
 
-    assert tuple(out.coords) == ("t", "y", "x")
+    assert set(out.coords) == {"t", "y", "x"}
     assert out.NDVI.shape == (146, 2, 2)

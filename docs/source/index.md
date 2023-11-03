@@ -17,6 +17,7 @@ openeo
 api
 maintenance
 changelog
+faq
 
 ```
 

@@ -18,37 +18,39 @@ Generating multiple GeoTIFF files as output is only possible in a batch job.
 ```python
 import openeo
 
-# define ROI and TOI
-extent = {
-    "west": 640860,
-    "south": 5676170,
-    "east": 643420,
-    "north": 5678730,
-    "crs": "EPSG:32631"
-}
+## Setup of parameters
+minx, miny, maxx, maxy = (15.179421073198585, 45.80924633589998, 15.185336903822831, 45.81302555710934)
+spat_ext = dict(west=minx, east=maxx, north=maxy, south=miny, crs=4326)
+temp_ext = ["2021-01-01", "2021-12-31"]
 
-startdate = "2020-05-01"
-enddate = "2020-06-01"
+## Setup connection to openEO
+connection = openeo.connect("openeo.vito.be").authenticate_oidc()
+service = 'mogpr'
+namespace = 'u:fusets'
 
-# get datacube
-connection = openeo.connect("https://openeo.cloud")
-cube = connection.datacube_from_process(
-    "MOGPR",
-    namespace="u:fusets",
-)
-job = cube.execute_batch(out_format="GTIFF")
-results = job.get_results()
-results.download_files("out")  # write files to output directory
-```
+## Creation of the base NDVI data cube upon which the mogpr is executed
+s2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',
+                                spatial_extent=spat_ext,
+                                temporal_extent=temp_ext,
+                                bands=["B04", "B08", "SCL"])
+s2 = s2.process("mask_scl_dilation", data=s2, scl_band_name="SCL")
+base_ndvi = s2.ndvi(red="B04", nir="B08", target_band='NDVI').band('NDVI')
 
-For small spatial and temporal extents, it is possible to get the results directly in a synchronous call:
+## Creation mogpr  data cube
+mogpr = connection.datacube_from_process(service,
+                                              namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',
+                                              data=base_ndvi)
+## Calculate the average time series value for the given area of interest
+mogpr = mogpr.aggregate_spatial(spat_ext, reducer='mean')
 
-```python
-cube = connection.datacube_from_process(
-    "MOGPR",
-    namespace="u:fusets",
-)
-cube.download("output.nc", format="NetCDF")
+## Execute the service through an openEO batch job
+mogpr_job = mogpr.execute_batch('./mogpr.json', out_format="json",
+                                          title=f'FuseTS - MOGPR', job_options={
+        'udf-dependency-archives': [
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+        ]
+    })
 ```
 
 ## Limitations

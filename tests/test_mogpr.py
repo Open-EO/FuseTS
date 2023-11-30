@@ -12,7 +12,7 @@ from fusets.whittaker import  whittaker
 
 
 
-ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/testdata-public/fusets/b4_b8_vv_vh/rape.nc",stream=True).content))
+ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/artifactory/testdata-public/fusets/b4_b8_vv_vh/rape.nc",stream=True).content))
 
 ds['RVI'] = (ds.VH + ds.VH) / (ds.VV + ds.VH)
 ds['NDVI'] = (ds.B08 - ds.B04) / (ds.B04 + ds.B08)

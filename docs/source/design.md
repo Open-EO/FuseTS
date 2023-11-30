@@ -180,7 +180,7 @@ We have a sample data available to the public, which can be directly opened with
    :caption: Loading XArray dataset
    
     import xarray, io, requests
-    ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/testdata-public/malawi_sentinel2.nc",stream=True).content))
+    ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc",stream=True).content))
 ```
 
 This netCDF file already follows the necessary conventions, so should get you going quickly. Other formats like Zarr can be

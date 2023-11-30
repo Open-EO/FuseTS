@@ -18,6 +18,7 @@ openeo
 api
 maintenance
 changelog
+faq
 notebooks
 workshops
 

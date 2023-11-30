@@ -39,8 +39,8 @@ peakvalley = connection.datacube_from_process(service,
 peakvalley_job = peakvalley.execute_batch('./peakvalley.nc', out_format="netcdf",
                                           title=f'FuseTS - Peak Valley Detection', job_options={
         'udf-dependency-archives': [
-            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
         ]
     })
 ```

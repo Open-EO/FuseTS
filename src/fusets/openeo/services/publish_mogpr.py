@@ -55,8 +55,8 @@ def test_udf():
         ], overlap=[])
     mogpr.execute_batch('./result_mogpr.nc', title=f'FuseTS - MOGPR - Local', job_options={
         'udf-dependency-archives': [
-            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-            'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
         ],
         'executor-memory': '7g'
     })

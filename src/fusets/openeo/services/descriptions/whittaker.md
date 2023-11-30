@@ -79,8 +79,8 @@ whittaker = whittaker.aggregate_spatial(spat_ext, reducer='mean')
 # Execute the service as a batch process
 whittaker.execute_batch('./whittaker.json', title=f'FuseTS - Whittaker', job_options={
     'udf-dependency-archives': [
-        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-        'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
     ]})
 ```
 

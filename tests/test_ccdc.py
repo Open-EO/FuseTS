@@ -13,7 +13,7 @@ from fusets.whittaker import whittaker
 
 
 def test_fit_harmonics():
-    ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/testdata-public/malawi_sentinel2.nc",stream=True).content))
+    ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc",stream=True).content))
     some_index = (ds.B04 - ds.B02) / (ds.B04 + ds.B02)
     print(some_index)
     smoothed_output = whittaker(some_index)

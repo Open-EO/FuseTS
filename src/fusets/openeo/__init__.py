@@ -12,6 +12,7 @@ import xarray
 from openeo.rest.datacube import DataCube
 from .whittaker_udf import load_whittakker_udf
 from .mogpr_udf import load_mogpr_udf
+from .peakvalley_udf import load_peakvalley_udf
 import openeo
 
 def whittaker(datacube :DataCube, smoothing_lambda :float):
@@ -38,6 +39,18 @@ def whittaker(datacube :DataCube, smoothing_lambda :float):
 
     return datacube.apply_dimension(code= load_whittakker_udf(),runtime="Python",context=dict(smoothing_lambda=smoothing_lambda))
 
+def _peak_valley(datacube :DataCube,
+                 drop_thr: float = 0.15,
+                 rec_r: float = 1.0,
+                 slope_thr: float = -0.007):
+
+    context = {
+        'drop_thr':drop_thr,
+        'rec_r': rec_r,
+        'slope_thr': slope_thr,
+    }
+
+    return datacube.apply_dimension(code= load_peakvalley_udf(),runtime="Python",context=context,dimension="t")
 
 def mogpr(datacube :DataCube):
     """

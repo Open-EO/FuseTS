@@ -20,7 +20,6 @@ def data() -> xarray.Dataset:
 
 def test_mogpr_udf(data):
     from openeo.udf import XarrayDataCube
-
     from fusets.openeo.mogpr_udf import apply_datacube
 
     result = apply_datacube(XarrayDataCube(data.to_array(dim="bands")), context={})

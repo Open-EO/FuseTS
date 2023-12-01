@@ -71,8 +71,8 @@ phenology = connection.datacube_from_process(service,
 phenology_job = phenology.execute_batch('./phenology.nc', out_format="netcdf", title=f'FuseTS - Phenology',
                                         job_options={
                                             'udf-dependency-archives': [
-                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-                                                'https://artifactory.vgt.vito.be:443/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+                                                'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
+                                                'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
                                             ]
                                         })
 ```

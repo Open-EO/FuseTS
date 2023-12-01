@@ -9,7 +9,7 @@ from fusets import whittaker
 
 area = "rye"
 
-rye_raw = xarray.load_dataset(io.BytesIO(requests.get(f"https://artifactory.vgt.vito.be/testdata-public/fusets/b4_b8_vv_vh/{area}.nc",stream=True).content))
+rye_raw = xarray.load_dataset(io.BytesIO(requests.get(f"https://artifactory.vgt.vito.be/artifactory/testdata-public/fusets/b4_b8_vv_vh/{area}.nc",stream=True).content))
 rye_ndvi = (rye_raw.B08-rye_raw.B04)/(rye_raw.B08+rye_raw.B04)
 rye_ndvi_gan = xarray.load_dataset(f"/home/driesj/python/FuseTS/tests/validation/{area}-ndvi-gan.nc")
 mean_ndvi = rye_ndvi.mean(dim=('x','y'))

@@ -16,7 +16,6 @@ def ccdc_change_detection(array: xarray.DataArray):
     :return: the break days
     """
 
-
     def _filter_saturated(observations):
         """
         bool index for unsaturated obserervations between 0..10,000

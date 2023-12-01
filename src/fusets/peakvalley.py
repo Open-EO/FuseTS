@@ -1,3 +1,4 @@
+import importlib.util
 from datetime import datetime
 from typing import Iterable, Sequence, Tuple, Union
 
@@ -8,18 +9,17 @@ from xarray import DataArray
 
 from fusets._xarray_utils import _extract_dates, _time_dimension
 
-import importlib.util
-
 _openeo_exists = importlib.util.find_spec("openeo") is not None
 if _openeo_exists:
     from openeo import DataCube
 
+
 def peakvalley(
-    array: Union[DataArray,DataCube],
+    array: Union[DataArray, DataCube],
     drop_thr: float = 0.15,
     rec_r: float = 1.0,
     slope_thr: float = -0.007,
-) -> Union[DataArray,DataCube]:
+) -> Union[DataArray, DataCube]:
     """
     Algorithm for finding peak-valley patterns in the provided array.
 
@@ -33,9 +33,10 @@ def peakvalley(
         data array with different values {1: peak, -1: valley, 0: between peak and valley, np.nan: other}
     """
 
-    if _openeo_exists and isinstance(array,DataCube):
+    if _openeo_exists and isinstance(array, DataCube):
         from .openeo import _peak_valley as peak_valley_openeo
-        return peak_valley_openeo(array,drop_thr,rec_r,slope_thr)
+
+        return peak_valley_openeo(array, drop_thr, rec_r, slope_thr)
 
     dates = np.array(_extract_dates(array))
     time_dimension = _time_dimension(array, None)
@@ -181,8 +182,6 @@ def peakvalley_f(
     return result, pairs
 
 
-def _calculate_slope(
-    indices: Tuple[int, int], x: Iterable[datetime], y: np.ndarray
-) -> float:
+def _calculate_slope(indices: Tuple[int, int], x: Iterable[datetime], y: np.ndarray) -> float:
     idx1, idx2 = indices
     return (y[idx1] - y[idx2]) / (x[idx1] - x[idx2]).days

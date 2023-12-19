@@ -64,3 +64,47 @@ DATE_SCHEMA = {
 }
 
 GEOJSON_SCHEMA = {"type": "object", "subtype": "geojson"}
+
+
+DATE_SCHEMA = {
+    "type": "array",
+    "subtype": "temporal-interval",
+    "minItems": 2,
+    "maxItems": 2,
+    "items": {
+        "anyOf": [
+            {
+                "type": "string",
+                "format": "date-time",
+                "subtype": "date-time"
+            },
+            {
+                "type": "string",
+                "format": "date",
+                "subtype": "date"
+            },
+            {
+                "type": "string",
+                "subtype": "year",
+                "minLength": 4,
+                "maxLength": 4,
+                "pattern": "^\\d{4}$"
+            },
+            {
+                "type": "null"
+            }
+        ]
+    },
+    "examples": [
+        [
+            "2015-01-01T00:00:00Z",
+            "2016-01-01T00:00:00Z"
+        ],
+        [
+            "2015-01-01",
+            "2016-01-01"
+        ]
+    ]
+}
+
+GEOJSON_SCHEMA = {"type": "object", "subtype": "geojson"}

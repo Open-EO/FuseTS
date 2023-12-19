@@ -1,5 +1,4 @@
 # Reads contents with UTF-8 encoding and returns str.
-
 import openeo
 from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process

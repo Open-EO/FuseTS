@@ -42,3 +42,47 @@ def publish_service(id: str, summary: str, description: str, parameters: list, p
     connection = get_openeo_connection()
     connection.save_user_defined_process(user_defined_process_id=id, summary=summary, description=description,
                                          parameters=parameters, process_graph=process_graph, public=True)
+
+
+DATE_SCHEMA = {
+    "type": "array",
+    "subtype": "temporal-interval",
+    "minItems": 2,
+    "maxItems": 2,
+    "items": {
+        "anyOf": [
+            {
+                "type": "string",
+                "format": "date-time",
+                "subtype": "date-time"
+            },
+            {
+                "type": "string",
+                "format": "date",
+                "subtype": "date"
+            },
+            {
+                "type": "string",
+                "subtype": "year",
+                "minLength": 4,
+                "maxLength": 4,
+                "pattern": "^\\d{4}$"
+            },
+            {
+                "type": "null"
+            }
+        ]
+    },
+    "examples": [
+        [
+            "2015-01-01T00:00:00Z",
+            "2016-01-01T00:00:00Z"
+        ],
+        [
+            "2015-01-01",
+            "2016-01-01"
+        ]
+    ]
+}
+
+GEOJSON_SCHEMA = {"type": "object", "subtype": "geojson"}

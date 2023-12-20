@@ -169,7 +169,6 @@ def _load_biopar(polygon, date, biopar):
         polygon=polygon,
         biopar_type=biopar
     )
-    base_biopar = base_biopar.add_dimension(name="bands", label=biopar, type="bands")
     return base_biopar.mask_polygon(polygon)
 
 

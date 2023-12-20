@@ -1,4 +1,4 @@
-# Multi output gaussian process regression
+# Sentinel-1 and Sentinel-2 data fusion through multi output gaussian process regression
 
 ## Description
 

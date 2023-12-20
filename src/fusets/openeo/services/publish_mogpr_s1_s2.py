@@ -48,7 +48,8 @@ def test_udf():
     temp_ext = ["2022-05-01", "2022-07-30"]
     mogpr = connection.datacube_from_process(service,
                                              namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',
-                                             polygon=spat_ext, date=temp_ext)
+                                             polygon=spat_ext, date=temp_ext, s1_collection='GRD',
+                                             s2_collection='FAPAR')
     mogpr.execute_batch('./result_mogpr_s1_s2.nc', title=f'FuseTS - MOGPR S1 S2 - Local', job_options={
         'udf-dependency-archives': [
             'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
@@ -161,15 +162,15 @@ def _load_biopar(polygon, date, biopar):
     :param biopar: BIOPAR type (see documentation of service on portal)
     :return:
     """
-    biopar = process(
+    base_biopar = process(
         process_id="BIOPAR",
         namespace="vito",
         date=date,
         polygon=polygon,
         biopar_type=biopar
     )
-    biopar = biopar.add_dimension(name="bands", label=biopar, type="bands")
-    return biopar.mask_polygon(polygon)
+    base_biopar = base_biopar.add_dimension(name="bands", label=biopar, type="bands")
+    return base_biopar.mask_polygon(polygon)
 
 
 def _load_evi(connection, polygon, date):

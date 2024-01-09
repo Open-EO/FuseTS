@@ -1,7 +1,6 @@
 import numpy as np
 import xarray
 
-
 from fusets._xarray_utils import _extract_dates, _time_dimension
 
 

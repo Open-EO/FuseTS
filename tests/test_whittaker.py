@@ -7,7 +7,7 @@ import requests
 import xarray
 
 from fusets import whittaker
-from fusets.whittaker import whittaker_f, WhittakerTransformer
+from fusets.whittaker import WhittakerTransformer, whittaker_f
 
 
 def test_whittaker_f():
@@ -42,28 +42,35 @@ def test_whittaker_f():
 
 
 def test_whittaker_xarray(sinusoidal_timeseries):
-
-    result = whittaker(sinusoidal_timeseries,smoothing_lambda=1,time_dimension="time")
+    result = whittaker(sinusoidal_timeseries, smoothing_lambda=1, time_dimension="time")
 
     assert np.isnan(result).sum() == 0
-    numpy.testing.assert_allclose(result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15)
+    numpy.testing.assert_allclose(
+        result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15
+    )
 
 
 def test_whittaker_transformer_xarray(sinusoidal_timeseries):
-
-    result = WhittakerTransformer().fit_transform(sinusoidal_timeseries,smoothing_lambda=1,time_dimension="time")
+    result = WhittakerTransformer().fit_transform(sinusoidal_timeseries, smoothing_lambda=1, time_dimension="time")
 
     assert np.isnan(result).sum() == 0
-    numpy.testing.assert_allclose(result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15)
-
+    numpy.testing.assert_allclose(
+        result[~sinusoidal_timeseries.isnull()], sinusoidal_timeseries.dropna(dim="time"), atol=0.15
+    )
 
 
 def test_whittaker_realdata():
-    ds = xarray.load_dataset(io.BytesIO(requests.get("https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc",stream=True).content))
+    ds = xarray.load_dataset(
+        io.BytesIO(
+            requests.get(
+                "https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc", stream=True
+            ).content
+        )
+    )
     some_index = (ds.B04 - ds.B02) / (ds.B04 + ds.B02)
     print(some_index)
     smoothed_output = whittaker(some_index)
-    out_set = xarray.Dataset({"index":smoothed_output.assign_attrs(grid_mapping="crs"),"crs":ds.crs},attrs=dict(Conventions="CF-1.8"))
+    out_set = xarray.Dataset(
+        {"index": smoothed_output.assign_attrs(grid_mapping="crs"), "crs": ds.crs}, attrs=dict(Conventions="CF-1.8")
+    )
     out_set.to_netcdf("malawi_smooth.nc")
-
-

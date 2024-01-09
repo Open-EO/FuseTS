@@ -12,25 +12,26 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
 
-import datetime
+sys.path.insert(0, os.path.abspath("."))
+
 import inspect
 import os
 import sys
+
 import fusets
 
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../source'))
+sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../source"))
 
 # -- Project information -----------------------------------------------------
 
-project = 'DEL-03 Design Definition File'
-copyright = '2022, Stefaan Lippens'
-author = 'Stefaan Lippens, Jeroen Dries'
+project = "DEL-03 Design Definition File"
+copyright = "2022, Stefaan Lippens"
+author = "Stefaan Lippens, Jeroen Dries"
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.0'
+release = "1.1.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,20 +42,17 @@ release = '1.1.0'
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
-    'sphinx_autodoc_typehints',
+    "sphinx_autodoc_typehints",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
-    "sphinxcontrib.rsvgconverter"
+    "sphinxcontrib.rsvgconverter",
 ]
 
-myst_enable_extensions = [
-    "amsmath",
-    "colon_fence"
-]
+myst_enable_extensions = ["amsmath", "colon_fence"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -63,22 +61,27 @@ exclude_patterns = []
 
 # The file extensions of source files. Sphinx considers the files with this suffix as sources.
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 latex_documents = [
-    ('del03_ddf', 'DEL-03-DDF-AI4FOOD-1.1.tex', 'AI4Food Design definition file',
-     'Jeroen Dries', 'manual'),
+    ("del03_ddf", "DEL-03-DDF-AI4FOOD-1.1.tex", "AI4Food Design definition file", "Jeroen Dries", "manual"),
 ]
 
 texinfo_documents = [
-    ('del03_ddf', 'DEL-03', 'Design Definition File',
-     author, 'openeo', 'AI4Food Design Definition File',
-     'Miscellaneous'),
+    (
+        "del03_ddf",
+        "DEL-03",
+        "Design Definition File",
+        author,
+        "openeo",
+        "AI4Food Design Definition File",
+        "Miscellaneous",
+    ),
 ]
 
-latex_maketitle = r'''
+latex_maketitle = r"""
 \begin{titlepage}
 
 
@@ -167,9 +170,9 @@ Release & Date & Details & Editors \\
 \end{center}
 \newpage
 
-'''
+"""
 
-latex_toc = r'''
+latex_toc = r"""
 
 \tableofcontents
 \newpage
@@ -177,11 +180,11 @@ latex_toc = r'''
 \listoftables
 
 \newpage
-'''
+"""
 
-#latex_logo='../source/images/AI4Food.png'
+# latex_logo='../source/images/AI4Food.png'
 latex_elements = {
-    'preamble': r'''
+    "preamble": r"""
 \usepackage{pdfpages}
 \usepackage{soul}
 \usepackage{hyperref}
@@ -191,47 +194,47 @@ latex_elements = {
 \cftsetpnumwidth {1.25cm}\cftsetrmarg{1.5cm}
 \setlength{\cftsecindent}{0.75cm}
 \setlength{\cftsecnumwidth}{1.25cm}
-''',
+""",
     #'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
-    'printindex': '',#r'\footnotesize\raggedright\printindex',
-    'makeindex': '',#r'\footnotesize\raggedright\printindex',
-    'maketitle': latex_maketitle,
-    'tableofcontents': latex_toc
+    "printindex": "",  # r'\footnotesize\raggedright\printindex',
+    "makeindex": "",  # r'\footnotesize\raggedright\printindex',
+    "maketitle": latex_maketitle,
+    "tableofcontents": latex_toc,
 }
 
-latex_show_urls = 'footnote'
+latex_show_urls = "footnote"
 
-latex_additional_files=['../source/images/AI4Food.png','../source/images/AI4Food_companies.png']
-latex_toplevel_sectioning = 'section'
-latex_docclass= {'manual':'article','howto':'article'}
+latex_additional_files = ["../source/images/AI4Food.png", "../source/images/AI4Food_companies.png"]
+latex_toplevel_sectioning = "section"
+latex_docclass = {"manual": "article", "howto": "article"}
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "alabaster"
 
 html_theme_options = {
-    'badge_branch': 'main',
-    'github_user': 'Open-EO',
-    'github_repo': 'FuseTS',
-    'github_banner': True,
-    'fixed_sidebar': False,
-    'use_edit_page_button': True,
-    'use_repository_button': True,
-    'use_issues_button': True,
-    'page_width': '1200px',
-    'sidebar_width': '300px',
-    'font_family': 'Cantarell, Georgia, serif',
-    'code_font_family': "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
-    'extra_footer': """<p>FuseTS is built in the frame of the ESA AI4Food project.</p>""",
+    "badge_branch": "main",
+    "github_user": "Open-EO",
+    "github_repo": "FuseTS",
+    "github_banner": True,
+    "fixed_sidebar": False,
+    "use_edit_page_button": True,
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "page_width": "1200px",
+    "sidebar_width": "300px",
+    "font_family": "Cantarell, Georgia, serif",
+    "code_font_family": "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
+    "extra_footer": """<p>FuseTS is built in the frame of the ESA AI4Food project.</p>""",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -248,6 +251,7 @@ intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "openeo": ("https://open-eo.github.io/openeo-python-client/", None),
 }
+
 
 # based on numpy doc/source/conf.py
 def linkcode_resolve(domain, info):
@@ -293,7 +297,4 @@ def linkcode_resolve(domain, info):
     if "+" in fusets.__version__:
         return f"https://github.com/Open-EO/FuseTS/blob/main/src/fusets/{fn}{linespec}"
     else:
-        return (
-            f"https://github.com/Open-EO/FuseTS/blob/"
-            f"v{fusets.__version__}/fusets/{fn}{linespec}"
-        )
+        return f"https://github.com/Open-EO/FuseTS/blob/" f"v{fusets.__version__}/fusets/{fn}{linespec}"

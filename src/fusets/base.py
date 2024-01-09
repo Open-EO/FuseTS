@@ -1,9 +1,7 @@
-
-class BaseEstimator():
+class BaseEstimator:
     """
     Estimator base class
     """
-
 
     def get_params(self, deep=True) -> dict:
         """

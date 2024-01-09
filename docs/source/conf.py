@@ -22,13 +22,13 @@ import fusets
 
 # -- Project information -----------------------------------------------------
 
-title = 'System Design Document'
-project = 'FuseTS'
-copyright = '2022, Stefaan Lippens'
-author = 'Stefaan Lippens, Jeroen Dries'
+title = "System Design Document"
+project = "FuseTS"
+copyright = "2022, Stefaan Lippens"
+author = "Stefaan Lippens, Jeroen Dries"
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0'
+release = "2.0.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,20 +38,17 @@ release = '2.0.0'
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
-    'sphinx_autodoc_typehints',
+    "sphinx_autodoc_typehints",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
-    "sphinxcontrib.rsvgconverter"
+    "sphinxcontrib.rsvgconverter",
 ]
 
-myst_enable_extensions = [
-    "amsmath",
-    "colon_fence"
-]
+myst_enable_extensions = ["amsmath", "colon_fence"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -60,22 +57,27 @@ exclude_patterns = []
 
 # The file extensions of source files. Sphinx considers the files with this suffix as sources.
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 latex_documents = [
-    ('design.md', 'ai4food.tex', 'AI4Food Design definition file',
-     'Jeroen Dries', 'manual'),
+    ("design.md", "ai4food.tex", "AI4Food Design definition file", "Jeroen Dries", "manual"),
 ]
 
 texinfo_documents = [
-    ('design.md', 'DEL-03', 'Design Definition File',
-     author, 'openeo', 'AI4Food Design Definition File',
-     'Miscellaneous'),
+    (
+        "design.md",
+        "DEL-03",
+        "Design Definition File",
+        author,
+        "openeo",
+        "AI4Food Design Definition File",
+        "Miscellaneous",
+    ),
 ]
 
-latex_maketitle = r'''
+latex_maketitle = r"""
 \begin{titlepage}
 
 
@@ -117,10 +119,10 @@ latex_maketitle = r'''
      \vspace{3cm} {\large 13th July, 2022} \vspace{0.2cm}
 \end{center}
 \end{titlepage}
-'''
-latex_logo = 'images/AI4Food.png'
+"""
+latex_logo = "images/AI4Food.png"
 latex_elements = {
-    'preamble': r'''
+    "preamble": r"""
 \usepackage{pdfpages}
 \usepackage{soul}
 \usepackage{hyperref}
@@ -130,34 +132,34 @@ latex_elements = {
 \setlength{\cftchapnumwidth}{0.75cm}
 \setlength{\cftsecindent}{\cftchapnumwidth}
 \setlength{\cftsecnumwidth}{1.25cm}
-''',
+""",
     # 'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
-    'printindex': r'\footnotesize\raggedright\printindex',
-    'maketitle': latex_maketitle,
+    "printindex": r"\footnotesize\raggedright\printindex",
+    "maketitle": latex_maketitle,
 }
-latex_show_urls = 'footnote'
+latex_show_urls = "footnote"
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'furo'
+html_theme = "furo"
 
 html_theme_options = {
-    'badge_branch': 'main',
-    'github_user': 'Open-EO',
-    'github_repo': 'FuseTS',
-    'github_banner': True,
-    'fixed_sidebar': False,
-    'use_edit_page_button': True,
-    'use_repository_button': True,
-    'use_issues_button': True,
-    'page_width': '1200px',
-    'sidebar_width': '300px',
-    'font_family': 'Cantarell, Georgia, serif',
-    'code_font_family': "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
-    'extra_footer': """<p>FuseTS is built in the frame of the ESA AI4Food project.</p>""",
+    "badge_branch": "main",
+    "github_user": "Open-EO",
+    "github_repo": "FuseTS",
+    "github_banner": True,
+    "fixed_sidebar": False,
+    "use_edit_page_button": True,
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "page_width": "1200px",
+    "sidebar_width": "300px",
+    "font_family": "Cantarell, Georgia, serif",
+    "code_font_family": "'Liberation Mono', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
+    "extra_footer": """<p>FuseTS is built in the frame of the ESA AI4Food project.</p>""",
     "footer_icons": [
         {
             "name": "GitHub",
@@ -175,7 +177,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 html_title = "FuseTS"
 
@@ -240,7 +242,4 @@ def linkcode_resolve(domain, info):
     if "+" in fusets.__version__:
         return f"https://github.com/Open-EO/FuseTS/blob/main/src/fusets/{fn}{linespec}"
     else:
-        return (
-            f"https://github.com/Open-EO/FuseTS/blob/"
-            f"v{fusets.__version__}/fusets/{fn}{linespec}"
-        )
+        return f"https://github.com/Open-EO/FuseTS/blob/" f"v{fusets.__version__}/fusets/{fn}{linespec}"

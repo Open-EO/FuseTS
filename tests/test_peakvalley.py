@@ -1,7 +1,8 @@
 import numpy as np
+from numpy.testing import assert_array_equal
+
 from fusets._xarray_utils import _extract_dates
 from fusets.peakvalley import peakvalley_f
-from numpy.testing import assert_array_equal
 
 
 def test_peak_valley_detection(harmonic_timeseries):

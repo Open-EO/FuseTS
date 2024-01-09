@@ -1,7 +1,7 @@
-'''
+"""
 The methodology is based on the great work of Luca Pipia´s (et al) paper
 Link: https://doi.org/10.1016/j.rse.2019.111452
-'''
+"""
 
 import importlib
 import itertools
@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import xarray
 
-from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
+from fusets._xarray_utils import _extract_dates, _output_dates, _time_dimension
 from fusets.base import BaseEstimator
 
 _openeo_exists = importlib.util.find_spec("openeo") is not None
@@ -35,7 +35,6 @@ class MOGPRTransformer(BaseEstimator):
         ds = X
         for pos_x in range(4):  # len(ds.coords['x'].values)
             for pos_y in range(4):  # len(ds.coords['y'].values)
-
                 master_ind = 0
                 nt = 1
                 day_step = 15
@@ -47,10 +46,11 @@ class MOGPRTransformer(BaseEstimator):
 
                 for d in ds:
                     y = ds[d][:, pos_y, pos_x].values
-                    x = ds[d]['t'].values
+                    x = ds[d]["t"].values
 
-                    time_vec_num = np.asarray([pd.Timestamp(_).to_pydatetime().toordinal() for _ in x],
-                                              dtype=np.float64)
+                    time_vec_num = np.asarray(
+                        [pd.Timestamp(_).to_pydatetime().toordinal() for _ in x], dtype=np.float64
+                    )
                     time.append(time_vec_num)
                     data.append(y)
                     var_names.append(d)
@@ -70,13 +70,12 @@ class MOGPRTransformer(BaseEstimator):
         array = X
         ds = array
         variables = None
-        time_dimension = 't'
+        time_dimension = "t"
 
         output = []
 
-        for pos_x in range(len(ds.coords['x'].values)):
-            for pos_y in range(len(ds.coords['y'].values)):
-
+        for pos_x in range(len(ds.coords["x"].values)):
+            for pos_y in range(len(ds.coords["y"].values)):
                 master_ind = 0
                 nt = 1
                 day_step = 15
@@ -88,10 +87,11 @@ class MOGPRTransformer(BaseEstimator):
 
                 for d in ds:
                     y = ds[d][:, pos_y, pos_x].values
-                    x = ds[d]['t'].values
+                    x = ds[d]["t"].values
 
-                    time_vec_num = np.asarray([pd.Timestamp(_).to_pydatetime().toordinal() for _ in x],
-                                              dtype=np.float64)
+                    time_vec_num = np.asarray(
+                        [pd.Timestamp(_).to_pydatetime().toordinal() for _ in x], dtype=np.float64
+                    )
                     time.append(time_vec_num)
                     data.append(y)
                     var_names.append(d)
@@ -101,11 +101,12 @@ class MOGPRTransformer(BaseEstimator):
                 output_timevec = np.array(range(int(time_vec_min), int(time_vec_max), 5), dtype=np.float64)
                 output_time = [datetime.fromordinal(int(_)) for _ in output_timevec]
 
-                out_mean, out_std, out_qflag, out_model = mogpr_1D(data[:], time[:], master_ind, output_timevec, nt,
-                                                                   trained_model=self.model)
+                out_mean, out_std, out_qflag, out_model = mogpr_1D(
+                    data[:], time[:], master_ind, output_timevec, nt, trained_model=self.model
+                )
 
                 output.append(out_mean)
-        array_x_y_ds_t = np.array(output).reshape((len(ds.coords['x'].values), len(ds.coords['y'].values), len(ds), -1))
+        array_x_y_ds_t = np.array(output).reshape((len(ds.coords["x"].values), len(ds.coords["y"].values), len(ds), -1))
         array_ds_t_x_y = np.moveaxis(np.moveaxis(array_x_y_ds_t, 0, -1), 0, -1)
 
         # TODO rudimentary dataset construction, needs to be better
@@ -113,26 +114,31 @@ class MOGPRTransformer(BaseEstimator):
         vars = {}
         c = 0
         for var in ds:
-            vars[var] = (('t', 'x', 'y'), array_ds_t_x_y[c])
+            vars[var] = (("t", "x", "y"), array_ds_t_x_y[c])
             c = c + 1
 
-        out_ds = xarray.Dataset(data_vars=vars, coords=dict(
-            x=ds.x,
-            y=ds.y,
-            t=output_time,
-
-        ))
+        out_ds = xarray.Dataset(
+            data_vars=vars,
+            coords=dict(
+                x=ds.x,
+                y=ds.y,
+                t=output_time,
+            ),
+        )
         return out_ds
 
     def fit_transform(self, X: Union[xarray.Dataset, DataCube], y=None, **fit_params):
         if _openeo_exists and isinstance(X, DataCube):
             from .openeo import mogpr as mogpr_openeo
+
             return mogpr_openeo(X)
 
         return mogpr(X)
 
 
-def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension: str="t", prediction_period: str=None) -> xarray.Dataset:
+def mogpr(
+    array: xarray.Dataset, variables: List[str] = None, time_dimension: str = "t", prediction_period: str = None
+) -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
     fill gaps based on other indicators that are correlated with each other.
@@ -154,7 +160,7 @@ def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension: st
 
     output_dates = dates
     output_time_dimension = "t_new"
-    
+
     if prediction_period is not None:
         output_dates = _output_dates(prediction_period, dates[0], dates[-1])
 
@@ -165,18 +171,28 @@ def mogpr(array: xarray.Dataset, variables: List[str] = None, time_dimension: st
         array = array.drop_vars([var for var in list(array.data_vars) if var not in variables])
 
     if len(output_dates) == 0:
-        raise Exception('The result does not contain any output times, please select a larger range')
+        raise Exception("The result does not contain any output times, please select a larger range")
 
     def callback(timeseries):
-        out_mean, _, _, _ = mogpr_1D(timeseries, list([dates_np for _ in timeseries]),
-                                     0, output_timevec=output_dates_np, nt=1, trained_model=None)
+        out_mean, _, _, _ = mogpr_1D(
+            timeseries,
+            list([dates_np for _ in timeseries]),
+            0,
+            output_timevec=output_dates_np,
+            nt=1,
+            trained_model=None,
+        )
         result = np.array(out_mean)
         return result
 
     # setting vectorize to true is convenient, but has performance similar to for loop
-    result = xarray.apply_ufunc(callback, array.to_array(dim="variable"),
-                                input_core_dims=[["variable", time_dimension]],
-                                output_core_dims=[["variable", output_time_dimension]], vectorize=True)
+    result = xarray.apply_ufunc(
+        callback,
+        array.to_array(dim="variable"),
+        input_core_dims=[["variable", time_dimension]],
+        output_core_dims=[["variable", output_time_dimension]],
+        vectorize=True,
+    )
 
     result = result.assign_coords({output_time_dimension: output_dates})
     result = result.rename({output_time_dimension: time_dimension, "variable": "bands"})
@@ -204,8 +220,8 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
         - out_model (list): Matrix-like structure containing the model information at pixel level
     """
     from GPy.kern import Matern32
-    from GPy.util.multioutput import LCM
     from GPy.models import GPCoregionalizedRegression
+    from GPy.util.multioutput import LCM
 
     noutput_timeseries = len(data_in)
 
@@ -224,7 +240,6 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
         out_std.append(np.full(imout_sz, np.nan))
 
     for x, y in itertools.product(range(x_size), range(y_size)):
-
         X_vec = []
         Y_vec = []
         Y_mean_vec = []
@@ -240,7 +255,6 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
             del X_tmp, Y_tmp
 
         if np.size(Y_vec[master_ind]) > 0:
-
             # Data Normalization
             for ind in range(noutput_timeseries):
                 Y_mean_vec.append(np.mean(Y_vec[ind]))
@@ -258,21 +272,17 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                 Yp = np.zeros((nsamples, noutputs))
                 Vp = np.zeros((nsamples, noutputs))
                 K = Matern32(1)
-                LCM = LCM(input_dim=1,
-                          num_outputs=noutputs,
-                          kernels_list=[K] * noutputs, W_rank=1)
+                LCM = LCM(input_dim=1, num_outputs=noutputs, kernels_list=[K] * noutputs, W_rank=1)
                 model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
                 if not np.isnan(Ytrain[1]).all():
-
                     try:
                         # if trained_model is None:
                         model.optimize()
                         list_tmp = [model.param_array]
 
                         for _ in range(noutput_timeseries):
-                            list_tmp.append(eval('model.sum.ICM' + str(_) + '.B.B'))
+                            list_tmp.append(eval("model.sum.ICM" + str(_) + ".B.B"))
                         out_model[x][y] = list_tmp
-
 
                     except:
                         out_qflag[x, y] = False
@@ -282,21 +292,23 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                         newX = Xtest.copy()
 
                         newX = np.hstack([newX, out * np.ones((newX.shape[0], 1))])
-                        noise_dict = {'output_index': newX[:, -1:].astype(int)}
+                        noise_dict = {"output_index": newX[:, -1:].astype(int)}
                         Yp[:, None, out], Vp[:, None, out] = model.predict(newX, Y_metadata=noise_dict)
 
                     if i_test == 0:
-
                         for ind in range(noutput_timeseries):
                             out_mean[ind][:, None, x, y] = (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
                             out_std[ind][:, None, x, y] = (Vp[:, None, ind] * Y_std_vec[ind]) / nt
 
                     else:
                         for ind in range(noutput_timeseries):
-                            out_mean[ind][:, None, x, y] = out_mean[ind][:, None, x, y] + (
-                                    Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
-                            out_std[ind][:, None, x, y] = out_std[ind][:, None, x, y] + (
-                                    Vp[:, None, ind] * Y_std_vec[ind]) / nt
+                            out_mean[ind][:, None, x, y] = (
+                                out_mean[ind][:, None, x, y]
+                                + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                            )
+                            out_std[ind][:, None, x, y] = (
+                                out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
+                            )
 
                     del Yp, Vp
 
@@ -322,8 +334,8 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
         - out_model (Object): Gaussian Process model for heteroscedastic multioutput regression
     """
     from GPy.kern import Matern32
-    from GPy.util.multioutput import LCM
     from GPy.models import GPCoregionalizedRegression
+    from GPy.util.multioutput import LCM
 
     # Number of outputs
     noutputs = len(data_in)
@@ -379,18 +391,18 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_model.optimize()
                 else:
                     # Extract hyperparams
-                    l = trained_model['.*ICM.*lengthscale'][0]
-                    v = trained_model['.*ICM.*var'][0]
-                    k = trained_model['.*ICM.*B.kappa'].values
-                    w = trained_model['.*ICM.*B.W'].values
+                    l = trained_model[".*ICM.*lengthscale"][0]
+                    v = trained_model[".*ICM.*var"][0]
+                    k = trained_model[".*ICM.*B.kappa"].values
+                    w = trained_model[".*ICM.*B.W"].values
 
                     out_model = GPCoregionalizedRegression(Xtrain, Ytrain, kernel=LCM.copy())
 
                     # Fix hyperparams
-                    out_model['.*ICM.*len'].constrain_fixed(l)
-                    out_model['.*ICM.*var'].constrain_fixed(v)
-                    out_model['.*ICM.*B.kappa'].constrain_fixed(k)
-                    out_model['.*ICM.*B.W'].constrain_fixed(w)
+                    out_model[".*ICM.*len"].constrain_fixed(l)
+                    out_model[".*ICM.*var"].constrain_fixed(v)
+                    out_model[".*ICM.*B.kappa"].constrain_fixed(k)
+                    out_model[".*ICM.*B.W"].constrain_fixed(w)
 
                     out_model.optimize()
 
@@ -402,7 +414,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                 newX = output_timevec[:, np.newaxis]
                 newX = np.hstack([newX, out * np.ones((newX.shape[0], 1))])
 
-                noise_dict = {'output_index': newX[:, -1:].astype(int)}
+                noise_dict = {"output_index": newX[:, -1:].astype(int)}
                 # Prediction
                 Yp[:, None, out], Vp[:, None, out] = out_model.predict(newX, Y_metadata=noise_dict)
 
@@ -410,8 +422,9 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_mean[out][:, None] = (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
                     out_std[out][:, None] = (Vp[:, None, out] * Y_std_vec[out]) / nt
                 else:
-                    out_mean[out][:, None] = out_mean[out][:, None] + (
-                            Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                    out_mean[out][:, None] = (
+                        out_mean[out][:, None] + (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                    )
                     out_std[out][:, None] = out_std[out][:, None] + (Vp[:, None, out] * Y_std_vec[out]) / nt
 
             del Yp, Vp

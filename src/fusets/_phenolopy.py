@@ -1,6 +1,6 @@
 # phenolopy
 # flake8: noqa
-'''
+"""
 COPIED: this library is not yet packaged and distributed!
 
 This script contains functions for calculating per-pixel phenology metrics (phenometrics)
@@ -24,7 +24,7 @@ GitHub: https://github.com/lewistrotter/phenolopy
 
 Contacts:
 Lewis Trotter: lewis.trotter@postgrad.curtin.edu.au
-'''
+"""
 
 # import required libraries
 import os, sys
@@ -37,8 +37,8 @@ from datetime import datetime, timedelta
 from scipy.stats import zscore
 from scipy.signal import savgol_filter, find_peaks
 from scipy.ndimage import gaussian_filter
-#from statsmodels.tsa.seasonal import STL as stl
 
+# from statsmodels.tsa.seasonal import STL as stl
 
 
 def conform_dea_band_names(ds):
@@ -61,53 +61,51 @@ def conform_dea_band_names(ds):
     """
 
     # notify user
-    print('Conforming satellite bands')
+    print("Conforming satellite bands")
 
     # check if dataset type
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # create band rename mapping dictionary
     band_map_dict = {
-        'nbart_blue': 'blue',
-        'nbart_green': 'green',
-        'nbart_red': 'red',
-        'nbart_nir': 'nir',
-        'nbart_swir_1': 'swir1',
-        'nbart_swir_2': 'swir2',
-        'nbar_blue': 'blue',
-        'nbar_green': 'green',
-        'nbar_red': 'red',
-        'nbar_nir': 'nir',
-        'nbar_swir_1': 'swir1',
-        'nbar_swir_2': 'swir2',
-        'nbart_nir_1': 'nir',
-        'nbart_red_edge_1': 'red_edge_1',
-        'nbart_red_edge_2': 'red_edge_2',
-        'nbart_swir_2': 'swir1',
-        'nbart_swir_3': 'swir2',
-        'nbar_nir_1': 'nir',
-        'nbar_red_edge_1': 'red_edge_1',
-        'nbar_red_edge_2': 'red_edge_2',
-        'nbar_swir_2': 'swir1',
-        'nbar_swir_3': 'swir2'
+        "nbart_blue": "blue",
+        "nbart_green": "green",
+        "nbart_red": "red",
+        "nbart_nir": "nir",
+        "nbart_swir_1": "swir1",
+        "nbart_swir_2": "swir2",
+        "nbar_blue": "blue",
+        "nbar_green": "green",
+        "nbar_red": "red",
+        "nbar_nir": "nir",
+        "nbar_swir_1": "swir1",
+        "nbar_swir_2": "swir2",
+        "nbart_nir_1": "nir",
+        "nbart_red_edge_1": "red_edge_1",
+        "nbart_red_edge_2": "red_edge_2",
+        "nbart_swir_2": "swir1",
+        "nbart_swir_3": "swir2",
+        "nbar_nir_1": "nir",
+        "nbar_red_edge_1": "red_edge_1",
+        "nbar_red_edge_2": "red_edge_2",
+        "nbar_swir_2": "swir1",
+        "nbar_swir_3": "swir2",
     }
 
     # rename bands in dataset to use conformed naming conventions
-    bands_to_rename = {
-        a: b for a, b in band_map_dict.items() if a in ds.variables
-    }
+    bands_to_rename = {a: b for a, b in band_map_dict.items() if a in ds.variables}
 
     # apply the rename
     ds = ds.rename(bands_to_rename)
 
     # notify user
-    print('> Satellite band names conformed successfully.\n')
+    print("> Satellite band names conformed successfully.\n")
 
     return ds
 
 
-def calc_vege_index(ds, index='ndvi', drop=True):
+def calc_vege_index(ds, index="ndvi", drop=True):
     """
     Takes an xarray dataset containing spectral bands, calculates one of
     a set of remote sensing indices, and adds the resulting array as a
@@ -137,45 +135,45 @@ def calc_vege_index(ds, index='ndvi', drop=True):
     """
 
     # notify user
-    print('Generating vegetation index: {0}'.format(index))
+    print("Generating vegetation index: {0}".format(index))
 
     # check if dataset type
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
         # check for valid bands
-    valid_bands = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'red_edge_1', 'red_edge_2']
+    valid_bands = ["blue", "green", "red", "nir", "swir1", "swir2", "red_edge_1", "red_edge_2"]
     if not set(ds.variables) & set(valid_bands):
-        raise ValueError('No valid spectral band names (e.g. red) exist in dataset. Aborting.')
+        raise ValueError("No valid spectral band names (e.g. red) exist in dataset. Aborting.")
 
     # get input band variables in order to drop these if drop=True
     if drop:
         bands_to_drop = list(ds.data_vars)
-        print('> Drop bands set to True. Dropping these bands: {0}'.format(bands_to_drop))
+        print("> Drop bands set to True. Dropping these bands: {0}".format(bands_to_drop))
 
     # calculate vegetation index
     if index is None:
-        raise ValueError('No remote sensing index provided. Please provide an index.')
-    elif index == 'ndvi':
-        ds['veg_index'] = (ds.nir - ds.red) / (ds.nir + ds.red)
-    elif index == 'evi':
-        ds['veg_index'] = (2.5 * (ds.nir - ds.red)) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1)
-    elif index == 'mavi':
-        ds['veg_index'] = (ds.nir - ds.red) / (ds.nir + ds.red + ds.swir1)
+        raise ValueError("No remote sensing index provided. Please provide an index.")
+    elif index == "ndvi":
+        ds["veg_index"] = (ds.nir - ds.red) / (ds.nir + ds.red)
+    elif index == "evi":
+        ds["veg_index"] = (2.5 * (ds.nir - ds.red)) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1)
+    elif index == "mavi":
+        ds["veg_index"] = (ds.nir - ds.red) / (ds.nir + ds.red + ds.swir1)
     else:
-        raise ValueError('Selected index is not a valid index.')
+        raise ValueError("Selected index is not a valid index.")
 
     # drop no-longer required bands
     if drop:
         ds = ds.drop(bands_to_drop)
 
     # notify user
-    print('> Vegetation index calculated successfully.\n')
+    print("> Vegetation index calculated successfully.\n")
 
     return ds
 
 
-def remove_outliers(ds, method='median', user_factor=2, z_pval=0.05):
+def remove_outliers(ds, method="median", user_factor=2, z_pval=0.05):
     """
     Takes an xarray dataset containing vegetation index variable and removes outliers within
     the timeseries on a per-pixel basis. The resulting dataset contains the timeseries
@@ -209,56 +207,54 @@ def remove_outliers(ds, method='median', user_factor=2, z_pval=0.05):
     """
 
     # notify user
-    print('Outlier removal method: {0} with a user factor of: {1}'.format(method, user_factor))
+    print("Outlier removal method: {0} with a user factor of: {1}".format(method, user_factor))
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # check if user factor provided
     if user_factor <= 0:
-        raise TypeError('User factor is less than 0. Please provide a value of 0 or above.')
+        raise TypeError("User factor is less than 0. Please provide a value of 0 or above.")
 
     # check if pval provided if method is zscore
-    if method == 'zscore' and z_pval not in [0.1, 0.05, 0.01]:
-        raise ValueError('Zscore selected but invalid pvalue provided. Ensure it is either 0.1, 0.05 or 0.01.')
+    if method == "zscore" and z_pval not in [0.1, 0.05, 0.01]:
+        raise ValueError("Zscore selected but invalid pvalue provided. Ensure it is either 0.1, 0.05 or 0.01.")
 
         # remove outliers based on user selected method
-    if method in ['median', 'zscore']:
-
+    if method in ["median", "zscore"]:
         # calc cutoff val per pixel i.e. stdv of pixel multiply by user-factor
-        cutoffs = ds.std('time') * user_factor
+        cutoffs = ds.std("time") * user_factor
 
         # generate outlier mask via median or zscore method
-        if method == 'median':
-
+        if method == "median":
             # calc mask of existing nan values (nan = True) in orig ds
             ds_mask = xr.where(ds.isnull(), True, False)
 
             # calc win size via num of dates in dataset
-            win_size = int(len(ds['time']) / 7)
-            win_size = int(win_size / int(len(ds.resample(time='1Y'))))
+            win_size = int(len(ds["time"]) / 7)
+            win_size = int(win_size / int(len(ds.resample(time="1Y"))))
 
             if win_size < 3:
                 win_size = 3
-                print('> Generated roll window size less than 3, setting to default (3).')
+                print("> Generated roll window size less than 3, setting to default (3).")
             elif win_size % 2 == 0:
                 win_size = win_size + 1
-                print('> Generated roll window size is an even number, added 1 to make it odd ({0}).'.format(win_size))
+                print("> Generated roll window size is an even number, added 1 to make it odd ({0}).".format(win_size))
             else:
-                print('> Generated roll window size is: {0}'.format(win_size))
+                print("> Generated roll window size is: {0}".format(win_size))
 
             # calc rolling median for whole dataset
             ds_med = ds.rolling(time=win_size, center=True).median()
@@ -274,8 +270,7 @@ def remove_outliers(ds, method='median', user_factor=2, z_pval=0.05):
             # calc mask of outliers (outlier = True) where absolute diffs exceed cutoff
             outlier_mask = xr.where(ds_diffs > cutoffs, True, False)
 
-        elif method == 'zscore':
-
+        elif method == "zscore":
             # generate critical val from user provided p-value
             if z_pval == 0.01:
                 crit_val = 2.3263
@@ -284,10 +279,10 @@ def remove_outliers(ds, method='median', user_factor=2, z_pval=0.05):
             elif z_pval == 0.1:
                 crit_val = 1.2816
             else:
-                raise ValueError('Zscore p-value not supported. Please use 0.1, 0.05 or 0.01.')
+                raise ValueError("Zscore p-value not supported. Please use 0.1, 0.05 or 0.01.")
 
             # calc zscore, ignore nans in timeseries vectors
-            zscores = ds.apply(zscore, nan_policy='omit', axis=0)
+            zscores = ds.apply(zscore, nan_policy="omit", axis=0)
 
             # calc mask of outliers (outlier = True) where zscore exceeds critical value
             outlier_mask = xr.where(abs(zscores) > crit_val, True, False)
@@ -298,21 +293,24 @@ def remove_outliers(ds, method='median', user_factor=2, z_pval=0.05):
         nbr_maxs = xr.ufuncs.fmax(lefts, rights)
 
         # keep nan only if middle val < mean of neighbours - cutoff or middle val > max val + cutoffs
-        outlier_mask = xr.where((ds.where(outlier_mask) < (nbr_means - cutoffs)) |
-                                (ds.where(outlier_mask) > (nbr_maxs + cutoffs)), True, False)
+        outlier_mask = xr.where(
+            (ds.where(outlier_mask) < (nbr_means - cutoffs)) | (ds.where(outlier_mask) > (nbr_maxs + cutoffs)),
+            True,
+            False,
+        )
 
         # flag outliers as nan in original da
         ds = xr.where(outlier_mask, np.nan, ds)
 
     else:
-        raise ValueError('Provided method not supported. Please use median or zscore.')
+        raise ValueError("Provided method not supported. Please use median or zscore.")
 
     # check if any nans exist in dataset after resample and tell user
     if bool(ds.isnull().any()):
-        print('> Warning: dataset contains nan values. You may want to interpolate next.')
+        print("> Warning: dataset contains nan values. You may want to interpolate next.")
 
     # notify user
-    print('> Outlier removal successful.\n')
+    print("> Outlier removal successful.\n")
 
     return ds
 
@@ -341,47 +339,47 @@ def correct_last_datetime(ds, interval):
     """
 
     # notify user
-    print('Correcting last datetime value to ensure adequate resampling output.')
+    print("Correcting last datetime value to ensure adequate resampling output.")
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check interval exists
     if not isinstance(interval, str):
-        raise TypeError('> Interval value is not a string.')
+        raise TypeError("> Interval value is not a string.")
 
         # correct datetime if interval not 1M
-    if interval == ['1M']:
-        print('> No need to correct last datetime for monthly resampling.')
+    if interval == ["1M"]:
+        print("> No need to correct last datetime for monthly resampling.")
         return ds
 
     # get last datetime object
-    old_dt = ds['time'][-1]
+    old_dt = ds["time"][-1]
 
     # correct last date to be newday in december
-    d, m, y = int(old_dt['time.day']), int(old_dt['time.month']), int(old_dt['time.year'])
+    d, m, y = int(old_dt["time.day"]), int(old_dt["time.month"]), int(old_dt["time.year"])
     if m == 12 and d < 31:
         # notify
-        print('> Changing day of last datetime value in dataset to the 31st.')
+        print("> Changing day of last datetime value in dataset to the 31st.")
 
         # convert to 31st
-        new_dt = '{0}-{1}-{2}'.format(y, m, 31)
-        new_dt = np.datetime64(new_dt, dtype='datetime64[ns]')
+        new_dt = "{0}-{1}-{2}".format(y, m, 31)
+        new_dt = np.datetime64(new_dt, dtype="datetime64[ns]")
 
         # update value in dataset
-        ds['time'] = ds['time'].where(ds['time'] != old_dt, new_dt)
+        ds["time"] = ds["time"].where(ds["time"] != old_dt, new_dt)
 
     else:
         # notify
-        print('> Could not change day value as month is not December or day already the 31st.')
+        print("> Could not change day value as month is not December or day already the 31st.")
 
     # notify and return
-    print('> Corrected late datetime value successfully.')
+    print("> Corrected late datetime value successfully.")
     return ds
 
 
@@ -406,47 +404,48 @@ def remove_non_dominant_year(ds):
     """
 
     # notify user
-    print('Checking and removing non-dominant year often introduced following resampling.')
+    print("Checking and removing non-dominant year often introduced following resampling.")
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # get unique years in dataset as dict pairs
-    unique_years = Counter(list(ds['time.year'].values))
+    unique_years = Counter(list(ds["time.year"].values))
     unique_year_values = np.array(list(unique_years.keys()))
     unique_year_counts = np.array(list(unique_years.values()))
 
     if len(unique_year_values) == 0 or len(unique_year_values) > 2:
         raise ValueError(
-            '> No years or more than 2 years detected in dataset. Please check your group function. Aborting.')
+            "> No years or more than 2 years detected in dataset. Please check your group function. Aborting."
+        )
 
     elif len(unique_year_values) == 2:
-        print('> More than one year detected in dataset. Removal non-dominant years.')
+        print("> More than one year detected in dataset. Removal non-dominant years.")
 
         # get max count index and associated year
         max_count_idx = np.argmax(unique_year_counts)
         dominant_year = unique_year_values[0]
 
         # remove all times that are not dominant year
-        ds = ds.where(ds['time.year'] == dominant_year, drop=True)
+        ds = ds.where(ds["time.year"] == dominant_year, drop=True)
 
         # sort to be safe
-        ds = ds.sortby('time')
+        ds = ds.sortby("time")
 
     elif len(unique_year_values) == 1:
-        print('> Only 1 year detected in dataset, no datetime removal needed. Returning original dataset.')
+        print("> Only 1 year detected in dataset, no datetime removal needed. Returning original dataset.")
 
     # notify and return
-    print('> Checked and removed non-dominant year (if needed) successfully.')
+    print("> Checked and removed non-dominant year (if needed) successfully.")
     return ds
 
 
-def resample(ds, interval='1M', reducer='median'):
+def resample(ds, interval="1M", reducer="median"):
     """
     Takes an xarray dataset containing vegetation index variable and resamples
     to a new temporal resolution. The available time intervals are 1W (weekly),
@@ -473,46 +472,46 @@ def resample(ds, interval='1M', reducer='median'):
     """
 
     # notify user
-    print('Resampling dataset interval: {0} via reducer: {1}'.format(interval, reducer))
+    print("Resampling dataset interval: {0} via reducer: {1}".format(interval, reducer))
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('Resample does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("Resample does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # resample based on user selected interval and reducer
-    if interval in ['1W', '2W', '1M']:
-        if reducer == 'mean':
-            ds = ds.resample(time=interval).mean('time')
-        elif reducer == 'median':
-            ds = ds.resample(time=interval).median('time')
+    if interval in ["1W", "2W", "1M"]:
+        if reducer == "mean":
+            ds = ds.resample(time=interval).mean("time")
+        elif reducer == "median":
+            ds = ds.resample(time=interval).median("time")
         else:
-            raise ValueError('Provided reducer not supported. Please use mean or median.')
+            raise ValueError("Provided reducer not supported. Please use mean or median.")
     else:
-        raise ValueError('Provided resample interval not supported. Please use 1W, 2W or 1M.')
+        raise ValueError("Provided resample interval not supported. Please use 1W, 2W or 1M.")
 
     # check if any nans exist in dataset after resample and tell user
     if bool(ds.isnull().any()):
-        print('> Warning: dataset contains nan values. You should interpolate nan values next.')
+        print("> Warning: dataset contains nan values. You should interpolate nan values next.")
 
     # notify user
-    print('> Resample successful.\n')
+    print("> Resample successful.\n")
 
     return ds
 
 
-def group(ds, group_by='month', reducer='median'):
+def group(ds, group_by="month", reducer="median"):
     """
     Takes an xarray dataset containing a vegetation index variable, groups and
     reduces values based on a specified temporal group. The available group
@@ -539,67 +538,67 @@ def group(ds, group_by='month', reducer='median'):
     """
 
     # notify user
-    print('Group dataset interval: {0} via reducer: {1}'.format(group_by, reducer))
+    print("Group dataset interval: {0} via reducer: {1}".format(group_by, reducer))
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('Resample does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("Resample does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # get all years in dataset, choose middle year in array
-    years = np.array([year for year in ds.groupby('time.year').groups])
+    years = np.array([year for year in ds.groupby("time.year").groups])
     year = np.take(years, years.size // 2)
 
     # notify user
-    print('> Selecting year: {0} to re-label times after groupby.'.format(year))
+    print("> Selecting year: {0} to re-label times after groupby.".format(year))
 
     # group based on user selected interval and reducer
-    if group_by in ['week', 'month']:
-        if reducer == 'mean':
-            ds = ds.groupby('time' + '.' + group_by).mean('time')
-        elif reducer == 'median':
-            ds = ds.groupby('time' + '.' + group_by).median('time')
+    if group_by in ["week", "month"]:
+        if reducer == "mean":
+            ds = ds.groupby("time" + "." + group_by).mean("time")
+        elif reducer == "median":
+            ds = ds.groupby("time" + "." + group_by).median("time")
         else:
-            raise ValueError('Provided reducer not supported. Please use mean or median.')
+            raise ValueError("Provided reducer not supported. Please use mean or median.")
     else:
-        raise ValueError('Provided group_by interval not supported. Please use month.')
+        raise ValueError("Provided group_by interval not supported. Please use month.")
 
     # correct time index following group by
-    if 'month' in list(ds.dims):
-        ds = ds.rename({'month': 'time'})
-        times = [datetime(year, int(dt), 1) for dt in ds['time']]
-        ds['time'] = [np.datetime64(dt) for dt in times]
+    if "month" in list(ds.dims):
+        ds = ds.rename({"month": "time"})
+        times = [datetime(year, int(dt), 1) for dt in ds["time"]]
+        ds["time"] = [np.datetime64(dt) for dt in times]
 
-    elif 'week' in list(ds.dims):
-        ds = ds.rename({'week': 'time'})
-        times = [datetime.strptime('{0} {1} {2}'.format(year, int(dt), 0), '%Y %W %w') for dt in ds['time']]
-        ds['time'] = [np.datetime64(dt) for dt in times]
+    elif "week" in list(ds.dims):
+        ds = ds.rename({"week": "time"})
+        times = [datetime.strptime("{0} {1} {2}".format(year, int(dt), 0), "%Y %W %w") for dt in ds["time"]]
+        ds["time"] = [np.datetime64(dt) for dt in times]
 
     else:
-        raise ValueError('Group_by was not found in dataset dimension. Aborting.')
+        raise ValueError("Group_by was not found in dataset dimension. Aborting.")
 
     # check if any nans exist in dataset after resample and tell user
     if bool(ds.isnull().any()):
-        print('> Warning: dataset contains nan values. You should interpolate nan values next.')
+        print("> Warning: dataset contains nan values. You should interpolate nan values next.")
 
     # notify user
-    print('> Group successful.\n')
+    print("> Group successful.\n")
 
     return ds
 
 
-def interpolate(ds, method='interpolate_na'):
+def interpolate(ds, method="interpolate_na"):
     """
     Takes an xarray dataset containing vegetation index variable and interpolates
     (linearly) all existing nan values within the timeseries using one of several
@@ -624,37 +623,34 @@ def interpolate(ds, method='interpolate_na'):
     """
 
     # notify user
-    print('Interpolating dataset using method: {0}.'.format(method))
+    print("Interpolating dataset using method: {0}.".format(method))
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('Interpolate does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("Interpolate does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # resample based on user selected interval and reducer
-    if method in ['interpolate_na', 'fast_fill']:
-
-        if method == 'interpolate_na':
-
+    if method in ["interpolate_na", "fast_fill"]:
+        if method == "interpolate_na":
             # use internal xarray linear interpolate method along time dim
-            ds = ds.interpolate_na(dim='time', method='linear')
+            ds = ds.interpolate_na(dim="time", method="linear")
 
-        elif method == 'fast_fill':
-
+        elif method == "fast_fill":
             # grab x, y, time, etc. and reshape
-            x, y, time, attrs = ds['veg_index'].x, ds['veg_index'].y, ds['veg_index'].time, ds['veg_index'].attrs
-            da = ds['veg_index'].transpose("y", "x", "time").values
+            x, y, time, attrs = ds["veg_index"].x, ds["veg_index"].y, ds["veg_index"].time, ds["veg_index"].attrs
+            da = ds["veg_index"].transpose("y", "x", "time").values
 
             # create nan mask and get indexes
             mask = np.isnan(da)
@@ -676,28 +672,25 @@ def interpolate(ds, method='interpolate_na'):
                         break
 
             # stack back into da template
-            dat = xr.DataArray(dat, attrs=attrs,
-                               coords={"x": x, "y": y, "time": time},
-                               dims=["y", "x", "time"]
-                               )
+            dat = xr.DataArray(dat, attrs=attrs, coords={"x": x, "y": y, "time": time}, dims=["y", "x", "time"])
 
             # convert back to dataset
-            ds = dat.to_dataset(name='veg_index')
+            ds = dat.to_dataset(name="veg_index")
 
     else:
-        raise ValueError('Provided method not supported. Please use interpolate_na or fast_fill')
+        raise ValueError("Provided method not supported. Please use interpolate_na or fast_fill")
 
     # check if any nans exist in dataset after resample and tell user
     if bool(ds.isnull().any()):
-        print('> Warning: dataset still contains nan values. The first and/or last time slices may be empty.')
+        print("> Warning: dataset still contains nan values. The first and/or last time slices may be empty.")
 
     # notify user
-    print('> Interpolation successful.\n')
+    print("> Interpolation successful.\n")
 
     return ds
 
 
-def smooth(ds, method='savitsky', window_length=3, polyorder=1, sigma=1):
+def smooth(ds, method="savitsky", window_length=3, polyorder=1, sigma=1):
     """
     Takes an xarray dataset containing vegetation index variable and smoothes timeseries
     timeseries on a per-pixel basis. The resulting dataset contains a smoother timeseries.
@@ -733,79 +726,77 @@ def smooth(ds, method='savitsky', window_length=3, polyorder=1, sigma=1):
     """
 
     # notify user
-    print('Smoothing method: {0} with window length: {1} and polyorder: {2}.'.format(method, window_length, polyorder))
+    print("Smoothing method: {0} with window length: {1} and polyorder: {2}.".format(method, window_length, polyorder))
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('> Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("> Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('> Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("> Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('> Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("> Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('> Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("> Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # check if window length provided
     if window_length <= 0 or not isinstance(window_length, int):
-        raise TypeError('> Window_length is <= 0 and/or not an integer. Please provide a value of 0 or above.')
+        raise TypeError("> Window_length is <= 0 and/or not an integer. Please provide a value of 0 or above.")
 
     # check if user factor provided
     if polyorder <= 0 or not isinstance(polyorder, int):
-        raise TypeError('> Polyorder is <= 0 and/or not an integer. Please provide a value of 0 or above.')
+        raise TypeError("> Polyorder is <= 0 and/or not an integer. Please provide a value of 0 or above.")
 
     # check if polyorder less than window_length
     if polyorder > window_length:
-        raise TypeError('> Polyorder is > than window_length. Must be less than window_length.')
+        raise TypeError("> Polyorder is > than window_length. Must be less than window_length.")
 
     # check if sigma is between 1 and 9
     if sigma < 1 or sigma > 9:
-        raise TypeError('> Sigma is < 1 or > 9. Must be between 1 - 9.')
+        raise TypeError("> Sigma is < 1 or > 9. Must be between 1 - 9.")
 
     # perform smoothing based on user selected method
-    if method in ['savitsky', 'symm_gaussian', 'asymm_gaussian', 'double_logistic']:
-        if method == 'savitsky':
-
+    if method in ["savitsky", "symm_gaussian", "asymm_gaussian", "double_logistic"]:
+        if method == "savitsky":
             # create savitsky smoother func
             def smoother(da, window_length, polyorder):
                 return da.apply(savgol_filter, window_length=window_length, polyorder=polyorder, axis=0)
 
             # create kwargs dict
-            kwargs = {'window_length': window_length, 'polyorder': polyorder}
+            kwargs = {"window_length": window_length, "polyorder": polyorder}
 
-        elif method == 'symm_gaussian':
-
+        elif method == "symm_gaussian":
             # create gaussian smoother func
             def smoother(da, sigma):
                 return da.apply(gaussian_filter, sigma=sigma)
 
             # create kwargs dict
-            kwargs = {'sigma': sigma}
+            kwargs = {"sigma": sigma}
 
-        elif method == 'asymm_gaussian':
-            raise ValueError('> Asymmetrical gaussian not yet implemented.')
+        elif method == "asymm_gaussian":
+            raise ValueError("> Asymmetrical gaussian not yet implemented.")
 
-        elif method == 'double_logistic':
-            raise ValueError('> Double logistic not yet implemented.')
+        elif method == "double_logistic":
+            raise ValueError("> Double logistic not yet implemented.")
 
         # create template and map func to dask chunks
         temp = xr.full_like(ds, fill_value=np.nan)
         ds = xr.map_blocks(smoother, ds, template=temp, kwargs=kwargs)
 
     else:
-        raise ValueError('Provided method not supported. Please use savtisky.')
+        raise ValueError("Provided method not supported. Please use savtisky.")
 
     # check if any nans exist in dataset after resample and tell user
     if bool(ds.isnull().any()):
-        print('> Warning: dataset contains nan values. You may want to interpolate next.')
+        print("> Warning: dataset contains nan values. You may want to interpolate next.")
 
     # notify user
-    print('> Smoothing successful.\n')
+    print("> Smoothing successful.\n")
 
     return ds
 
@@ -830,23 +821,23 @@ def calc_num_seasons(ds):
     """
 
     # notify user
-    print('Beginning calculation of number of seasons.')
+    print("Beginning calculation of number of seasons.")
 
     # check if type is xr dataset
     if type(ds) != xr.Dataset:
-        raise TypeError('> Not a dataset. Please provide a xarray dataset.')
+        raise TypeError("> Not a dataset. Please provide a xarray dataset.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(ds.dims):
-        raise ValueError('> Time dimension not in dataset. Please ensure dataset has a time dimension.')
+    if "time" not in list(ds.dims):
+        raise ValueError("> Time dimension not in dataset. Please ensure dataset has a time dimension.")
 
     # check if dataset contains veg_index variable
-    if 'veg_index' not in list(ds.data_vars):
-        raise ValueError('> Vegetation index (veg_index) not in dataset. Please generate veg_index first.')
+    if "veg_index" not in list(ds.data_vars):
+        raise ValueError("> Vegetation index (veg_index) not in dataset. Please generate veg_index first.")
 
     # check if dataset is 2D or above
-    if len(ds['veg_index'].shape) == 1:
-        raise Exception('> Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.')
+    if len(ds["veg_index"].shape) == 1:
+        raise Exception("> Remove outliers does not operate on 1D datasets. Ensure it has an x, y and time dimension.")
 
     # get height (val at 80% threshold) and dist between peals (4 seasons)
     # da_height = (ds['veg_index'].max('time') - ds['veg_index'].min('time')) * 0.80
@@ -854,7 +845,6 @@ def calc_num_seasons(ds):
 
     # set up calc peaks functions
     def calc_peaks(vec_data):
-
         # get height (val at 75% threshold) and dist between peals (4 seasons)
         height = np.nanquantile(vec_data, q=0.75)
         distance = math.ceil(len(vec_data) / 4)
@@ -868,21 +858,24 @@ def calc_num_seasons(ds):
             return 0
 
     # calculate nos using calc_funcs func
-    print('> Calculating number of seasons.')
-    da_nos = xr.apply_ufunc(calc_peaks, ds['veg_index'],
-                            input_core_dims=[['time']],
-                            vectorize=True,
-                            dask='parallelized',
-                            output_dtypes=[np.int16])
+    print("> Calculating number of seasons.")
+    da_nos = xr.apply_ufunc(
+        calc_peaks,
+        ds["veg_index"],
+        input_core_dims=[["time"]],
+        vectorize=True,
+        dask="parallelized",
+        output_dtypes=[np.int16],
+    )
 
     # convert type
-    da_nos = da_nos.astype('int16')
+    da_nos = da_nos.astype("int16")
 
     # rename
-    da_nos = da_nos.rename('num_seasons')
+    da_nos = da_nos.rename("num_seasons")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_nos
 
@@ -908,48 +901,50 @@ def create_ds_template(da):
     """
 
     # notify user
-    print('Creating a dateset template to hold various phenometrics.')
+    print("Creating a dateset template to hold various phenometrics.")
 
     # check if data array type
     if type(da) != xr.DataArray:
-        raise TypeError('Not a data array. Please provide a xarray data array.')
+        raise TypeError("Not a data array. Please provide a xarray data array.")
 
     # check if time dimension is in dataset
-    if 'time' not in list(da.dims):
-        raise ValueError('Time dimension not in data array. Please ensure dataset has a time dimension.')
+    if "time" not in list(da.dims):
+        raise ValueError("Time dimension not in data array. Please ensure dataset has a time dimension.")
 
     # check if time dimension is in dataset
-    if int(da['time'].count()) == 0:
-        raise ValueError('Time dimension has no time slices. Please ensure data array contains data.')
+    if int(da["time"].count()) == 0:
+        raise ValueError("Time dimension has no time slices. Please ensure data array contains data.")
 
     # create a single da template and remove time dimension
     temp_da = xr.full_like(da.isel(time=0), fill_value=np.nan)
-    temp_da = temp_da.drop('time')
+    temp_da = temp_da.drop("time")
 
     # add each phenometric as a variable in template dataset
-    temp_ds = xr.Dataset({
-        'da_pos_values': temp_da.astype('float32'),
-        'da_pos_times': temp_da.astype('int16'),
-        'da_vos_values': temp_da.astype('float32'),
-        'da_vos_times': temp_da.astype('int16'),
-        'da_bse_values': temp_da.astype('float32'),
-        'da_mos_values': temp_da.astype('float32'),
-        'aos_values': temp_da.astype('float32'),
-        'da_sos_values': temp_da.astype('float32'),
-        'da_sos_times': temp_da.astype('int16'),
-        'da_eos_values': temp_da.astype('float32'),
-        'da_eos_times': temp_da.astype('int16'),
-        'da_los_values': temp_da.astype('int16'),
-        'da_roi_values': temp_da.astype('float32'),
-        'da_rod_values': temp_da.astype('float32'),
-        'da_lios_values': temp_da.astype('float32'),
-        'da_sios_values': temp_da.astype('float32'),
-        'da_liot_values': temp_da.astype('float32'),
-        'da_siot_values': temp_da.astype('float32')
-    })
+    temp_ds = xr.Dataset(
+        {
+            "da_pos_values": temp_da.astype("float32"),
+            "da_pos_times": temp_da.astype("int16"),
+            "da_vos_values": temp_da.astype("float32"),
+            "da_vos_times": temp_da.astype("int16"),
+            "da_bse_values": temp_da.astype("float32"),
+            "da_mos_values": temp_da.astype("float32"),
+            "aos_values": temp_da.astype("float32"),
+            "da_sos_values": temp_da.astype("float32"),
+            "da_sos_times": temp_da.astype("int16"),
+            "da_eos_values": temp_da.astype("float32"),
+            "da_eos_times": temp_da.astype("int16"),
+            "da_los_values": temp_da.astype("int16"),
+            "da_roi_values": temp_da.astype("float32"),
+            "da_rod_values": temp_da.astype("float32"),
+            "da_lios_values": temp_da.astype("float32"),
+            "da_sios_values": temp_da.astype("float32"),
+            "da_liot_values": temp_da.astype("float32"),
+            "da_siot_values": temp_da.astype("float32"),
+        }
+    )
 
     # notify user
-    print('> Created blank dateset template successfully.\n')
+    print("> Created blank dateset template successfully.\n")
 
     return temp_ds
 
@@ -971,20 +966,20 @@ def extract_crs(da):
     """
 
     # notify user
-    print('Beginning extraction of CRS metadata.')
+    print("Beginning extraction of CRS metadata.")
     try:
         # notify user
-        print('> Extracting CRS metadata.')
+        print("> Extracting CRS metadata.")
 
         # extract crs metadata
         crs = da.geobox.crs
 
         # notify user
-        print('> Success!\n')
+        print("> Success!\n")
 
     except:
         # notify user
-        print('> No CRS metadata found. Returning None.\n')
+        print("> No CRS metadata found. Returning None.\n")
         crs = None
 
     return crs
@@ -1007,20 +1002,20 @@ def add_crs(ds, crs):
     """
 
     # notify user
-    print('Beginning addition of CRS metadata.')
+    print("Beginning addition of CRS metadata.")
     try:
         # notify user
-        print('> Adding CRS metadata.')
+        print("> Adding CRS metadata.")
 
         # assign crs via odc utils
         ds = assign_crs(ds, str(crs))
 
         # notify user
-        print('> Success!\n')
+        print("> Success!\n")
 
     except:
         # notify user
-        print('> Could not add CRS metadata to data. Aborting.\n')
+        print("> Could not add CRS metadata to data. Aborting.\n")
         pass
 
     return ds
@@ -1049,27 +1044,27 @@ def get_pos(da):
     """
 
     # notify user
-    print('Beginning calculation of peak of season (pos) values and times.')
+    print("Beginning calculation of peak of season (pos) values and times.")
 
     # get pos values (max val in each pixel timeseries)
-    print('> Calculating peak of season (pos) values.')
-    da_pos_values = da.max('time')
+    print("> Calculating peak of season (pos) values.")
+    da_pos_values = da.max("time")
 
     # get pos times (day of year) at max val in each pixel timeseries)
-    print('> Calculating peak of season (pos) times.')
-    i = da.argmax('time', skipna=True)
-    da_pos_times = da['time.dayofyear'].isel(time=i, drop=True)
+    print("> Calculating peak of season (pos) times.")
+    i = da.argmax("time", skipna=True)
+    da_pos_times = da["time.dayofyear"].isel(time=i, drop=True)
 
     # convert type
-    da_pos_values = da_pos_values.astype('float32')
-    da_pos_times = da_pos_times.astype('int16')
+    da_pos_values = da_pos_values.astype("float32")
+    da_pos_times = da_pos_times.astype("int16")
 
     # rename vars
-    da_pos_values = da_pos_values.rename('pos_values')
-    da_pos_times = da_pos_times.rename('pos_times')
+    da_pos_values = da_pos_values.rename("pos_values")
+    da_pos_times = da_pos_times.rename("pos_times")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_pos_values, da_pos_times
 
@@ -1098,32 +1093,32 @@ def get_mos(da, da_peak_times):
     """
 
     # notify user
-    print('Beginning calculation of middle of season (mos) values (times not possible).')
+    print("Beginning calculation of middle of season (mos) values (times not possible).")
 
     # get left and right slopes values
-    print('> Calculating middle of season (mos) values.')
-    slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-    slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
+    print("> Calculating middle of season (mos) values.")
+    slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+    slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
 
     # getupper 80% values in positive slope on left and right
-    slope_l_upper = slope_l.where(slope_l >= (slope_l.max('time') * 0.8))
-    slope_r_upper = slope_r.where(slope_r >= (slope_r.max('time') * 0.8))
+    slope_l_upper = slope_l.where(slope_l >= (slope_l.max("time") * 0.8))
+    slope_r_upper = slope_r.where(slope_r >= (slope_r.max("time") * 0.8))
 
     # get means of slope left and right
-    slope_l_means = slope_l_upper.mean('time')
-    slope_r_means = slope_r_upper.mean('time')
+    slope_l_means = slope_l_upper.mean("time")
+    slope_r_means = slope_r_upper.mean("time")
 
     # combine left and right veg_index means
     da_mos_values = (slope_l_means + slope_r_means) / 2
 
     # convert type
-    da_mos_values = da_mos_values.astype('float32')
+    da_mos_values = da_mos_values.astype("float32")
 
     # rename vars
-    da_mos_values = da_mos_values.rename('mos_values')
+    da_mos_values = da_mos_values.rename("mos_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     # return da_mos_values
     return da_mos_values
@@ -1152,27 +1147,27 @@ def get_vos(da):
     """
 
     # notify user
-    print('Beginning calculation of valley of season (vos) values and times.')
+    print("Beginning calculation of valley of season (vos) values and times.")
 
     # get vos values (min val in each pixel timeseries)
-    print('> Calculating valley of season (vos) values.')
-    da_vos_values = da.min('time')
+    print("> Calculating valley of season (vos) values.")
+    da_vos_values = da.min("time")
 
     # get vos times (day of year) at min val in each pixel timeseries)
-    print('> Calculating valley of season (vos) times.')
-    i = da.argmin('time', skipna=True)
-    da_vos_times = da['time.dayofyear'].isel(time=i, drop=True)
+    print("> Calculating valley of season (vos) times.")
+    i = da.argmin("time", skipna=True)
+    da_vos_times = da["time.dayofyear"].isel(time=i, drop=True)
 
     # convert type
-    da_vos_values = da_vos_values.astype('float32')
-    da_vos_times = da_vos_times.astype('int16')
+    da_vos_values = da_vos_values.astype("float32")
+    da_vos_times = da_vos_times.astype("int16")
 
     # rename vars
-    da_vos_values = da_vos_values.rename('vos_values')
-    da_vos_times = da_vos_times.rename('vos_times')
+    da_vos_values = da_vos_values.rename("vos_values")
+    da_vos_times = da_vos_times.rename("vos_times")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_vos_values, da_vos_times
 
@@ -1204,26 +1199,26 @@ def get_bse(da, da_peak_times):
     """
 
     # notify user
-    print('Beginning calculation of base (bse) values (times not possible).')
+    print("Beginning calculation of base (bse) values (times not possible).")
 
     # get vos values (min val in each pixel timeseries)
-    print('> Calculating base (bse) values.')
+    print("> Calculating base (bse) values.")
 
     # split timeseries into left and right slopes via provided peak/middle values
-    slope_l = da.where(da['time.dayofyear'] <= da_peak_times).min('time')
-    slope_r = da.where(da['time.dayofyear'] >= da_peak_times).min('time')
+    slope_l = da.where(da["time.dayofyear"] <= da_peak_times).min("time")
+    slope_r = da.where(da["time.dayofyear"] >= da_peak_times).min("time")
 
     # get per pixel mean of both left and right slope min values
     da_bse_values = (slope_l + slope_r) / 2
 
     # convert type
-    da_bse_values = da_bse_values.astype('float32')
+    da_bse_values = da_bse_values.astype("float32")
 
     # rename
-    da_bse_values = da_bse_values.rename('bse_values')
+    da_bse_values = da_bse_values.rename("bse_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_bse_values
 
@@ -1252,20 +1247,20 @@ def get_aos(da_peak_values, da_base_values):
     """
 
     # notify user
-    print('Beginning calculation of amplitude of season (aos) values (times not possible).')
+    print("Beginning calculation of amplitude of season (aos) values (times not possible).")
 
     # get aos values (peak - base in each pixel timeseries)
-    print('> Calculating amplitude of season (aos) values.')
+    print("> Calculating amplitude of season (aos) values.")
     da_aos_values = da_peak_values - da_base_values
 
     # convert type
-    da_aos_values = da_aos_values.astype('float32')
+    da_aos_values = da_aos_values.astype("float32")
 
     # rename
-    da_aos_values = da_aos_values.rename('aos_values')
+    da_aos_values = da_aos_values.rename("aos_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_aos_values
 
@@ -1328,129 +1323,125 @@ def get_sos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
     """
 
     # notify user
-    print('Beginning calculation of start of season (sos) values and times.')
+    print("Beginning calculation of start of season (sos) values and times.")
 
     # check factor
     if factor < 0 or factor > 1:
-        raise ValueError('Provided factor value is not between 0 and 1. Aborting.')
+        raise ValueError("Provided factor value is not between 0 and 1. Aborting.")
 
     # check thresh_sides
-    if thresh_sides not in ['one_sided', 'two_sided']:
-        raise ValueError('Provided thresh_sides value is not one_sided or two_sided. Aborting.')
+    if thresh_sides not in ["one_sided", "two_sided"]:
+        raise ValueError("Provided thresh_sides value is not one_sided or two_sided. Aborting.")
 
-    if method == 'first_of_slope':
-
+    if method == "first_of_slope":
         # notify user
-        print('> Calculating start of season (sos) values via method: first_of_slope.')
+        print("> Calculating start of season (sos) values via method: first_of_slope.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
         slope_l_pos = slope_l.where(slope_l_pos_diffs)
 
         # get median of vege on pos left slope, calc vege dists from median
-        slope_l_med = slope_l_pos.median('time')
+        slope_l_med = slope_l_pos.median("time")
         dists_from_median = slope_l_pos - slope_l_med
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_median.isnull().all('time')
+        mask = dists_from_median.isnull().all("time")
         dists_from_median = xr.where(mask, 0.0, dists_from_median)
 
         # get time index where min dist from median (first on slope)
-        i = dists_from_median.argmin('time', skipna=True)
+        i = dists_from_median.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: first_of_slope.')
+        print("> Calculating start of season (sos) times via method: first_of_slope.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'median_of_slope':
-
+    elif method == "median_of_slope":
         # notify user
-        print('> Calculating start of season (sos) values via method: median_of_slope.')
+        print("> Calculating start of season (sos) values via method: median_of_slope.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
         slope_l_pos = slope_l.where(slope_l_pos_diffs)
 
         # get median of vege on pos left slope, calc absolute vege dists from median
-        slope_l_med = slope_l_pos.median('time')
+        slope_l_med = slope_l_pos.median("time")
         dists_from_median = slope_l_pos - slope_l_med
         dists_from_median = abs(dists_from_median)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_median.isnull().all('time')
+        mask = dists_from_median.isnull().all("time")
         dists_from_median = xr.where(mask, 0.0, dists_from_median)
 
         # get time index where min absolute dist from median (median on slope)
-        i = dists_from_median.argmin('time', skipna=True)
+        i = dists_from_median.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: median_of_slope.')
+        print("> Calculating start of season (sos) times via method: median_of_slope.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'seasonal_amplitude':
-
+    elif method == "seasonal_amplitude":
         # notify user
-        print('> Calculating start of season (sos) values via method: seasonal_amplitude.')
+        print("> Calculating start of season (sos) values via method: seasonal_amplitude.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
         slope_l_pos = slope_l.where(slope_l_pos_diffs)
 
         # use just the left slope min val (one), or use the bse/vos calc earlier (two) for sos
-        if thresh_sides == 'one_sided':
-            da_sos_values = (da_aos_values * factor) + slope_l.min('time')
-        elif thresh_sides == 'two_sided':
+        if thresh_sides == "one_sided":
+            da_sos_values = (da_aos_values * factor) + slope_l.min("time")
+        elif thresh_sides == "two_sided":
             da_sos_values = (da_aos_values * factor) + da_base_values
 
         # calc distance of pos vege from calculated sos value
         dists_from_sos_values = abs(slope_l_pos - da_sos_values)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_sos_values.isnull().all('time')
+        mask = dists_from_sos_values.isnull().all("time")
         dists_from_sos_values = xr.where(mask, 0.0, dists_from_sos_values)
 
         # get time index where min absolute dist from sos
-        i = dists_from_sos_values.argmin('time', skipna=True)
+        i = dists_from_sos_values.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: seasonal_amplitude.')
+        print("> Calculating start of season (sos) times via method: seasonal_amplitude.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'absolute_value':
-
+    elif method == "absolute_value":
         # notify user
-        print('> Calculating start of season (sos) values via method: absolute_value.')
+        print("> Calculating start of season (sos) values via method: absolute_value.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
@@ -1460,132 +1451,127 @@ def get_sos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
         dists_from_abs_value = abs(slope_l_pos - abs_value)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_abs_value.isnull().all('time')
+        mask = dists_from_abs_value.isnull().all("time")
         dists_from_abs_value = xr.where(mask, 0.0, dists_from_abs_value)
 
         # get time index where min absolute dist from sos (absolute value)
-        i = dists_from_abs_value.argmin('time', skipna=True)
+        i = dists_from_abs_value.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: absolute_value.')
+        print("> Calculating start of season (sos) times via method: absolute_value.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'relative_value':
-
+    elif method == "relative_value":
         # notify user
-        print('> Calculating start of season (sos) values via method: relative_value.')
+        print("> Calculating start of season (sos) values via method: relative_value.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
         slope_l_pos = slope_l.where(slope_l_pos_diffs)
 
         # get relative amplitude via robust max and base (10% cut off either side)
-        relative_amplitude = da.quantile(dim='time', q=0.90) - da.quantile(dim='time', q=0.10)
+        relative_amplitude = da.quantile(dim="time", q=0.90) - da.quantile(dim="time", q=0.10)
 
         # get sos value with user factor and robust mean base
-        da_sos_values = (relative_amplitude * factor) + da.quantile(dim='time', q=0.10)
+        da_sos_values = (relative_amplitude * factor) + da.quantile(dim="time", q=0.10)
 
         # drop annoying quantile attribute from sos, ignore errors
-        da_sos_values = da_sos_values.drop('quantile', errors='ignore')
+        da_sos_values = da_sos_values.drop("quantile", errors="ignore")
 
         # calc abs distance of positive slope from sos values
         dists_from_sos_values = abs(slope_l_pos - da_sos_values)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_sos_values.isnull().all('time')
+        mask = dists_from_sos_values.isnull().all("time")
         dists_from_sos_values = xr.where(mask, 0.0, dists_from_sos_values)
 
         # get time index where min absolute dist from sos
-        i = dists_from_sos_values.argmin('time', skipna=True)
+        i = dists_from_sos_values.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: relative_value.')
-        print('> Warning: this can take a long time.')
+        print("> Calculating start of season (sos) times via method: relative_value.")
+        print("> Warning: this can take a long time.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'stl_trend':
-
+    elif method == "stl_trend":
         # notify user
-        print('> Calculating end of season (eos) values via method: stl_trend.')
+        print("> Calculating end of season (eos) values via method: stl_trend.")
 
         # check if num seasons for stl is odd, +1 if not
-        num_periods = len(da['time'])
+        num_periods = len(da["time"])
         if num_periods % 2 == 0:
             num_periods = num_periods + 1
-            print('> Number of stl periods is even number, added 1 to make it odd.')
+            print("> Number of stl periods is even number, added 1 to make it odd.")
 
         # prepare stl params
-        stl_params = {
-            'period': num_periods,
-            'seasonal': 7,
-            'trend': None,
-            'low_pass': None,
-            'robust': False
-        }
+        stl_params = {"period": num_periods, "seasonal": 7, "trend": None, "low_pass": None, "robust": False}
 
         # prepare stl func
         def func_stl(v, period, seasonal, trend, low_pass, robust):
             return stl(v, period=period, seasonal=seasonal, trend=trend, low_pass=low_pass, robust=robust).fit().trend
 
         # notify user
-        print('> Performing seasonal decomposition via LOESS. Warning: this can take a long time.')
-        da_stl = xr.apply_ufunc(func_stl, da,
-                                input_core_dims=[['time']],
-                                output_core_dims=[['time']],
-                                vectorize=True,
-                                dask='parallelized',
-                                output_dtypes=[np.float32],
-                                kwargs=stl_params)
+        print("> Performing seasonal decomposition via LOESS. Warning: this can take a long time.")
+        da_stl = xr.apply_ufunc(
+            func_stl,
+            da,
+            input_core_dims=[["time"]],
+            output_core_dims=[["time"]],
+            vectorize=True,
+            dask="parallelized",
+            output_dtypes=[np.float32],
+            kwargs=stl_params,
+        )
 
         # notify user
-        print('> Calculating start of season (sos) values via method: stl_trend.')
+        print("> Calculating start of season (sos) values via method: stl_trend.")
 
         # get left slopes values, calc differentials, subset to positive differentials
-        slope_l = da.where(da['time.dayofyear'] <= da_peak_times)
-        slope_l_diffs = slope_l.differentiate('time')
+        slope_l = da.where(da["time.dayofyear"] <= da_peak_times)
+        slope_l_diffs = slope_l.differentiate("time")
         slope_l_pos_diffs = xr.where(slope_l_diffs > 0, True, False)
 
         # select vege values where positive on left slope
         slope_l_pos = slope_l.where(slope_l_pos_diffs)
 
         # get min value left known pos date
-        stl_l = da_stl.where(da_stl['time.dayofyear'] <= da_peak_times)
+        stl_l = da_stl.where(da_stl["time.dayofyear"] <= da_peak_times)
 
         # calc abs distance of positive slope from stl values
         dists_from_stl_values = abs(slope_l_pos - stl_l)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_stl_values.isnull().all('time')
+        mask = dists_from_stl_values.isnull().all("time")
         dists_from_stl_values = xr.where(mask, 0.0, dists_from_stl_values)
 
         # get time index where min absolute dist from sos
-        i = dists_from_stl_values.argmin('time', skipna=True)
+        i = dists_from_stl_values.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_sos_values = slope_l_pos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating start of season (sos) times via method: stl_trend.')
+        print("> Calculating start of season (sos) times via method: stl_trend.")
 
         # get vege start of season times (day of year)
-        da_sos_times = slope_l_pos['time.dayofyear'].isel(time=i, drop=True)
+        da_sos_times = slope_l_pos["time.dayofyear"].isel(time=i, drop=True)
 
     else:
-        raise ValueError('Provided method not supported. Aborting.')
+        raise ValueError("Provided method not supported. Aborting.")
 
     # replace any all nan slices with first val and time in each pixel
     # da_sos_values = da_sos_values.where(~mask, slope_l.isel(time=0))
@@ -1594,15 +1580,15 @@ def get_sos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
     da_sos_times = da_sos_times.where(~mask, np.nan)
 
     # convert type
-    da_sos_values = da_sos_values.astype('float32')
-    da_sos_times = da_sos_times.astype('int16')
+    da_sos_values = da_sos_values.astype("float32")
+    da_sos_times = da_sos_times.astype("int16")
 
     # rename
-    da_sos_values = da_sos_values.rename('sos_values')
-    da_sos_times = da_sos_times.rename('sos_times')
+    da_sos_values = da_sos_values.rename("sos_values")
+    da_sos_times = da_sos_times.rename("sos_times")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_sos_values, da_sos_times
 
@@ -1665,129 +1651,125 @@ def get_eos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
     """
 
     # notify user
-    print('Beginning calculation of end of season (eos) values and times.')
+    print("Beginning calculation of end of season (eos) values and times.")
 
     # check factor
     if factor < 0 or factor > 1:
-        raise ValueError('Provided factor value is not between 0 and 1. Aborting.')
+        raise ValueError("Provided factor value is not between 0 and 1. Aborting.")
 
     # check thresh_sides
-    if thresh_sides not in ['one_sided', 'two_sided']:
-        raise ValueError('Provided thresh_sides value is not one_sided or two_sided. Aborting.')
+    if thresh_sides not in ["one_sided", "two_sided"]:
+        raise ValueError("Provided thresh_sides value is not one_sided or two_sided. Aborting.")
 
-    if method == 'first_of_slope':
-
+    if method == "first_of_slope":
         # notify user
-        print('> Calculating end of season (eos) values via method: first_of_slope.')
+        print("> Calculating end of season (eos) values via method: first_of_slope.")
 
         # get right slopes values, calc differentials, subset to negative differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
         slope_r_neg = slope_r.where(slope_r_neg_diffs)
 
         # get median of vege on neg right slope, calc vege dists from median
-        slope_r_med = slope_r_neg.median('time')
+        slope_r_med = slope_r_neg.median("time")
         dists_from_median = slope_r_neg - slope_r_med
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_median.isnull().all('time')
+        mask = dists_from_median.isnull().all("time")
         dists_from_median = xr.where(mask, 0.0, dists_from_median)
 
         # get time index where min dist from median (first on slope)
-        i = dists_from_median.argmin('time', skipna=True)
+        i = dists_from_median.argmin("time", skipna=True)
 
         # get vege end of season values and times (day of year)
         da_eos_values = slope_r_neg.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: first_of_slope.')
+        print("> Calculating end of season (eos) times via method: first_of_slope.")
 
         # get vege start of season times (day of year)
-        da_eos_times = slope_r_neg['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_neg["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'median_of_slope':
-
+    elif method == "median_of_slope":
         # notify user
-        print('> Calculating end of season (eos) values via method: median_of_slope.')
+        print("> Calculating end of season (eos) values via method: median_of_slope.")
 
         # get right slopes values, calc differentials, subset to positive differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
         slope_r_neg = slope_r.where(slope_r_neg_diffs)
 
         # get median of vege on neg right slope, calc absolute vege dists from median
-        slope_r_med = slope_r_neg.median('time')
+        slope_r_med = slope_r_neg.median("time")
         dists_from_median = slope_r_neg - slope_r_med
         dists_from_median = abs(dists_from_median)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_median.isnull().all('time')
+        mask = dists_from_median.isnull().all("time")
         dists_from_median = xr.where(mask, 0.0, dists_from_median)
 
         # get time index where min absolute dist from median (median on slope)
-        i = dists_from_median.argmin('time', skipna=True)
+        i = dists_from_median.argmin("time", skipna=True)
 
         # get vege start of season values and times (day of year)
         da_eos_values = slope_r_neg.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: median_of_slope.')
+        print("> Calculating end of season (eos) times via method: median_of_slope.")
 
         # get vege end of season times (day of year)
-        da_eos_times = slope_r_neg['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_neg["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'seasonal_amplitude':
-
+    elif method == "seasonal_amplitude":
         # notify user
-        print('> Calculating end of season (eos) values via method: seasonal_amplitude.')
+        print("> Calculating end of season (eos) values via method: seasonal_amplitude.")
 
         # get right slopes values, calc differentials, subset to negative differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
         slope_r_neg = slope_r.where(slope_r_neg_diffs)
 
         # use just the right slope min val (one), or use the bse/vos calc earlier (two) for sos
-        if thresh_sides == 'one_sided':
-            da_eos_values = (da_aos_values * factor) + slope_r.min('time')
-        elif thresh_sides == 'two_sided':
+        if thresh_sides == "one_sided":
+            da_eos_values = (da_aos_values * factor) + slope_r.min("time")
+        elif thresh_sides == "two_sided":
             da_eos_values = (da_aos_values * factor) + da_base_values
 
         # calc distance of neg vege from calculated eos value
         dists_from_eos_values = abs(slope_r_neg - da_eos_values)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_eos_values.isnull().all('time')
+        mask = dists_from_eos_values.isnull().all("time")
         dists_from_eos_values = xr.where(mask, 0.0, dists_from_eos_values)
 
         # get time index where min absolute dist from eos
-        i = dists_from_eos_values.argmin('time', skipna=True)
+        i = dists_from_eos_values.argmin("time", skipna=True)
 
         # get vege end of season values and times (day of year)
         da_eos_values = slope_r_neg.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: seasonal_amplitude.')
+        print("> Calculating end of season (eos) times via method: seasonal_amplitude.")
 
         # get vege end of season times (day of year)
-        da_eos_times = slope_r_neg['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_neg["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'absolute_value':
-
+    elif method == "absolute_value":
         # notify user
-        print('> Calculating end of season (eos) values via method: absolute_value.')
+        print("> Calculating end of season (eos) values via method: absolute_value.")
 
         # get right slopes values, calc differentials, subset to negative differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
@@ -1797,132 +1779,127 @@ def get_eos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
         dists_from_abs_value = abs(slope_r_neg - abs_value)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_abs_value.isnull().all('time')
+        mask = dists_from_abs_value.isnull().all("time")
         dists_from_abs_value = xr.where(mask, 0.0, dists_from_abs_value)
 
         # get time index where min absolute dist from eos (absolute value)
-        i = dists_from_abs_value.argmin('time', skipna=True)
+        i = dists_from_abs_value.argmin("time", skipna=True)
 
         # get vege end of season values and times (day of year)
         da_eos_values = slope_r_neg.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: absolute_value.')
+        print("> Calculating end of season (eos) times via method: absolute_value.")
 
         # get vege end of season times (day of year)
-        da_eos_times = slope_r_neg['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_neg["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'relative_value':
-
+    elif method == "relative_value":
         # notify user
-        print('> Calculating end of season (eos) values via method: relative_value.')
+        print("> Calculating end of season (eos) values via method: relative_value.")
 
         # get right slopes values, calc differentials, subset to negative differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
         slope_r_neg = slope_r.where(slope_r_neg_diffs)
 
         # get relative amplitude via robust max and base (10% cut off either side)
-        relative_amplitude = da.quantile(dim='time', q=0.90) - da.quantile(dim='time', q=0.10)
+        relative_amplitude = da.quantile(dim="time", q=0.90) - da.quantile(dim="time", q=0.10)
 
         # get eos value with user factor and robust mean base
-        da_eos_values = (relative_amplitude * factor) + da.quantile(dim='time', q=0.10)
+        da_eos_values = (relative_amplitude * factor) + da.quantile(dim="time", q=0.10)
 
         # drop annoying quantile attribute from eos, ignore errors
-        da_eos_values = da_eos_values.drop('quantile', errors='ignore')
+        da_eos_values = da_eos_values.drop("quantile", errors="ignore")
 
         # calc abs distance of negative slope from eos values
         dists_from_eos_values = abs(slope_r_neg - da_eos_values)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_eos_values.isnull().all('time')
+        mask = dists_from_eos_values.isnull().all("time")
         dists_from_eos_values = xr.where(mask, 0.0, dists_from_eos_values)
 
         # get time index where min absolute dist from eos
-        i = dists_from_eos_values.argmin('time', skipna=True)
+        i = dists_from_eos_values.argmin("time", skipna=True)
 
         # get vege end of season values and times (day of year)
         da_eos_values = slope_r_neg.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: relative_value.')
-        print('> Warning: this can take a long time.')
+        print("> Calculating end of season (eos) times via method: relative_value.")
+        print("> Warning: this can take a long time.")
 
         # get vege end of season times (day of year)
-        da_eos_times = slope_r_neg['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_neg["time.dayofyear"].isel(time=i, drop=True)
 
-    elif method == 'stl_trend':
-
+    elif method == "stl_trend":
         # notify user
-        print('> Calculating end of season (eos) values via method: stl_trend.')
+        print("> Calculating end of season (eos) values via method: stl_trend.")
 
         # check if num seasons for stl is odd, +1 if not
-        num_periods = len(da['time'])
+        num_periods = len(da["time"])
         if num_periods % 2 == 0:
             num_periods = num_periods + 1
-            print('> Number of stl periods is even number, added 1 to make it odd.')
+            print("> Number of stl periods is even number, added 1 to make it odd.")
 
         # prepare stl params
-        stl_params = {
-            'period': num_periods,
-            'seasonal': 7,
-            'trend': None,
-            'low_pass': None,
-            'robust': False
-        }
+        stl_params = {"period": num_periods, "seasonal": 7, "trend": None, "low_pass": None, "robust": False}
 
         # prepare stl func
         def func_stl(v, period, seasonal, trend, low_pass, robust):
             return stl(v, period=period, seasonal=seasonal, trend=trend, low_pass=low_pass, robust=robust).fit().trend
 
         # notify user
-        print('> Performing seasonal decomposition via LOESS. Warning: this can take a long time.')
-        da_stl = xr.apply_ufunc(func_stl, da,
-                                input_core_dims=[['time']],
-                                output_core_dims=[['time']],
-                                vectorize=True,
-                                dask='parallelized',
-                                output_dtypes=[np.float32],
-                                kwargs=stl_params)
+        print("> Performing seasonal decomposition via LOESS. Warning: this can take a long time.")
+        da_stl = xr.apply_ufunc(
+            func_stl,
+            da,
+            input_core_dims=[["time"]],
+            output_core_dims=[["time"]],
+            vectorize=True,
+            dask="parallelized",
+            output_dtypes=[np.float32],
+            kwargs=stl_params,
+        )
 
         # notify user
-        print('> Calculating end of season (eos) values via method: stl_trend.')
+        print("> Calculating end of season (eos) values via method: stl_trend.")
 
         # get right slopes values, calc differentials, subset to negative differentials
-        slope_r = da.where(da['time.dayofyear'] >= da_peak_times)
-        slope_r_diffs = slope_r.differentiate('time')
+        slope_r = da.where(da["time.dayofyear"] >= da_peak_times)
+        slope_r_diffs = slope_r.differentiate("time")
         slope_r_neg_diffs = xr.where(slope_r_diffs < 0, True, False)
 
         # select vege values where negative on right slope
         slope_r_neg = slope_r.where(slope_r_neg_diffs)
 
         # get min value right known pos date
-        stl_r = da_stl.where(da_stl['time.dayofyear'] >= da_peak_times)
+        stl_r = da_stl.where(da_stl["time.dayofyear"] >= da_peak_times)
 
         # calc abs distance of negative slope from stl values
         dists_from_stl_values = abs(slope_r_neg - stl_r)
 
         # make mask for all nan pixels and fill with 0.0 (needs to be float)
-        mask = dists_from_stl_values.isnull().all('time')
+        mask = dists_from_stl_values.isnull().all("time")
         dists_from_stl_values = xr.where(mask, 0.0, dists_from_stl_values)
 
         # get time index where min absolute dist from eos
-        i = dists_from_stl_values.argmin('time', skipna=True)
+        i = dists_from_stl_values.argmin("time", skipna=True)
 
         # get vege end of season values and times (day of year)
         da_eos_values = slope_r_eos.isel(time=i, drop=True)
 
         # notify user
-        print('> Calculating end of season (eos) times via method: stl_trend.')
+        print("> Calculating end of season (eos) times via method: stl_trend.")
 
         # get vege end of season times (day of year)
-        da_eos_times = slope_r_eos['time.dayofyear'].isel(time=i, drop=True)
+        da_eos_times = slope_r_eos["time.dayofyear"].isel(time=i, drop=True)
 
     else:
-        raise ValueError('Provided method not supported. Aborting.')
+        raise ValueError("Provided method not supported. Aborting.")
 
     # replace any all nan slices with last val and time in each pixel
     # da_eos_values = da_eos_values.where(~mask, slope_r.isel(time=-1))
@@ -1931,15 +1908,15 @@ def get_eos(da, da_peak_times, da_base_values, da_aos_values, method, factor, th
     da_eos_times = da_eos_times.where(~mask, np.nan)
 
     # convert type
-    da_eos_values = da_eos_values.astype('float32')
-    da_eos_times = da_eos_times.astype('int16')
+    da_eos_values = da_eos_values.astype("float32")
+    da_eos_times = da_eos_times.astype("int16")
 
     # rename
-    da_eos_values = da_eos_values.rename('eos_values')
-    da_eos_times = da_eos_times.rename('eos_times')
+    da_eos_values = da_eos_values.rename("eos_values")
+    da_eos_times = da_eos_times.rename("eos_times")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_eos_values, da_eos_times
 
@@ -1971,32 +1948,32 @@ def get_los(da, da_sos_times, da_eos_times):
     """
 
     # notify user
-    print('Beginning calculation of length of season (los) values (times not possible).')
+    print("Beginning calculation of length of season (los) values (times not possible).")
 
     # get los values (eos day of year - sos day of year)
-    print('> Calculating length of season (los) values.')
+    print("> Calculating length of season (los) values.")
     da_los_values = da_eos_times - da_sos_times
 
     # correct los if negative values exist
     if xr.where(da_los_values < 0, True, False).any():
         # get max time (day of year) and negatives into data arrays
-        da_max_times = da['time.dayofyear'].isel(time=-1)
+        da_max_times = da["time.dayofyear"].isel(time=-1)
         da_neg_values = da_eos_times.where(da_los_values < 0) - da_sos_times.where(da_los_values < 0)
 
         # replace negative values with max time
         da_los_values = xr.where(da_los_values >= 0, da_los_values, da_max_times + da_neg_values)
 
         # drop time dim if exists
-        da_los_values = da_los_values.drop({'time'}, errors='ignore')
+        da_los_values = da_los_values.drop({"time"}, errors="ignore")
 
     # convert type
-    da_los_values = da_los_values.astype('int16')
+    da_los_values = da_los_values.astype("int16")
 
     # rename
-    da_los_values = da_los_values.rename('los_values')
+    da_los_values = da_los_values.rename("los_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_los_values
 
@@ -2033,20 +2010,20 @@ def get_roi(da_peak_values, da_peak_times, da_sos_values, da_sos_times):
     """
 
     # notify user
-    print('Beginning calculation of rate of increase (roi) values (times not possible).')
+    print("Beginning calculation of rate of increase (roi) values (times not possible).")
 
     # get ratio between the difference in peak and sos values and times
-    print('> Calculating rate of increase (roi) values.')
+    print("> Calculating rate of increase (roi) values.")
     da_roi_values = (da_peak_values - da_sos_values) / (da_peak_times - da_sos_times)
 
     # convert type
-    da_roi_values = da_roi_values.astype('float32')
+    da_roi_values = da_roi_values.astype("float32")
 
     # rename vars
-    da_roi_values = da_roi_values.rename('roi_values')
+    da_roi_values = da_roi_values.rename("roi_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_roi_values
 
@@ -2083,20 +2060,20 @@ def get_rod(da_peak_values, da_peak_times, da_eos_values, da_eos_times):
     """
 
     # notify user
-    print('Beginning calculation of rate of decrease (rod) values (times not possible).')
+    print("Beginning calculation of rate of decrease (rod) values (times not possible).")
 
     # get abs ratio between the difference in peak and eos values and times
-    print('> Calculating rate of decrease (rod) values.')
+    print("> Calculating rate of decrease (rod) values.")
     da_rod_values = abs((da_eos_values - da_peak_values) / (da_eos_times - da_peak_times))
 
     # convert type
-    da_rod_values = da_rod_values.astype('float32')
+    da_rod_values = da_rod_values.astype("float32")
 
     # rename vars
-    da_rod_values = da_rod_values.rename('rod_values')
+    da_rod_values = da_rod_values.rename("rod_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_rod_values
 
@@ -2128,28 +2105,30 @@ def get_lios(da, da_sos_times, da_eos_times):
     """
 
     # notify user
-    print('Beginning calculation of long integral of season (lios) values (times not possible).')
+    print("Beginning calculation of long integral of season (lios) values (times not possible).")
 
     # get vals between sos and eos times, replace any outside vals with 0
-    print('> Calculating long integral of season (lios) values.')
-    da_lios_values = da.where((da['time.dayofyear'] >= da_sos_times) &
-                              (da['time.dayofyear'] <= da_eos_times), 0)
+    print("> Calculating long integral of season (lios) values.")
+    da_lios_values = da.where((da["time.dayofyear"] >= da_sos_times) & (da["time.dayofyear"] <= da_eos_times), 0)
 
     # calculate lios using trapz (note: more sophisticated than integrate)
-    da_lios_values = xr.apply_ufunc(np.trapz, da_lios_values,
-                                    input_core_dims=[['time']],
-                                    dask='parallelized',
-                                    output_dtypes=[np.float32],
-                                    kwargs={'dx': 1})
+    da_lios_values = xr.apply_ufunc(
+        np.trapz,
+        da_lios_values,
+        input_core_dims=[["time"]],
+        dask="parallelized",
+        output_dtypes=[np.float32],
+        kwargs={"dx": 1},
+    )
 
     # convert type
-    da_lios_values = da_lios_values.astype('float32')
+    da_lios_values = da_lios_values.astype("float32")
 
     # rename
-    da_lios_values = da_lios_values.rename('lios_values')
+    da_lios_values = da_lios_values.rename("lios_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_lios_values
 
@@ -2185,45 +2164,52 @@ def get_sios(da, da_sos_times, da_eos_times, da_base_values):
     """
 
     # notify user
-    print('Beginning calculation of short integral of season (sios) values (times not possible).')
+    print("Beginning calculation of short integral of season (sios) values (times not possible).")
 
     # get veg vals between sos and eos times, replace any outside vals with 0
-    print('> Calculating short integral of season (sios) values.')
-    da_sios_values = da.where((da['time.dayofyear'] >= da_sos_times) &
-                              (da['time.dayofyear'] <= da_eos_times), 0)
+    print("> Calculating short integral of season (sios) values.")
+    da_sios_values = da.where((da["time.dayofyear"] >= da_sos_times) & (da["time.dayofyear"] <= da_eos_times), 0)
 
     # calculate sios using trapz (note: more sophisticated than integrate)
-    da_sios_values = xr.apply_ufunc(np.trapz, da_sios_values,
-                                    input_core_dims=[['time']],
-                                    dask='parallelized',
-                                    output_dtypes=[np.float32],
-                                    kwargs={'dx': 1})
+    da_sios_values = xr.apply_ufunc(
+        np.trapz,
+        da_sios_values,
+        input_core_dims=[["time"]],
+        dask="parallelized",
+        output_dtypes=[np.float32],
+        kwargs={"dx": 1},
+    )
 
     # combine 2d base vals with 3d da, projecting const base val to pixel timeseries (i.e. a rectangle)
     da_sios_bse_values = da_base_values.combine_first(da)
 
     # get base vals between sos and eos times, replace any outside vals with 0
-    da_sios_bse_values = da_sios_bse_values.where((da_sios_bse_values['time.dayofyear'] >= da_sos_times) &
-                                                  (da_sios_bse_values['time.dayofyear'] <= da_eos_times), 0)
+    da_sios_bse_values = da_sios_bse_values.where(
+        (da_sios_bse_values["time.dayofyear"] >= da_sos_times) & (da_sios_bse_values["time.dayofyear"] <= da_eos_times),
+        0,
+    )
 
     # calculate trapz of base (note: more sophisticated than integrate)
-    da_sios_bse_values = xr.apply_ufunc(np.trapz, da_sios_bse_values,
-                                        input_core_dims=[['time']],
-                                        dask='parallelized',
-                                        output_dtypes=[np.float32],
-                                        kwargs={'dx': 1})
+    da_sios_bse_values = xr.apply_ufunc(
+        np.trapz,
+        da_sios_bse_values,
+        input_core_dims=[["time"]],
+        dask="parallelized",
+        output_dtypes=[np.float32],
+        kwargs={"dx": 1},
+    )
 
     # remove base trapz from sios values
     da_sios_values = da_sios_values - da_sios_bse_values
 
     # convert type
-    da_sios_values = da_sios_values.astype('float32')
+    da_sios_values = da_sios_values.astype("float32")
 
     # rename
-    da_sios_values = da_sios_values.rename('sios_values')
+    da_sios_values = da_sios_values.rename("sios_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_sios_values
 
@@ -2248,24 +2234,22 @@ def get_liot(da):
     """
 
     # notify user
-    print('Beginning calculation of long integral of total (liot) values (times not possible).')
+    print("Beginning calculation of long integral of total (liot) values (times not possible).")
 
     # calculate liot using trapz (note: more sophisticated than integrate)
-    print('> Calculating long integral of total (liot) values.')
-    da_liot_values = xr.apply_ufunc(np.trapz, da,
-                                    input_core_dims=[['time']],
-                                    dask='parallelized',
-                                    output_dtypes=[np.float32],
-                                    kwargs={'dx': 1})
+    print("> Calculating long integral of total (liot) values.")
+    da_liot_values = xr.apply_ufunc(
+        np.trapz, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
+    )
 
     # convert type
-    da_liot_values = da_liot_values.astype('float32')
+    da_liot_values = da_liot_values.astype("float32")
 
     # rename
-    da_liot_values = da_liot_values.rename('liot_values')
+    da_liot_values = da_liot_values.rename("liot_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_liot_values
 
@@ -2294,43 +2278,45 @@ def get_siot(da, da_base_values):
     """
 
     # notify user
-    print('Beginning calculation of short integral of total (siot) values (times not possible).')
+    print("Beginning calculation of short integral of total (siot) values (times not possible).")
 
     # calculate siot using trapz (note: more sophisticated than integrate)
-    print('> Calculating short integral of total (siot) values.')
-    da_siot_values = xr.apply_ufunc(np.trapz, da,
-                                    input_core_dims=[['time']],
-                                    dask='parallelized',
-                                    output_dtypes=[np.float32],
-                                    kwargs={'dx': 1})
+    print("> Calculating short integral of total (siot) values.")
+    da_siot_values = xr.apply_ufunc(
+        np.trapz, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
+    )
 
     # combine 2d base vals with 3d da, projecting const base val to pixel timeseries (i.e. a rectangle)
     da_siot_bse_values = da_base_values.combine_first(da)
 
     # calculate trapz of base (note: more sophisticated than integrate)
-    da_siot_bse_values = xr.apply_ufunc(np.trapz, da_siot_bse_values,
-                                        input_core_dims=[['time']],
-                                        dask='parallelized',
-                                        output_dtypes=[np.float32],
-                                        kwargs={'dx': 1})
+    da_siot_bse_values = xr.apply_ufunc(
+        np.trapz,
+        da_siot_bse_values,
+        input_core_dims=[["time"]],
+        dask="parallelized",
+        output_dtypes=[np.float32],
+        kwargs={"dx": 1},
+    )
 
     # remove base trapz from siot values
     da_siot_values = da_siot_values - da_siot_bse_values
 
     # convert type
-    da_siot_values = da_siot_values.astype('float32')
+    da_siot_values = da_siot_values.astype("float32")
 
     # rename
-    da_siot_values = da_siot_values.rename('siot_values')
+    da_siot_values = da_siot_values.rename("siot_values")
 
     # notify user
-    print('> Success!\n')
+    print("> Success!\n")
 
     return da_siot_values
 
 
-def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of_slope', factor=0.5,
-                      thresh_sides='two_sided', abs_value=0):
+def calc_phenometrics(
+    da, peak_metric="pos", base_metric="bse", method="first_of_slope", factor=0.5, thresh_sides="two_sided", abs_value=0
+):
     """
     Takes an xarray DataArray containing veg_index values and calculates numerous phenometrics
     (metrics that measure various aspects of plant phenoly or lifecycle). See the information
@@ -2378,23 +2364,23 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
     """
 
     # notify user
-    print('Initialising calculation of phenometrics.\n')
+    print("Initialising calculation of phenometrics.\n")
 
     # check if dask - not yet supported
-    #if dask.is_dask_collection(da):
+    # if dask.is_dask_collection(da):
     #    raise TypeError('Dask arrays not yet supported. Please compute first.')
 
     # check if dataset type
     if type(da) != xr.DataArray:
-        raise TypeError('> Not a data array. Please provide a xarray data array.')
+        raise TypeError("> Not a data array. Please provide a xarray data array.")
 
     # check if max metric parameters supported
-    if peak_metric not in ['pos', 'mos']:
-        raise ValueError('> The peak_metric parameter must be either pos or mos.')
+    if peak_metric not in ["pos", "mos"]:
+        raise ValueError("> The peak_metric parameter must be either pos or mos.")
 
     # check if min metric parameters supported
-    if base_metric not in ['bse', 'vos']:
-        raise ValueError('> The base_metric parameter must be either bse or vos.')
+    if base_metric not in ["bse", "vos"]:
+        raise ValueError("> The base_metric parameter must be either bse or vos.")
 
     # create template dataset to hold phenometrics
     # NOTE: no longer required
@@ -2403,11 +2389,11 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
     crs = extract_crs(da=da)
 
     # take a mask of all-nan slices for clean up at end and set all-nan to 0s
-    da_all_nan_mask = da.isnull().all('time')
+    da_all_nan_mask = da.isnull().all("time")
     da = da.where(~da_all_nan_mask, 0.0)
 
     # notify user
-    print('Beginning calculation of phenometrics. This can take awhile - please wait.\n')
+    print("Beginning calculation of phenometrics. This can take awhile - please wait.\n")
 
     # calc peak of season (pos) values and times
     da_pos_values, da_pos_times = get_pos(da=da)
@@ -2422,66 +2408,96 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
     da_bse_values = get_bse(da=da, da_peak_times=da_pos_times)
 
     # calc amplitude of season (aos) values (time not possible). takes peak and base arrays
-    if peak_metric == 'pos' and base_metric == 'bse':
+    if peak_metric == "pos" and base_metric == "bse":
         da_aos_values = get_aos(da_peak_values=da_pos_values, da_base_values=da_bse_values)
-    elif peak_metric == 'pos' and base_metric == 'vos':
+    elif peak_metric == "pos" and base_metric == "vos":
         da_aos_values = get_aos(da_peak_values=da_pos_values, da_base_values=da_vos_values)
-    elif peak_metric == 'mos' and base_metric == 'bse':
+    elif peak_metric == "mos" and base_metric == "bse":
         da_aos_values = get_aos(da_peak_values=da_mos_values, da_base_values=da_bse_values)
-    elif peak_metric == 'mos' and base_metric == 'vos':
+    elif peak_metric == "mos" and base_metric == "vos":
         da_aos_values = get_aos(da_peak_values=da_mos_values, da_base_values=da_vos_values)
 
     # calc start of season (sos) values and times. takes peak, base metrics and factor
-    if base_metric == 'bse':
-        da_sos_values, da_sos_times = get_sos(da=da, da_peak_times=da_pos_times, da_base_values=da_bse_values,
-                                              da_aos_values=da_aos_values, method=method, factor=factor,
-                                              thresh_sides='two_sided', abs_value=abs_value)
-    elif base_metric == 'vos':
-        da_sos_values, da_sos_times = get_sos(da=da, da_peak_times=da_pos_times, da_base_values=da_vos_values,
-                                              da_aos_values=da_aos_values, method=method, factor=factor,
-                                              thresh_sides='two_sided', abs_value=abs_value)
+    if base_metric == "bse":
+        da_sos_values, da_sos_times = get_sos(
+            da=da,
+            da_peak_times=da_pos_times,
+            da_base_values=da_bse_values,
+            da_aos_values=da_aos_values,
+            method=method,
+            factor=factor,
+            thresh_sides="two_sided",
+            abs_value=abs_value,
+        )
+    elif base_metric == "vos":
+        da_sos_values, da_sos_times = get_sos(
+            da=da,
+            da_peak_times=da_pos_times,
+            da_base_values=da_vos_values,
+            da_aos_values=da_aos_values,
+            method=method,
+            factor=factor,
+            thresh_sides="two_sided",
+            abs_value=abs_value,
+        )
 
         # calc end of season (eos) values and times. takes peak, base metrics and factor
-    if base_metric == 'bse':
-        da_eos_values, da_eos_times = get_eos(da=da, da_peak_times=da_pos_times, da_base_values=da_bse_values,
-                                              da_aos_values=da_aos_values, method=method, factor=factor,
-                                              thresh_sides='two_sided', abs_value=abs_value)
-    elif base_metric == 'vos':
-        da_eos_values, da_eos_times = get_eos(da=da, da_peak_times=da_pos_times, da_base_values=da_vos_values,
-                                              da_aos_values=da_aos_values, method=method, factor=factor,
-                                              thresh_sides='two_sided', abs_value=abs_value)
+    if base_metric == "bse":
+        da_eos_values, da_eos_times = get_eos(
+            da=da,
+            da_peak_times=da_pos_times,
+            da_base_values=da_bse_values,
+            da_aos_values=da_aos_values,
+            method=method,
+            factor=factor,
+            thresh_sides="two_sided",
+            abs_value=abs_value,
+        )
+    elif base_metric == "vos":
+        da_eos_values, da_eos_times = get_eos(
+            da=da,
+            da_peak_times=da_pos_times,
+            da_base_values=da_vos_values,
+            da_aos_values=da_aos_values,
+            method=method,
+            factor=factor,
+            thresh_sides="two_sided",
+            abs_value=abs_value,
+        )
 
     # calc length of season (los) values (time not possible). takes sos and eos
     da_los_values = get_los(da=da, da_sos_times=da_sos_times, da_eos_times=da_eos_times)
 
     # calc rate of icnrease (roi) values (time not possible). takes peak array (pos)
-    da_roi_values = get_roi(da_peak_values=da_pos_values, da_peak_times=da_pos_times,
-                            da_sos_values=da_sos_values, da_sos_times=da_sos_times)
+    da_roi_values = get_roi(
+        da_peak_values=da_pos_values, da_peak_times=da_pos_times, da_sos_values=da_sos_values, da_sos_times=da_sos_times
+    )
 
     # calc rate of decrease (rod) values (time not possible). takes peak array (pos)
-    da_rod_values = get_rod(da_peak_values=da_pos_values, da_peak_times=da_pos_times,
-                            da_eos_values=da_eos_values, da_eos_times=da_eos_times)
+    da_rod_values = get_rod(
+        da_peak_values=da_pos_values, da_peak_times=da_pos_times, da_eos_values=da_eos_values, da_eos_times=da_eos_times
+    )
 
     # calc long integral of season (lios) values (time not possible)
     da_lios_values = get_lios(da=da, da_sos_times=da_sos_times, da_eos_times=da_eos_times)
 
     # calc short integral of season (sios) values (time not possible)
-    if base_metric == 'bse':
-        da_sios_values = get_sios(da=da, da_sos_times=da_sos_times,
-                                  da_eos_times=da_eos_times,
-                                  da_base_values=da_bse_values)
-    elif base_metric == 'vos':
-        da_sios_values = get_sios(da=da, da_sos_times=da_sos_times,
-                                  da_eos_times=da_eos_times,
-                                  da_base_values=da_vos_values)
+    if base_metric == "bse":
+        da_sios_values = get_sios(
+            da=da, da_sos_times=da_sos_times, da_eos_times=da_eos_times, da_base_values=da_bse_values
+        )
+    elif base_metric == "vos":
+        da_sios_values = get_sios(
+            da=da, da_sos_times=da_sos_times, da_eos_times=da_eos_times, da_base_values=da_vos_values
+        )
 
         # calc long integral of total (liot) values (time not possible)
     da_liot_values = get_liot(da=da)
 
     # calc short integral of total (siot) values (time not possible)
-    if base_metric == 'bse':
+    if base_metric == "bse":
         da_siot_values = get_siot(da=da, da_base_values=da_bse_values)
-    elif base_metric == 'vos':
+    elif base_metric == "vos":
         da_siot_values = get_siot(da=da, da_base_values=da_vos_values)
 
     # create data array list
@@ -2503,11 +2519,11 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
         da_lios_values,
         da_sios_values,
         da_liot_values,
-        da_siot_values
+        da_siot_values,
     ]
 
     # combine data arrays into one dataset
-    ds_phenos = xr.merge(da_list, compat='override')
+    ds_phenos = xr.merge(da_list, compat="override")
 
     # set original all nan pixels back to nan
     ds_phenos = ds_phenos.where(~da_all_nan_mask)
@@ -2516,6 +2532,6 @@ def calc_phenometrics(da, peak_metric='pos', base_metric='bse', method='first_of
     ds_phenos = add_crs(ds=ds_phenos, crs=crs)
 
     # notify user
-    print('Phenometrics calculated successfully!')
+    print("Phenometrics calculated successfully!")
 
     return ds_phenos

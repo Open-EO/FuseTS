@@ -1,3 +1,4 @@
+import importlib.util
 import math
 from array import array
 from datetime import timedelta
@@ -7,10 +8,7 @@ import numpy as np
 import xarray
 from xarray import DataArray
 
-from fusets._xarray_utils import _extract_dates, _time_dimension, _output_dates
-
-import importlib.util
-
+from fusets._xarray_utils import _extract_dates, _output_dates, _time_dimension
 from fusets.base import BaseEstimator
 
 _openeo_exists = importlib.util.find_spec("openeo") is not None
@@ -33,7 +31,7 @@ class WhittakerTransformer(BaseEstimator):
 
     """
 
-    def fit_transform(self, X:Union[DataArray,DataCube], y:Union[DataArray,DataCube]=None, **fit_params):
+    def fit_transform(self, X: Union[DataArray, DataCube], y: Union[DataArray, DataCube] = None, **fit_params):
         """
         Whittaker represents a computationally efficient reconstruction method for smoothing and gap-filling of time series.
         The main function takes as input two vectors of the same length: the y time series data (e.g. NDVI) and the
@@ -67,12 +65,15 @@ class WhittakerTransformer(BaseEstimator):
         smoothing = fit_params.get("smoothing_lambda", 10000)
         if _openeo_exists and isinstance(array, DataCube):
             from .openeo import whittaker as whittaker_openeo
+
             return whittaker_openeo(array, smoothing)
 
         return whittaker(X, smoothing, fit_params.get("time_dimension", "t"), fit_params.get("prediction_period", None))
 
 
-def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None) -> Union[DataArray,DataCube]:
+def whittaker(
+    array: Union[DataArray, DataCube], smoothing_lambda=10000, time_dimension="t", prediction_period=None
+) -> Union[DataArray, DataCube]:
     """
     Convenience method for whittaker. See :meth:`fusets.whittaker.WhittakerTransformer.fit_transform` for more detailed documentation.
 
@@ -85,10 +86,10 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
     Returns: A smoothed datacube
 
     """
-    if _openeo_exists and isinstance(array,DataCube):
+    if _openeo_exists and isinstance(array, DataCube):
         from .openeo import whittaker as whittaker_openeo
-        return whittaker_openeo(array,smoothing_lambda)
 
+        return whittaker_openeo(array, smoothing_lambda)
 
     dates = _extract_dates(array)
     time_dimension = _time_dimension(array, time_dimension)
@@ -105,15 +106,15 @@ def whittaker(array:Union[DataArray,DataCube], smoothing_lambda=10000, time_dime
         dates_mask = np.in1d(XXd, output_dates)
         return Zd[dates_mask]
 
-    result = xarray.apply_ufunc(callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]],vectorize=True)
+    result = xarray.apply_ufunc(
+        callback, array, input_core_dims=[[time_dimension]], output_core_dims=[[output_time_dimension]], vectorize=True
+    )
 
     result[output_time_dimension] = output_dates
     result = result.rename({output_time_dimension: time_dimension})
 
     # make sure to preserve dimension order
     return result.transpose(*array.dims)
-
-
 
 
 def whittaker_f(x, y, lmbd, d):
@@ -146,6 +147,7 @@ def whittaker_f(x, y, lmbd, d):
 
     # deferred import to avoid dependency issues with the whitakker library
     from vam.whittaker import ws2d, ws2doptv
+
     # minimum and maximum dates
     D1 = get_all_dates(x)
     D11 = D1[~np.isnan(y)]
@@ -154,19 +156,19 @@ def whittaker_f(x, y, lmbd, d):
     v = np.full(l + 1, -3000)
     v[D11] = 1
 
-    t = np.full(l + 1, 0, dtype='float')
+    t = np.full(l + 1, 0, dtype="float")
     t[D11] = y[~np.isnan(y)]
 
     # dates
     xx = [x[0] + timedelta(days=i) for i in range(l + 1)]  # try using pandas instead?
 
     # create weights
-    w = np.array((v != -3000) * 1, dtype='double')
+    w = np.array((v != -3000) * 1, dtype="double")
 
     # apply filter
-    if isinstance(lmbd,list):
+    if isinstance(lmbd, list):
         # the whitakker library also allows to choose a lambda value from a list. Note that values in this list need to be log10(lambda) (or so it seems)
-        z_,the_lambda = ws2doptv(t, w=w,llas=array('d',lmbd))
+        z_, the_lambda = ws2doptv(t, w=w, llas=array("d", lmbd))
     else:
         z_ = ws2d(t, lmbd, w)
     z1_ = np.array(z_)
@@ -192,6 +194,6 @@ def whittaker_f(x, y, lmbd, d):
 
 
 def get_all_dates(x):
-    D = [ i.toordinal() for i in x]
+    D = [i.toordinal() for i in x]
     D1 = np.array(D) - D[0]
     return D1

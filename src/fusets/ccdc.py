@@ -152,5 +152,3 @@ def fit_harmonics_curve(array: xarray.DataArray, num_coefficients=6, time_dimens
 
     # make sure to preserve dimension order
     return result
-
-

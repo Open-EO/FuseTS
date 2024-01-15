@@ -1,0 +1,30 @@
+{
+  "whittaker": {
+    "cpu": 414,
+    "memory": 1740702,
+    "duration": 33,
+    "sentinelhub": 3,
+    "cost_ha": 1
+  },
+  "mogpr": {
+    "cpu": 3811,
+    "memory": 19784610,
+    "duration": 94,
+    "sentinelhub": 3,
+    "cost_ha": 8
+  },
+  "peakvalley": {
+    "cpu": 342,
+    "memory": 1428364,
+    "duration": 27,
+    "sentinelhub": 3,
+    "cost_ha": 1
+  },
+  "phenology": {
+    "cpu": 338,
+    "memory": 1392737,
+    "duration": 28,
+    "sentinelhub": 3,
+    "cost_ha": 1
+  }
+}

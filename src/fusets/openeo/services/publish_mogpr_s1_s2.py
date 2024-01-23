@@ -9,38 +9,45 @@ from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_
 
 NEIGHBORHOOD_SIZE = 32
 
-S1_COLLECTIONS = ["RVI", "GRD", "GAMMA0", "COHERENCE"]
+S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "RVI DESC", "GAMMA0", "COHERENCE"]
 S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
-def test_udf():
+def execute_udf():
     connection = openeo.connect("openeo.vito.be").authenticate_oidc()
-    service = "mogpr_s1_s2"
-    namespace = "u:bramjanssen"
     spat_ext = {
         "type": "Polygon",
         "coordinates": [
             [
-                [5.170012098271149, 51.25062964728295],
-                [5.17085904378298, 51.24882567194015],
-                [5.17857421368097, 51.2468515482926],
-                [5.178972704726344, 51.24982704376254],
-                [5.170012098271149, 51.25062964728295],
+                [
+                    12.502373837196238,
+                    42.06404350608216
+                ],
+                [
+                    12.502124488464212,
+                    42.03089916587777
+                ],
+                [
+                    12.571692784699895,
+                    42.031269589226014
+                ],
+                [
+                    12.57156811033388,
+                    42.06663507169753
+                ],
+                [
+                    12.502373837196238,
+                    42.06404350608216
+                ]
             ]
         ],
     }
-    temp_ext = ["2022-05-01", "2022-07-30"]
-    mogpr = connection.datacube_from_process(
-        service,
-        namespace=f"https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}",
-        polygon=spat_ext,
-        date=temp_ext,
-        s1_collection="GRD",
-        s2_collection="FAPAR",
-    )
+    temp_ext = ["2023-01-01", "2023-12-31"]
+    mogpr = connection.datacube_from_flat_graph(
+        generate_cube(connection, 'RVI DESC', 'NDVI', spat_ext, temp_ext).flat_graph())
     mogpr.execute_batch(
-        "./result_mogpr_s1_s2.nc",
-        title=f"FuseTS - MOGPR S1 S2 - Local",
+        "./result_mogpr_s1_s2_outputs.nc",
+        title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",
         job_options={
             "udf-dependency-archives": [
                 "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv",
@@ -59,28 +66,35 @@ def test_udf():
 #######################################################################################################################
 #   S1 collection implementation
 #######################################################################################################################
-def _load_s1_grd_bands(connection, polygon, date, bands):
+def _load_s1_grd_bands(connection, polygon, date, bands, orbit_direction):
     """
     Create an S1 datacube containing a selected set of bands from the SENTINEL1_GRD data collection.
     :param connection: openEO connection
     :param polygon: Area of interest
     :param date: Time of interest
     :param bands: Bands to load
+    :param orbit_direction: Orbit direction to use
     :return:
     """
-    s1_grd = connection.load_collection("SENTINEL1_GRD", spatial_extent=polygon, temporal_extent=date, bands=bands)
+    s1_grd = connection.load_collection("SENTINEL1_GRD", spatial_extent=polygon, temporal_extent=date, bands=bands,
+                                        properties={
+                                            "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
+                                        },
+
+                                        )
     return s1_grd.mask_polygon(polygon)
 
 
-def _load_rvi(connection, polygon, date):
+def _load_rvi(connection, polygon, date, orbit_direction):
     """
     Create an RVI datacube based on the S1 VV and VH bands.
     :param connection: openEO connection
     :param polygon: Area of interest
     :param date: Time of interest
+    :param orbit_direction: Orbit direction to use
     :return:
     """
-    base_s1 = _load_s1_grd_bands(connection, polygon, date, ["VV", "VH"])
+    base_s1 = _load_s1_grd_bands(connection, polygon, date, ["VV", "VH"], orbit_direction)
 
     VH = base_s1.band("VH")
     VV = base_s1.band("VV")
@@ -217,10 +231,19 @@ def load_s1_collection(connection, collection, polygon, date):
     collections = None
     for option in [
         {
-            "label": "grd",
-            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"]),
+            "label": "grd desc",
+            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
+                                           orbit_direction='DESCENDING'),
         },
-        {"label": "rvi", "function": _load_rvi(connection=connection, polygon=polygon, date=date)},
+        {
+            "label": "grd asc",
+            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
+                                           orbit_direction='ASCENDING'),
+        },
+        {"label": "rvi desc",
+         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='DESCENDING')},
+        {"label": "rvi asc",
+         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='ASCENDING')},
         {"label": "gamma0", "function": _load_gamma0(connection=connection, polygon=polygon, date=date)},
         {"label": "coherence", "function": _load_coherence(connection=connection, polygon=polygon, date=date)},
     ]:
@@ -258,6 +281,26 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
+def generate_cube(connection, s1_collection, s2_collection, polygon, date):
+    # Build the S1 and S2 input data cubes
+    s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
+    s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
+
+    # Merge the inputs to a single datacube
+    merged_cube = merge_cubes(s1_input_cube, s2_input_cube)
+
+    # Apply the MOGPR UDF to the multi source datacube
+    return apply_neighborhood(
+        merged_cube,
+        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
+        size=[
+            {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
+            {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
+        ],
+        overlap=[],
+    )
+
+
 def generate_mogpr_s1_s2_udp(connection):
     """
     Build the MOGPR S1 S2 UPD and publish the result.
@@ -280,29 +323,12 @@ def generate_mogpr_s1_s2_udp(connection):
     s2_collection = Parameter.string(
         "s2_collection", "S2 data collection to use for fusing the data", S2_COLLECTIONS[0], S2_COLLECTIONS
     )
-
-    # Build the S1 and S2 input data cubes
-    s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
-    s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
-
-    # Merge the inputs to a single datacube
-    merged_cube = merge_cubes(s1_input_cube, s2_input_cube)
-
-    # Apply the MOGPR UDF to the multi source datacube
-    process = apply_neighborhood(
-        merged_cube,
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
-        size=[
-            {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-            {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-        ],
-        overlap=[],
-    )
-
+    process = generate_cube(connection=connection, s1_collection=s1_collection, s2_collection=s2_collection,
+                            polygon=polygon, date=date)
     return publish_service(
         id="mogpr_s1_s2",
         summary="Integrates timeseries in data cube using multi-output gaussian "
-        "process regression with a specific focus on fusing S1 and S2 data.",
+                "process regression with a specific focus on fusing S1 and S2 data.",
         description=description,
         parameters=[
             polygon.to_dict(),
@@ -321,4 +347,4 @@ if __name__ == "__main__":
     # Using the dummy connection as otherwise Datatype errors are generated when creating the input datacubes
     # where bands are selected.
     generate_mogpr_s1_s2_udp(connection=DummyConnection())
-    # test_udf()
+    # execute_udf()

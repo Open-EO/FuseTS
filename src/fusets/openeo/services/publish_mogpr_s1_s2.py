@@ -4,7 +4,6 @@ from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process
 
 from fusets.openeo import load_mogpr_udf
-from fusets.openeo.services.dummies import DummyConnection
 from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
 
 NEIGHBORHOOD_SIZE = 32
@@ -79,9 +78,9 @@ def _load_s1_grd_bands(connection, polygon, date, bands, orbit_direction):
     s1_grd = connection.load_collection("SENTINEL1_GRD", spatial_extent=polygon, temporal_extent=date, bands=bands,
                                         properties={
                                             "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
-                                        },
-
-                                        )
+                                            "resolution": lambda x: eq(x, 'HIGH'),
+                                            "sar:instrument_mode": lambda x: eq(x, 'IW')
+                                        })
     return s1_grd.mask_polygon(polygon)
 
 
@@ -346,5 +345,5 @@ def generate_mogpr_s1_s2_udp(connection):
 if __name__ == "__main__":
     # Using the dummy connection as otherwise Datatype errors are generated when creating the input datacubes
     # where bands are selected.
-    generate_mogpr_s1_s2_udp(connection=DummyConnection())
-    # execute_udf()
+    # generate_mogpr_s1_s2_udp(connection=DummyConnection())
+    execute_udf()

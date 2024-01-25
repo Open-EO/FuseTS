@@ -280,17 +280,22 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
-def generate_cube(connection, s1_collection, s2_collection, polygon, date):
+def generate_input_cube(connection, s1_collection, s2_collection, polygon, date):
     # Build the S1 and S2 input data cubes
     s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
     s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
 
     # Merge the inputs to a single datacube
-    merged_cube = merge_cubes(s1_input_cube, s2_input_cube)
+    return merge_cubes(s1_input_cube, s2_input_cube)
+
+
+def generate_cube(connection, s1_collection, s2_collection, polygon, date):
+    # Build the input datacube
+    input_cube = generate_input_cube(connection, s1_collection, s2_collection, polygon, date)
 
     # Apply the MOGPR UDF to the multi source datacube
     return apply_neighborhood(
-        merged_cube,
+        input_cube,
         lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
         size=[
             {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},

@@ -43,7 +43,7 @@ def start_job(
     aoi = geojson.Feature(geometry=row['geometry'])
 
     if 'params' in context and 'skipData' in context['params'] and context['params']['skipData']:
-        service_dc = connection.datacube_from_process(geometry=aoi, **context['jobinfo'], )
+        service_dc = connection.datacube_from_process(polygon=aoi, **context['jobinfo'], )
     else:
         base = connection.load_collection('SENTINEL2_L2A',
                                           spatial_extent=aoi,
@@ -126,7 +126,7 @@ def check_performance(service, jobs):
         (
                 {
                     "params": {
-                        "temp-ext": ["2023-01-01", "2023-01-31"],
+                        "temp-ext": ["2023-01-01", "2023-12-31"],
                     },
                     "jobinfo": {
                         "process_id": "whittaker",
@@ -138,7 +138,7 @@ def check_performance(service, jobs):
         (
                 {
                     "params": {
-                        "temp-ext": ["2023-01-01", "2023-01-31"],
+                        "temp-ext": ["2023-01-01", "2023-12-31"],
                     },
                     "jobinfo": {
                         "process_id": "mogpr",
@@ -149,7 +149,7 @@ def check_performance(service, jobs):
         (
                 {
                     "params": {
-                        "temp-ext": ["2023-01-01", "2023-01-31"],
+                        "temp-ext": ["2023-01-01", "2023-12-31"],
                     },
                     "jobinfo": {
                         "process_id": "peakvalley",
@@ -160,14 +160,26 @@ def check_performance(service, jobs):
         (
                 {
                     "params": {
-                        "temp-ext": ["2023-01-01", "2023-01-31"],
+                        "temp-ext": ["2023-01-01", "2023-12-31"],
                     },
                     "jobinfo": {
                         "process_id": "phenology",
                         "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/phenology",
                     }
                 }
-        )
+        ),
+        (
+                {
+                    "params": {
+                        "skipData": True,
+                    },
+                    "jobinfo": {
+                        "process_id": "mogpr_s1_s2",
+                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/mogpr_s1_s2",
+                        "date": ["2023-01-01", "2023-12-31"],
+                    }
+                }
+        ),
     ]
 )
 def test_benchmark_fusets_service(benchmark_features, context):

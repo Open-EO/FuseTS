@@ -1,30 +1,37 @@
 {
   "whittaker": {
-    "cpu": 414,
-    "memory": 1740702,
-    "duration": 33,
-    "sentinelhub": 3,
-    "cost_ha": 1
+    "cpu": 2462,
+    "memory": 12696780,
+    "duration": 66,
+    "sentinelhub": 46,
+    "cost_ha": 6
   },
   "mogpr": {
-    "cpu": 3811,
-    "memory": 19784610,
-    "duration": 94,
-    "sentinelhub": 3,
-    "cost_ha": 8
+    "cpu": 11620,
+    "memory": 60985161,
+    "duration": 250,
+    "sentinelhub": 46,
+    "cost_ha": 23
   },
   "peakvalley": {
-    "cpu": 342,
-    "memory": 1428364,
-    "duration": 27,
-    "sentinelhub": 3,
-    "cost_ha": 1
+    "cpu": 723,
+    "memory": 3015124,
+    "duration": 61,
+    "sentinelhub": 46,
+    "cost_ha": 3
   },
   "phenology": {
-    "cpu": 338,
-    "memory": 1392737,
-    "duration": 28,
-    "sentinelhub": 3,
-    "cost_ha": 1
+    "cpu": 653,
+    "memory": 2830460,
+    "duration": 49,
+    "sentinelhub": 46,
+    "cost_ha": 3
+  },
+  "mogpr_s1_s2": {
+    "cpu": 4083,
+    "memory": 21063211,
+    "duration": 110,
+    "sentinelhub": 87,
+    "cost_ha": 10
   }
 }

@@ -137,7 +137,8 @@ class MOGPRTransformer(BaseEstimator):
 
 
 def mogpr(
-    array: xarray.Dataset, variables: List[str] = None, time_dimension: str = "t", prediction_period: str = None
+        array: xarray.Dataset, variables: List[str] = None, time_dimension: str = "t", prediction_period: str = None,
+        include_uncertainties: bool = False
 ) -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
@@ -150,6 +151,7 @@ def mogpr(
         variables: The list of variable names that should be included, or None to use all variables
         time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
         prediction_period: The duration specified as ISO-8601, e.g. P5D: 5-daily, P1M: monthly. Defaults to input dates.
+        include_uncertainties: Flag indicating if the uncertainties should be added to the output of the mogpr process.
 
     Returns: A gapfilled datacube.
 
@@ -174,7 +176,7 @@ def mogpr(
         raise Exception("The result does not contain any output times, please select a larger range")
 
     def callback(timeseries):
-        out_mean, _, _, _ = mogpr_1D(
+        out_mean, out_std, _, _ = mogpr_1D(
             timeseries,
             list([dates_np for _ in timeseries]),
             0,
@@ -182,19 +184,24 @@ def mogpr(
             nt=1,
             trained_model=None,
         )
-        result = np.array(out_mean)
-        return result
+        return np.array(out_mean), np.array(out_std)
 
     # setting vectorize to true is convenient, but has performance similar to for loop
-    result = xarray.apply_ufunc(
+    result, std = xarray.apply_ufunc(
         callback,
         array.to_array(dim="variable"),
         input_core_dims=[["variable", time_dimension]],
-        output_core_dims=[["variable", output_time_dimension]],
+        output_core_dims=[["variable", output_time_dimension], ["variable", output_time_dimension]],
         vectorize=True,
     )
 
     result = result.assign_coords({output_time_dimension: output_dates})
+
+    if include_uncertainties:
+        std = std.assign_coords({output_time_dimension: output_dates})
+        std['variable'] = [f"{variable}_STD" for variable in std['variable'].values]
+        result = xarray.concat([result, std], dim=output_time_dimension)
+
     result = result.rename({output_time_dimension: time_dimension, "variable": "bands"})
 
     return result.to_dataset(dim="bands")
@@ -303,11 +310,11 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                     else:
                         for ind in range(noutput_timeseries):
                             out_mean[ind][:, None, x, y] = (
-                                out_mean[ind][:, None, x, y]
-                                + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                                    out_mean[ind][:, None, x, y]
+                                    + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
                             )
                             out_std[ind][:, None, x, y] = (
-                                out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
+                                    out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
                             )
 
                     del Yp, Vp
@@ -423,7 +430,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_std[out][:, None] = (Vp[:, None, out] * Y_std_vec[out]) / nt
                 else:
                     out_mean[out][:, None] = (
-                        out_mean[out][:, None] + (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                            out_mean[out][:, None] + (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
                     )
                     out_std[out][:, None] = out_std[out][:, None] + (Vp[:, None, out] * Y_std_vec[out]) / nt
 

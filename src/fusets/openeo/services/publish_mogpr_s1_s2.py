@@ -4,7 +4,8 @@ from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process
 
 from fusets.openeo import load_mogpr_udf
-from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
+from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description, \
+    get_context_value
 
 NEIGHBORHOOD_SIZE = 32
 
@@ -280,7 +281,7 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
-def generate_cube(connection, s1_collection, s2_collection, polygon, date):
+def generate_cube(connection, s1_collection, s2_collection, polygon, date, include_uncertainties):
     # Build the S1 and S2 input data cubes
     s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
     s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
@@ -291,7 +292,9 @@ def generate_cube(connection, s1_collection, s2_collection, polygon, date):
     # Apply the MOGPR UDF to the multi source datacube
     return apply_neighborhood(
         merged_cube,
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
+        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
+            'include_uncertainties': get_context_value(include_uncertainties)
+        }),
         size=[
             {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
             {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
@@ -322,8 +325,11 @@ def generate_mogpr_s1_s2_udp(connection):
     s2_collection = Parameter.string(
         "s2_collection", "S2 data collection to use for fusing the data", S2_COLLECTIONS[0], S2_COLLECTIONS
     )
+    include_uncertainties = Parameter.boolean(
+        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
+
     process = generate_cube(connection=connection, s1_collection=s1_collection, s2_collection=s2_collection,
-                            polygon=polygon, date=date)
+                            polygon=polygon, date=date, include_uncertainties=include_uncertainties)
     return publish_service(
         id="mogpr_s1_s2",
         summary="Integrates timeseries in data cube using multi-output gaussian "

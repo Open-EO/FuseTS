@@ -44,16 +44,3 @@ def _output_dates(prediction_period, start_date, end_date):
     period = pd.Timedelta(prediction_period)
     range = pd.date_range(start_date, end_date, freq=period)
     return [_topydate(d) for d in range.values]
-
-
-def _suffix_variables(array, suffix):
-    """
-    Rename variables in a data array by appending the suffix to the variable names.
-    """
-    renamed_data_array = array.copy()
-    renamed_variables = []
-    for variable in renamed_data_array['variable'].values:
-        renamed_variables.append(f"{variable}{suffix}")
-
-    renamed_data_array['variables'] = np.array(renamed_variables)
-    return renamed_data_array

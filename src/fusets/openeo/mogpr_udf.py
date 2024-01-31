@@ -56,6 +56,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     variables = context.get("variables")
     time_dimension = context.get("time_dimension", "t")
     prediction_period = context.get("prediction_period", "5D")
+    include_uncertainties = context.get("include_uncertainties", False)
 
     dims = cube.get_array().dims
     result = mogpr(
@@ -63,6 +64,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
         variables=variables,
         time_dimension=time_dimension,
         prediction_period=prediction_period,
+        include_uncertainties=include_uncertainties
     )
     result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
     set_home(home)

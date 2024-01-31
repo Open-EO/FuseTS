@@ -1,11 +1,12 @@
 # Reads contents with UTF-8 encoding and returns str.
+
 import openeo
 from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood
 from openeo.udf import execute_local_udf
 
 from fusets.openeo import load_mogpr_udf
-from fusets.openeo.services.helpers import publish_service, read_description
+from fusets.openeo.services.helpers import publish_service, read_description, get_context_value
 
 NEIGHBORHOOD_SIZE = 32
 
@@ -68,9 +69,14 @@ def generate_mogpr_udp():
 
     input_cube = Parameter.raster_cube()
 
+    include_uncertainties = Parameter.boolean(
+        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
+
     process = apply_neighborhood(
         input_cube,
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
+        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
+            'include_uncertainties': get_context_value(include_uncertainties)
+        }),
         size=[
             {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
             {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},

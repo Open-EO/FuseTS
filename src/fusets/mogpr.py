@@ -195,16 +195,16 @@ def mogpr(
         vectorize=True,
     )
 
-    result = result.assign_coords({output_time_dimension: output_dates})
-
     if include_uncertainties:
-        std = std.assign_coords({output_time_dimension: output_dates})
         std['variable'] = [f"{variable}_STD" for variable in std['variable'].values]
-        result = xarray.concat([result, std], dim=output_time_dimension)
+        merged = xarray.concat([result, std], dim='variable')
+    else:
+        merged = result
 
-    result = result.rename({output_time_dimension: time_dimension, "variable": "bands"})
+    merged = merged.assign_coords({output_time_dimension: output_dates})
+    merged = merged.rename({output_time_dimension: time_dimension, "variable": "bands"})
 
-    return result.to_dataset(dim="bands")
+    return merged.to_dataset(dim="bands")
 
 
 def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):

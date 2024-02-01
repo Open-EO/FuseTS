@@ -4,6 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
+from openeo.metadata import CollectionMetadata
 from openeo.udf import XarrayDataCube, inspect
 
 
@@ -69,6 +70,13 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
     set_home(home)
     return result_dc
+
+
+def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:
+    return metadata.rename_labels(
+        dimension="bands",
+        target=metadata.bands + [f"{x}_STD" for x in metadata.bands]
+    )
 
 
 def load_mogpr_udf() -> str:

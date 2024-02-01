@@ -44,7 +44,7 @@ def execute_udf():
     }
     temp_ext = ["2023-01-01", "2023-12-31"]
     mogpr = connection.datacube_from_flat_graph(
-        generate_cube(connection, 'RVI DESC', 'NDVI', spat_ext, temp_ext).flat_graph())
+        generate_cube(connection, 'RVI DESC', 'NDVI', spat_ext, temp_ext, True).flat_graph())
     mogpr.execute_batch(
         "./result_mogpr_s1_s2_outputs.nc",
         title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",

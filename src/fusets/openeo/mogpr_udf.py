@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
-from openeo.udf import XarrayDataCube
+from openeo.udf import XarrayDataCube, inspect
 
 
 def load_venv():
@@ -12,7 +12,7 @@ def load_venv():
     Add the virtual environment to the system path if the folder `/tmp/venv_static` exists
     :return:
     """
-    for venv_path in ["tmp/venv_static", "tmp/venv"]:
+    for venv_path in ["tmp/venv", "tmp/venv_static"]:
         if Path(venv_path).exists():
             sys.path.insert(0, venv_path)
 

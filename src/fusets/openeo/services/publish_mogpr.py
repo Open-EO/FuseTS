@@ -1,6 +1,8 @@
 # Reads contents with UTF-8 encoding and returns str.
+from typing import Union
 
 import openeo
+from openeo import DataCube
 from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood
 from openeo.udf import execute_local_udf
@@ -11,68 +13,82 @@ from fusets.openeo.services.helpers import publish_service, read_description, ge
 NEIGHBORHOOD_SIZE = 32
 
 
-def test_udf():
-    connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+def execute_udf():
+    connection = openeo.connect("openeo.vito.be").authenticate_oidc()
     spat_ext = {
         "type": "Polygon",
         "coordinates": [
             [
-                [5.170012098271149, 51.25062964728295],
-                [5.17085904378298, 51.24882567194015],
-                [5.17857421368097, 51.2468515482926],
-                [5.178972704726344, 51.24982704376254],
-                [5.170012098271149, 51.25062964728295],
+                [
+                    5.170012098271149,
+                    51.25062964728295
+                ],
+                [
+                    5.17085904378298,
+                    51.24882567194015
+                ],
+                [
+                    5.17857421368097,
+                    51.2468515482926
+                ],
+                [
+                    5.178972704726344,
+                    51.24982704376254
+                ],
+                [
+                    5.170012098271149,
+                    51.25062964728295
+                ]
             ]
-        ],
+        ]
     }
-    temp_ext = ["2022-05-01", "2022-07-30"]
-    base = connection.load_collection(
-        "SENTINEL2_L2A_SENTINELHUB", spatial_extent=spat_ext, temporal_extent=temp_ext, bands=["B04", "B08", "SCL"]
-    )
-    base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
-    base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
+    temp_ext = ["2023-01-01", "2023-03-31"]
 
-    mogpr = base_ndvi.apply_neighborhood(
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context=dict()),
-        size=[
-            {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-            {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-        ],
-        overlap=[],
-    )
+    # Setup NDVI cube
+    base_s2 = connection.load_collection('SENTINEL2_L2A',
+                                         spatial_extent=spat_ext,
+                                         temporal_extent=temp_ext,
+                                         bands=["B04", "B08", "SCL"])
+    base_s2 = base_s2.process("mask_scl_dilation", data=base_s2, scl_band_name="SCL")
+    base_s2 = base_s2.ndvi(red="B04", nir="B08", target_band='NDVI')
+    base_s2 = base_s2.filter_bands(bands=['NDVI'])
+    base_s2 = base_s2.mask_polygon(spat_ext)
+
+    # Setup RVI cube
+    base_s1 = connection.load_collection('SENTINEL1_GRD',
+                                         spatial_extent=spat_ext,
+                                         temporal_extent=temp_ext,
+                                         bands=["VH", "VV"])
+
+    VH = base_s1.band("VH")
+    VV = base_s1.band("VV")
+    base_s1 = (VH + VH) / (VV + VH)
+    base_s1 = base_s1.add_dimension(name="bands", label="RVI", type="bands")
+
+    # Merge input source
+    merged_datacube = base_s2.merge(base_s1)
+
+    # Execute MOGPR
+    mogpr = connection.datacube_from_flat_graph(
+        generate_cube(merged_datacube, True).flat_graph())
     mogpr.execute_batch(
         "./result_mogpr.nc",
         title=f"FuseTS - MOGPR - Local",
         job_options={
             "udf-dependency-archives": [
                 "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv",
-                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static",
+                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_mogpr_update.zip#tmp/venv_static",
             ],
-            "executor-memory": "7g",
+            "executor-memory": "8g",
         },
     )
 
 
-def test_udf_locally():
-    """
-    Test the UDF locally using NetCDF files.
-    :return:
-    """
-    mogpr_udf = load_mogpr_udf()
-    result = execute_local_udf(mogpr_udf, "./s2_field_ndvi.nc", fmt="netcdf")
-    result.get_datacube_list()[0].save_to_file("./result_mogpr_local.nc")
-    print(result)
-
-
-def generate_mogpr_udp():
-    description = read_description("mogpr")
-
-    input_cube = Parameter.raster_cube()
-
-    include_uncertainties = Parameter.boolean(
-        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
-
-    process = apply_neighborhood(
+def generate_cube(
+        input_cube: Union[DataCube, Parameter],
+        include_uncertainties: Union[bool, Parameter]
+):
+    mogpr = apply_neighborhood(
         input_cube,
         lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
             'include_uncertainties': get_context_value(include_uncertainties)
@@ -84,16 +100,28 @@ def generate_mogpr_udp():
         overlap=[],
     )
 
+    return mogpr
+
+
+def generate_mogpr_udp():
+    description = read_description("mogpr")
+
+    input_cube = Parameter.raster_cube()
+
+    include_uncertainties = Parameter.boolean(
+        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
+
+    mogpr = generate_cube()
+
     return publish_service(
         id="mogpr",
         summary="Integrates timeseries in data cube using multi-output gaussian " "process regression.",
         description=description,
         parameters=[input_cube.to_dict(), include_uncertainties.to_dict()],
-        process_graph=process,
+        process_graph=mogpr,
     )
 
 
 if __name__ == "__main__":
-    # test_udf_locally()
-    # test_udf()
-    generate_mogpr_udp()
+    execute_udf()
+    # generate_mogpr_udp()

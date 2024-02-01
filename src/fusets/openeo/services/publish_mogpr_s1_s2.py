@@ -10,7 +10,7 @@ from fusets.openeo.services.publish_whittaker import WHITTAKER_DEFAULT_SMOOTHING
 
 NEIGHBORHOOD_SIZE = 32
 
-S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "GRD DESC", "GAMMA0", "COHERENCE"]
+S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "RVI DESC", "GAMMA0", "COHERENCE"]
 S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
@@ -363,6 +363,7 @@ def generate_mogpr_s1_s2_udp(connection):
             s1_collection.to_dict(),
             s1_smoothing_lambda.to_dict(),
             s2_collection.to_dict(),
+            include_uncertainties.to_dict(),
         ],
         process_graph=process,
     )

@@ -340,7 +340,8 @@ def generate_mogpr_s1_s2_udp(connection):
     )
 
     include_uncertainties = Parameter.boolean(
-        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
+        "include_uncertainties", "Flag to include the uncertainties, expressed as the standard deviation, "
+                                 "in the output results", False)
 
     process = generate_cube(
         connection=connection,

@@ -4,6 +4,7 @@ from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process
 
 from fusets.openeo import load_mogpr_udf
+from fusets.openeo.services.dummies import DummyConnection
 from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description, \
     get_context_value
 
@@ -341,6 +342,7 @@ def generate_mogpr_s1_s2_udp(connection):
             date.to_dict(),
             s1_collection.to_dict(),
             s2_collection.to_dict(),
+            include_uncertainties.to_dict(),
         ],
         process_graph=process,
     )
@@ -352,5 +354,5 @@ def generate_mogpr_s1_s2_udp(connection):
 if __name__ == "__main__":
     # Using the dummy connection as otherwise Datatype errors are generated when creating the input datacubes
     # where bands are selected.
-    # generate_mogpr_s1_s2_udp(connection=DummyConnection())
-    execute_udf()
+    generate_mogpr_s1_s2_udp(connection=DummyConnection())
+    # execute_udf()

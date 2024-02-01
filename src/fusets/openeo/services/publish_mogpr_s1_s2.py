@@ -326,7 +326,8 @@ def generate_mogpr_s1_s2_udp(connection):
         "s2_collection", "S2 data collection to use for fusing the data", S2_COLLECTIONS[0], S2_COLLECTIONS
     )
     include_uncertainties = Parameter.boolean(
-        "include_uncertainties", "Flag to include the uncertainties in the output results", False)
+        "include_uncertainties", "Flag to include the uncertainties, expressed as the standard deviation, "
+                                 "in the output results", False)
 
     process = generate_cube(connection=connection, s1_collection=s1_collection, s2_collection=s2_collection,
                             polygon=polygon, date=date, include_uncertainties=include_uncertainties)

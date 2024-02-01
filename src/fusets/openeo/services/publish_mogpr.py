@@ -88,7 +88,7 @@ def generate_mogpr_udp():
         id="mogpr",
         summary="Integrates timeseries in data cube using multi-output gaussian " "process regression.",
         description=description,
-        parameters=[input_cube.to_dict()],
+        parameters=[input_cube.to_dict(), include_uncertainties.to_dict()],
         process_graph=process,
     )
 

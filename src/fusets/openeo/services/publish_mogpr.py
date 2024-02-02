@@ -89,7 +89,7 @@ def generate_mogpr_cube(
 ):
     return apply_neighborhood(
         input_cube,
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
+        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python-Jep", context={
             'include_uncertainties': get_context_value(include_uncertainties)
         }),
         size=[

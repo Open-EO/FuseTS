@@ -1,12 +1,11 @@
 # Reads contents with UTF-8 encoding and returns str.
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process
+from openeo.processes import eq, if_, merge_cubes, process
 
-from fusets.openeo import load_mogpr_udf
 from fusets.openeo.services.dummies import DummyConnection
-from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description, \
-    get_context_value
+from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
+from fusets.openeo.services.publish_mogpr import generate_mogpr_cube
 
 NEIGHBORHOOD_SIZE = 32
 
@@ -291,16 +290,9 @@ def generate_cube(connection, s1_collection, s2_collection, polygon, date, inclu
     merged_cube = merge_cubes(s1_input_cube, s2_input_cube)
 
     # Apply the MOGPR UDF to the multi source datacube
-    return apply_neighborhood(
+    return generate_mogpr_cube(
         merged_cube,
-        lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
-            'include_uncertainties': get_context_value(include_uncertainties)
-        }),
-        size=[
-            {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-            {"dimension": "y", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
-        ],
-        overlap=[],
+        include_uncertainties,
     )
 
 

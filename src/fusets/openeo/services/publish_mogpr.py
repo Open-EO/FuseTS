@@ -4,8 +4,7 @@ from typing import Union
 import openeo
 from openeo import DataCube
 from openeo.api.process import Parameter
-from openeo.processes import apply_neighborhood
-from openeo.udf import execute_local_udf
+from openeo.processes import apply_neighborhood, ProcessBuilder
 
 from fusets.openeo import load_mogpr_udf
 from fusets.openeo.services.helpers import publish_service, read_description, get_context_value
@@ -70,7 +69,7 @@ def execute_udf():
 
     # Execute MOGPR
     mogpr = connection.datacube_from_flat_graph(
-        generate_cube(merged_datacube, True).flat_graph())
+        generate_mogpr_cube(merged_datacube, True).flat_graph())
     mogpr.execute_batch(
         "./result_mogpr.nc",
         title=f"FuseTS - MOGPR - Local",
@@ -84,11 +83,11 @@ def execute_udf():
     )
 
 
-def generate_cube(
-        input_cube: Union[DataCube, Parameter],
+def generate_mogpr_cube(
+        input_cube: Union[DataCube, ProcessBuilder, Parameter],
         include_uncertainties: Union[bool, Parameter]
 ):
-    mogpr = apply_neighborhood(
+    return apply_neighborhood(
         input_cube,
         lambda data: data.run_udf(udf=load_mogpr_udf(), runtime="Python", context={
             'include_uncertainties': get_context_value(include_uncertainties)
@@ -100,8 +99,6 @@ def generate_cube(
         overlap=[],
     )
 
-    return mogpr
-
 
 def generate_mogpr_udp():
     description = read_description("mogpr")
@@ -111,7 +108,7 @@ def generate_mogpr_udp():
     include_uncertainties = Parameter.boolean(
         "include_uncertainties", "Flag to include the uncertainties in the output results", False)
 
-    mogpr = generate_cube()
+    mogpr = generate_mogpr_cube()
 
     return publish_service(
         id="mogpr",

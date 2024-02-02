@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict
 
 from openeo.metadata import CollectionMetadata, Band
-from openeo.udf import XarrayDataCube, inspect
+from openeo.udf import XarrayDataCube
 
 
 def load_venv():
@@ -76,7 +76,6 @@ def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMet
     extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
     for band in extra_bands:
         metadata = metadata.append_band(band)
-    inspect(data=metadata, message='Collection metadata of result')
     return metadata
 
 

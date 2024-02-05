@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Union, Any
+from typing import Any, Union
 
 import openeo
 from openeo.api.process import Parameter

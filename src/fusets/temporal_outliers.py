@@ -67,4 +67,4 @@ def temporal_outliers_f(x: Sequence[datetime], y: np.ndarray, window: Union[int,
     ts_zscore = timeseries.sub(ts_mean).div(ts_std)
     ts_mask = ts_zscore.between(-threshold, threshold)
 
-    return timeseries.where(ts_mask, ts_mean).to_numpy(dtype='float32')
+    return timeseries.where(ts_mask, ts_mean).to_numpy(dtype="float32")

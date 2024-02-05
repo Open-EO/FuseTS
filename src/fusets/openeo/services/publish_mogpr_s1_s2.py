@@ -4,11 +4,13 @@ from openeo.api.process import Parameter
 from openeo.processes import apply_neighborhood, eq, if_, merge_cubes, process
 
 from fusets.openeo import load_mogpr_udf
+from fusets.openeo.services.dummies import DummyConnection
 from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
+from fusets.openeo.services.publish_whittaker import WHITTAKER_DEFAULT_SMOOTHING, generate_whittaker_cube
 
 NEIGHBORHOOD_SIZE = 32
 
-S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "RVI DESC", "GAMMA0", "COHERENCE"]
+S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "GRD DESC", "GAMMA0", "COHERENCE"]
 S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
@@ -18,32 +20,25 @@ def execute_udf():
         "type": "Polygon",
         "coordinates": [
             [
-                [
-                    12.502373837196238,
-                    42.06404350608216
-                ],
-                [
-                    12.502124488464212,
-                    42.03089916587777
-                ],
-                [
-                    12.571692784699895,
-                    42.031269589226014
-                ],
-                [
-                    12.57156811033388,
-                    42.06663507169753
-                ],
-                [
-                    12.502373837196238,
-                    42.06404350608216
-                ]
+                [12.502373837196238, 42.06404350608216],
+                [12.502124488464212, 42.03089916587777],
+                [12.571692784699895, 42.031269589226014],
+                [12.57156811033388, 42.06663507169753],
+                [12.502373837196238, 42.06404350608216],
             ]
         ],
     }
     temp_ext = ["2023-01-01", "2023-12-31"]
     mogpr = connection.datacube_from_flat_graph(
-        generate_cube(connection, 'RVI DESC', 'NDVI', spat_ext, temp_ext).flat_graph())
+        generate_cube(
+            connection=connection,
+            s1_collection="RVI DESC",
+            s1_smoothing_lambda=WHITTAKER_DEFAULT_SMOOTHING,
+            s2_collection="NDVI",
+            polygon=spat_ext,
+            date=temp_ext,
+        ).flat_graph()
+    )
     mogpr.execute_batch(
         "./result_mogpr_s1_s2_outputs.nc",
         title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",
@@ -75,12 +70,17 @@ def _load_s1_grd_bands(connection, polygon, date, bands, orbit_direction):
     :param orbit_direction: Orbit direction to use
     :return:
     """
-    s1_grd = connection.load_collection("SENTINEL1_GRD", spatial_extent=polygon, temporal_extent=date, bands=bands,
-                                        properties={
-                                            "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
-                                            "resolution": lambda x: eq(x, 'HIGH'),
-                                            "sar:instrument_mode": lambda x: eq(x, 'IW')
-                                        })
+    s1_grd = connection.load_collection(
+        "SENTINEL1_GRD",
+        spatial_extent=polygon,
+        temporal_extent=date,
+        bands=bands,
+        properties={
+            "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
+            "resolution": lambda x: eq(x, "HIGH"),
+            "sar:instrument_mode": lambda x: eq(x, "IW"),
+        },
+    )
     return s1_grd.mask_polygon(polygon)
 
 
@@ -215,7 +215,7 @@ def _build_collection_graph(collection, label, callable, reject):
     return if_(eq(collection, label, case_sensitive=False), callable, reject)
 
 
-def load_s1_collection(connection, collection, polygon, date):
+def load_s1_collection(connection, collection, smoothing_lambda, polygon, date):
     """
     Create a S1 input data cube based on the collection selected by the user. This achieved by building an
     if-else structure through the different openEO processes, making sure that the correct datacube is selected
@@ -223,6 +223,7 @@ def load_s1_collection(connection, collection, polygon, date):
 
     :param connection: openEO connection
     :param collection: One of the supported collection (S1_COLLECTIONS)
+    :param smoothing_lambda: Number that indicate the lambda to use in the Whittaker smoothing process
     :param polygon: Area of interest
     :param date:  Time of interest
     :return:
@@ -231,25 +232,33 @@ def load_s1_collection(connection, collection, polygon, date):
     for option in [
         {
             "label": "grd desc",
-            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
-                                           orbit_direction='DESCENDING'),
+            "function": _load_s1_grd_bands(
+                connection=connection, polygon=polygon, date=date, bands=["VV", "VH"], orbit_direction="DESCENDING"
+            ),
         },
         {
             "label": "grd asc",
-            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
-                                           orbit_direction='ASCENDING'),
+            "function": _load_s1_grd_bands(
+                connection=connection, polygon=polygon, date=date, bands=["VV", "VH"], orbit_direction="ASCENDING"
+            ),
         },
-        {"label": "rvi desc",
-         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='DESCENDING')},
-        {"label": "rvi asc",
-         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='ASCENDING')},
+        {
+            "label": "rvi desc",
+            "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction="DESCENDING"),
+        },
+        {
+            "label": "rvi asc",
+            "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction="ASCENDING"),
+        },
         {"label": "gamma0", "function": _load_gamma0(connection=connection, polygon=polygon, date=date)},
         {"label": "coherence", "function": _load_coherence(connection=connection, polygon=polygon, date=date)},
     ]:
         collections = _build_collection_graph(
             collection=collection, label=option["label"], callable=option["function"], reject=collections
         )
-    return collections
+
+    smoothed = generate_whittaker_cube(input_cube=collections, smoothing_lambda=smoothing_lambda)
+    return smoothed
 
 
 def load_s2_collection(connection, collection, polygon, date):
@@ -280,9 +289,9 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
-def generate_cube(connection, s1_collection, s2_collection, polygon, date):
+def generate_cube(connection, s1_collection, s1_smoothing_lambda, s2_collection, polygon, date):
     # Build the S1 and S2 input data cubes
-    s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
+    s1_input_cube = load_s1_collection(connection, s1_collection, s1_smoothing_lambda, polygon, date)
     s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
 
     # Merge the inputs to a single datacube
@@ -322,17 +331,29 @@ def generate_mogpr_s1_s2_udp(connection):
     s2_collection = Parameter.string(
         "s2_collection", "S2 data collection to use for fusing the data", S2_COLLECTIONS[0], S2_COLLECTIONS
     )
-    process = generate_cube(connection=connection, s1_collection=s1_collection, s2_collection=s2_collection,
-                            polygon=polygon, date=date)
+    s1_smoothing_lambda = Parameter.number(
+        "s1_smoothing_lambda",
+        "Smoothing factor (Whittaker) to smooth the S1 data (0 = no smoothing)",
+        WHITTAKER_DEFAULT_SMOOTHING,
+    )
+    process = generate_cube(
+        connection=connection,
+        s1_collection=s1_collection,
+        s2_collection=s2_collection,
+        polygon=polygon,
+        date=date,
+        s1_smoothing_lambda=s1_smoothing_lambda,
+    )
     return publish_service(
         id="mogpr_s1_s2",
         summary="Integrates timeseries in data cube using multi-output gaussian "
-                "process regression with a specific focus on fusing S1 and S2 data.",
+        "process regression with a specific focus on fusing S1 and S2 data.",
         description=description,
         parameters=[
             polygon.to_dict(),
             date.to_dict(),
             s1_collection.to_dict(),
+            s1_smoothing_lambda.to_dict(),
             s2_collection.to_dict(),
         ],
         process_graph=process,
@@ -345,5 +366,5 @@ def generate_mogpr_s1_s2_udp(connection):
 if __name__ == "__main__":
     # Using the dummy connection as otherwise Datatype errors are generated when creating the input datacubes
     # where bands are selected.
-    # generate_mogpr_s1_s2_udp(connection=DummyConnection())
-    execute_udf()
+    generate_mogpr_s1_s2_udp(connection=DummyConnection())
+    # execute_udf()

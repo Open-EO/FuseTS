@@ -1,7 +1,9 @@
 import json
 import os
+from typing import Union, Any
 
 import openeo
+from openeo.api.process import Parameter
 
 try:
     from importlib.resources import files
@@ -64,3 +66,7 @@ DATE_SCHEMA = {
 }
 
 GEOJSON_SCHEMA = {"type": "object", "subtype": "geojson"}
+
+
+def get_context_value(p: Union[Parameter, Any]) -> Union[dict, Any]:
+    return {"from_parameter": p.name} if isinstance(p, Parameter) else p

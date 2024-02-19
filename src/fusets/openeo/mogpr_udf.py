@@ -4,8 +4,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
-from openeo.metadata import CollectionMetadata, Band
-from openeo.udf import XarrayDataCube
+from openeo.metadata import Band, CollectionMetadata
+from openeo.udf import XarrayDataCube, inspect
 
 
 def load_venv():
@@ -41,6 +41,14 @@ def write_gpy_cfg():
     return home
 
 
+def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:
+    extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
+    inspect(data=metadata, message="MOGPR metadata")
+    for band in extra_bands:
+        metadata = metadata.append_band(band)
+    return metadata
+
+
 def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
     """
     Apply mogpr integration to a datacube.
@@ -65,18 +73,12 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
         variables=variables,
         time_dimension=time_dimension,
         prediction_period=prediction_period,
-        include_uncertainties=include_uncertainties
+        include_uncertainties=include_uncertainties,
     )
     result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
+    inspect(data=result_dc, message="MOGPR result")
     set_home(home)
     return result_dc
-
-
-def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:
-    extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
-    for band in extra_bands:
-        metadata = metadata.append_band(band)
-    return metadata
 
 
 def load_mogpr_udf() -> str:

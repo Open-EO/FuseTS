@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
-from openeo.metadata import Band, CollectionMetadata
+from openeo.metadata import CollectionMetadata
 from openeo.udf import XarrayDataCube, inspect
 
 
@@ -42,10 +42,10 @@ def write_gpy_cfg():
 
 
 def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:
-    extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
-    inspect(data=metadata, message="MOGPR metadata")
-    for band in extra_bands:
-        metadata = metadata.append_band(band)
+    # extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
+    # inspect(data=metadata, message="MOGPR metadata")
+    # for band in extra_bands:
+    #     metadata = metadata.append_band(band)
     return metadata
 
 

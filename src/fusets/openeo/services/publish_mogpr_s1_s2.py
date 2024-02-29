@@ -10,7 +10,7 @@ from fusets.openeo.services.publish_whittaker import WHITTAKER_DEFAULT_SMOOTHING
 
 NEIGHBORHOOD_SIZE = 32
 
-S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "RVI DESC", "GAMMA0", "COHERENCE"]
+S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "GRD DESC", "GAMMA0", "COHERENCE"]
 S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
@@ -333,8 +333,10 @@ def generate_mogpr_s1_s2_udp(connection):
     )
 
     include_uncertainties = Parameter.boolean(
-        "include_uncertainties", "Flag to include the uncertainties, expressed as the standard deviation, "
-                                 "in the output results", False)
+        "include_uncertainties",
+        "Flag to include the uncertainties, expressed as the standard deviation, " "in the output results",
+        False,
+    )
 
     process = generate_cube(
         connection=connection,

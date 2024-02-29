@@ -39,7 +39,7 @@ base_ndvi = s2.ndvi(red="B04", nir="B08", target_band='NDVI').band('NDVI')
 ## Creation mogpr  data cube
 mogpr = connection.datacube_from_process(service,
                                               namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',
-                                              data=base_ndvi)
+                                              data=base_ndvi, include_uncertainties=True)
 ## Calculate the average time series value for the given area of interest
 mogpr = mogpr.aggregate_spatial(spat_ext, reducer='mean')
 

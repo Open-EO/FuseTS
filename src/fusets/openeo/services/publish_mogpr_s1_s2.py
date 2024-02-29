@@ -9,7 +9,7 @@ from fusets.openeo.services.publish_mogpr import generate_mogpr_cube
 
 NEIGHBORHOOD_SIZE = 32
 
-S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "RVI DESC", "GAMMA0", "COHERENCE"]
+S1_COLLECTIONS = ["RVI ASC", "RVI DESC", "GRD ASC", "GRD DESC", "GAMMA0", "COHERENCE"]
 S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
@@ -19,32 +19,18 @@ def execute_udf():
         "type": "Polygon",
         "coordinates": [
             [
-                [
-                    12.502373837196238,
-                    42.06404350608216
-                ],
-                [
-                    12.502124488464212,
-                    42.03089916587777
-                ],
-                [
-                    12.571692784699895,
-                    42.031269589226014
-                ],
-                [
-                    12.57156811033388,
-                    42.06663507169753
-                ],
-                [
-                    12.502373837196238,
-                    42.06404350608216
-                ]
+                [12.502373837196238, 42.06404350608216],
+                [12.502124488464212, 42.03089916587777],
+                [12.571692784699895, 42.031269589226014],
+                [12.57156811033388, 42.06663507169753],
+                [12.502373837196238, 42.06404350608216],
             ]
         ],
     }
     temp_ext = ["2023-01-01", "2023-12-31"]
     mogpr = connection.datacube_from_flat_graph(
-        generate_cube(connection, 'RVI DESC', 'NDVI', spat_ext, temp_ext, True).flat_graph())
+        generate_cube(connection, "RVI DESC", "NDVI", spat_ext, temp_ext, True).flat_graph()
+    )
     mogpr.execute_batch(
         "./result_mogpr_s1_s2_outputs.nc",
         title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",
@@ -76,12 +62,17 @@ def _load_s1_grd_bands(connection, polygon, date, bands, orbit_direction):
     :param orbit_direction: Orbit direction to use
     :return:
     """
-    s1_grd = connection.load_collection("SENTINEL1_GRD", spatial_extent=polygon, temporal_extent=date, bands=bands,
-                                        properties={
-                                            "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
-                                            "resolution": lambda x: eq(x, 'HIGH'),
-                                            "sar:instrument_mode": lambda x: eq(x, 'IW')
-                                        })
+    s1_grd = connection.load_collection(
+        "SENTINEL1_GRD",
+        spatial_extent=polygon,
+        temporal_extent=date,
+        bands=bands,
+        properties={
+            "sat:orbit_state": lambda orbit_state: orbit_state == orbit_direction,
+            "resolution": lambda x: eq(x, "HIGH"),
+            "sar:instrument_mode": lambda x: eq(x, "IW"),
+        },
+    )
     return s1_grd.mask_polygon(polygon)
 
 
@@ -232,18 +223,24 @@ def load_s1_collection(connection, collection, polygon, date):
     for option in [
         {
             "label": "grd desc",
-            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
-                                           orbit_direction='DESCENDING'),
+            "function": _load_s1_grd_bands(
+                connection=connection, polygon=polygon, date=date, bands=["VV", "VH"], orbit_direction="DESCENDING"
+            ),
         },
         {
             "label": "grd asc",
-            "function": _load_s1_grd_bands(connection=connection, polygon=polygon, date=date, bands=["VV", "VH"],
-                                           orbit_direction='ASCENDING'),
+            "function": _load_s1_grd_bands(
+                connection=connection, polygon=polygon, date=date, bands=["VV", "VH"], orbit_direction="ASCENDING"
+            ),
         },
-        {"label": "rvi desc",
-         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='DESCENDING')},
-        {"label": "rvi asc",
-         "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction='ASCENDING')},
+        {
+            "label": "rvi desc",
+            "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction="DESCENDING"),
+        },
+        {
+            "label": "rvi asc",
+            "function": _load_rvi(connection=connection, polygon=polygon, date=date, orbit_direction="ASCENDING"),
+        },
         {"label": "gamma0", "function": _load_gamma0(connection=connection, polygon=polygon, date=date)},
         {"label": "coherence", "function": _load_coherence(connection=connection, polygon=polygon, date=date)},
     ]:
@@ -319,15 +316,23 @@ def generate_mogpr_s1_s2_udp(connection):
         "s2_collection", "S2 data collection to use for fusing the data", S2_COLLECTIONS[0], S2_COLLECTIONS
     )
     include_uncertainties = Parameter.boolean(
-        "include_uncertainties", "Flag to include the uncertainties, expressed as the standard deviation, "
-                                 "in the output results", False)
+        "include_uncertainties",
+        "Flag to include the uncertainties, expressed as the standard deviation, " "in the output results",
+        False,
+    )
 
-    process = generate_cube(connection=connection, s1_collection=s1_collection, s2_collection=s2_collection,
-                            polygon=polygon, date=date, include_uncertainties=include_uncertainties)
+    process = generate_cube(
+        connection=connection,
+        s1_collection=s1_collection,
+        s2_collection=s2_collection,
+        polygon=polygon,
+        date=date,
+        include_uncertainties=include_uncertainties,
+    )
     return publish_service(
         id="mogpr_s1_s2",
         summary="Integrates timeseries in data cube using multi-output gaussian "
-                "process regression with a specific focus on fusing S1 and S2 data.",
+        "process regression with a specific focus on fusing S1 and S2 data.",
         description=description,
         parameters=[
             polygon.to_dict(),

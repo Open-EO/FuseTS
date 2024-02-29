@@ -72,7 +72,7 @@ def generate_mogpr_cube(
         input_cube,
         lambda data: data.run_udf(
             udf=load_mogpr_udf(),
-            runtime="Python-Jep",
+            runtime="Python",
             context={"include_uncertainties": get_context_value(include_uncertainties)},
         ),
         size=[
@@ -92,7 +92,7 @@ def generate_mogpr_udp():
         "include_uncertainties", "Flag to include the uncertainties in the output results", False
     )
 
-    mogpr = generate_mogpr_cube()
+    mogpr = generate_mogpr_cube(input_cube=input_cube, include_uncertainties=include_uncertainties)
 
     return publish_service(
         id="mogpr",
@@ -104,5 +104,5 @@ def generate_mogpr_udp():
 
 
 if __name__ == "__main__":
-    execute_udf()
-    # generate_mogpr_udp()
+    # execute_udf()
+    generate_mogpr_udp()

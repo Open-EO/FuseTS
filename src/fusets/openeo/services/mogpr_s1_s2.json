@@ -1,0 +1,1344 @@
+{
+    "process_graph": {
+        "loadcollection1": {
+            "process_id": "load_collection",
+            "arguments": {
+                "id": "TERRASCOPE_S1_SLC_COHERENCE_V1",
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskpolygon1": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection1"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "loadcollection2": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "VH",
+                    "VV"
+                ],
+                "id": "SENTINEL1_GAMMA0_SENTINELHUB",
+                "properties": {
+                    "polarization": {
+                        "process_graph": {
+                            "eq1": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "DV"
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "sarbackscatter1": {
+            "process_id": "sar_backscatter",
+            "arguments": {
+                "coefficient": "gamma0-terrain",
+                "contributing_area": false,
+                "data": {
+                    "from_node": "loadcollection2"
+                },
+                "elevation_model": null,
+                "ellipsoid_incidence_angle": false,
+                "local_incidence_angle": false,
+                "mask": false,
+                "noise_removal": true
+            }
+        },
+        "maskpolygon2": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "sarbackscatter1"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "loadcollection3": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "VV",
+                    "VH"
+                ],
+                "id": "SENTINEL1_GRD",
+                "properties": {
+                    "sat:orbit_state": {
+                        "process_graph": {
+                            "eq2": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "ASCENDING"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "resolution": {
+                        "process_graph": {
+                            "eq3": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "HIGH"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "sar:instrument_mode": {
+                        "process_graph": {
+                            "eq4": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "IW"
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskpolygon3": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection3"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "reducedimension1": {
+            "process_id": "reduce_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "maskpolygon3"
+                },
+                "dimension": "bands",
+                "reducer": {
+                    "process_graph": {
+                        "arrayelement1": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 1
+                            }
+                        },
+                        "add1": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement1"
+                                },
+                                "y": {
+                                    "from_node": "arrayelement1"
+                                }
+                            }
+                        },
+                        "arrayelement2": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 0
+                            }
+                        },
+                        "add2": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement2"
+                                },
+                                "y": {
+                                    "from_node": "arrayelement1"
+                                }
+                            }
+                        },
+                        "divide1": {
+                            "process_id": "divide",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "add1"
+                                },
+                                "y": {
+                                    "from_node": "add2"
+                                }
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            }
+        },
+        "adddimension1": {
+            "process_id": "add_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "reducedimension1"
+                },
+                "label": "RVI",
+                "name": "bands",
+                "type": "bands"
+            }
+        },
+        "loadcollection4": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "VV",
+                    "VH"
+                ],
+                "id": "SENTINEL1_GRD",
+                "properties": {
+                    "sat:orbit_state": {
+                        "process_graph": {
+                            "eq5": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "DESCENDING"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "resolution": {
+                        "process_graph": {
+                            "eq6": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "HIGH"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "sar:instrument_mode": {
+                        "process_graph": {
+                            "eq7": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "IW"
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskpolygon4": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection4"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "reducedimension2": {
+            "process_id": "reduce_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "maskpolygon4"
+                },
+                "dimension": "bands",
+                "reducer": {
+                    "process_graph": {
+                        "arrayelement3": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 1
+                            }
+                        },
+                        "add3": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement3"
+                                },
+                                "y": {
+                                    "from_node": "arrayelement3"
+                                }
+                            }
+                        },
+                        "arrayelement4": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 0
+                            }
+                        },
+                        "add4": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement4"
+                                },
+                                "y": {
+                                    "from_node": "arrayelement3"
+                                }
+                            }
+                        },
+                        "divide2": {
+                            "process_id": "divide",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "add3"
+                                },
+                                "y": {
+                                    "from_node": "add4"
+                                }
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            }
+        },
+        "adddimension2": {
+            "process_id": "add_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "reducedimension2"
+                },
+                "label": "RVI",
+                "name": "bands",
+                "type": "bands"
+            }
+        },
+        "loadcollection5": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "VV",
+                    "VH"
+                ],
+                "id": "SENTINEL1_GRD",
+                "properties": {
+                    "sat:orbit_state": {
+                        "process_graph": {
+                            "eq8": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "ASCENDING"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "resolution": {
+                        "process_graph": {
+                            "eq9": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "HIGH"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "sar:instrument_mode": {
+                        "process_graph": {
+                            "eq10": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "IW"
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskpolygon5": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection5"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "loadcollection6": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "VV",
+                    "VH"
+                ],
+                "id": "SENTINEL1_GRD",
+                "properties": {
+                    "sat:orbit_state": {
+                        "process_graph": {
+                            "eq11": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "DESCENDING"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "resolution": {
+                        "process_graph": {
+                            "eq12": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "HIGH"
+                                },
+                                "result": true
+                            }
+                        }
+                    },
+                    "sar:instrument_mode": {
+                        "process_graph": {
+                            "eq13": {
+                                "process_id": "eq",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": "IW"
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskpolygon6": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection6"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "eq14": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "grd desc"
+            }
+        },
+        "if1": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon6"
+                },
+                "reject": null,
+                "value": {
+                    "from_node": "eq14"
+                }
+            }
+        },
+        "eq15": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "grd asc"
+            }
+        },
+        "if2": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon5"
+                },
+                "reject": {
+                    "from_node": "if1"
+                },
+                "value": {
+                    "from_node": "eq15"
+                }
+            }
+        },
+        "eq16": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "rvi desc"
+            }
+        },
+        "if3": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "adddimension2"
+                },
+                "reject": {
+                    "from_node": "if2"
+                },
+                "value": {
+                    "from_node": "eq16"
+                }
+            }
+        },
+        "eq17": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "rvi asc"
+            }
+        },
+        "if4": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "adddimension1"
+                },
+                "reject": {
+                    "from_node": "if3"
+                },
+                "value": {
+                    "from_node": "eq17"
+                }
+            }
+        },
+        "eq18": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "gamma0"
+            }
+        },
+        "if5": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon2"
+                },
+                "reject": {
+                    "from_node": "if4"
+                },
+                "value": {
+                    "from_node": "eq18"
+                }
+            }
+        },
+        "eq19": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s1_collection"
+                },
+                "y": "coherence"
+            }
+        },
+        "if6": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon1"
+                },
+                "reject": {
+                    "from_node": "if5"
+                },
+                "value": {
+                    "from_node": "eq19"
+                }
+            }
+        },
+        "BIOPAR1": {
+            "process_id": "BIOPAR",
+            "arguments": {
+                "biopar_type": "CWC",
+                "date": {
+                    "from_parameter": "date"
+                },
+                "polygon": {
+                    "from_parameter": "polygon"
+                }
+            },
+            "namespace": "vito"
+        },
+        "maskpolygon7": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "BIOPAR1"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "BIOPAR2": {
+            "process_id": "BIOPAR",
+            "arguments": {
+                "biopar_type": "CCC",
+                "date": {
+                    "from_parameter": "date"
+                },
+                "polygon": {
+                    "from_parameter": "polygon"
+                }
+            },
+            "namespace": "vito"
+        },
+        "maskpolygon8": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "BIOPAR2"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "loadcollection7": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "B02",
+                    "B04",
+                    "B08",
+                    "SCL"
+                ],
+                "id": "SENTINEL2_L2A",
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskscldilation1": {
+            "process_id": "mask_scl_dilation",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection7"
+                },
+                "scl_band_name": "SCL"
+            }
+        },
+        "reducedimension3": {
+            "process_id": "reduce_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "maskscldilation1"
+                },
+                "dimension": "bands",
+                "reducer": {
+                    "process_graph": {
+                        "arrayelement5": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 2
+                            }
+                        },
+                        "arrayelement6": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 1
+                            }
+                        },
+                        "subtract1": {
+                            "process_id": "subtract",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement5"
+                                },
+                                "y": {
+                                    "from_node": "arrayelement6"
+                                }
+                            }
+                        },
+                        "multiply1": {
+                            "process_id": "multiply",
+                            "arguments": {
+                                "x": 2.5,
+                                "y": {
+                                    "from_node": "subtract1"
+                                }
+                            }
+                        },
+                        "multiply2": {
+                            "process_id": "multiply",
+                            "arguments": {
+                                "x": 6.0,
+                                "y": {
+                                    "from_node": "arrayelement6"
+                                }
+                            }
+                        },
+                        "add5": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "arrayelement5"
+                                },
+                                "y": {
+                                    "from_node": "multiply2"
+                                }
+                            }
+                        },
+                        "arrayelement7": {
+                            "process_id": "array_element",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "index": 1
+                            }
+                        },
+                        "multiply3": {
+                            "process_id": "multiply",
+                            "arguments": {
+                                "x": 7.5,
+                                "y": {
+                                    "from_node": "arrayelement7"
+                                }
+                            }
+                        },
+                        "subtract2": {
+                            "process_id": "subtract",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "add5"
+                                },
+                                "y": {
+                                    "from_node": "multiply3"
+                                }
+                            }
+                        },
+                        "add6": {
+                            "process_id": "add",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "subtract2"
+                                },
+                                "y": 1.0
+                            }
+                        },
+                        "divide3": {
+                            "process_id": "divide",
+                            "arguments": {
+                                "x": {
+                                    "from_node": "multiply1"
+                                },
+                                "y": {
+                                    "from_node": "add6"
+                                }
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            }
+        },
+        "maskpolygon9": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "reducedimension3"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "adddimension3": {
+            "process_id": "add_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "maskpolygon9"
+                },
+                "label": "EVI",
+                "name": "bands",
+                "type": "bands"
+            }
+        },
+        "BIOPAR3": {
+            "process_id": "BIOPAR",
+            "arguments": {
+                "biopar_type": "FCOVER",
+                "date": {
+                    "from_parameter": "date"
+                },
+                "polygon": {
+                    "from_parameter": "polygon"
+                }
+            },
+            "namespace": "vito"
+        },
+        "maskpolygon10": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "BIOPAR3"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "BIOPAR4": {
+            "process_id": "BIOPAR",
+            "arguments": {
+                "biopar_type": "LAI",
+                "date": {
+                    "from_parameter": "date"
+                },
+                "polygon": {
+                    "from_parameter": "polygon"
+                }
+            },
+            "namespace": "vito"
+        },
+        "maskpolygon11": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "BIOPAR4"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "BIOPAR5": {
+            "process_id": "BIOPAR",
+            "arguments": {
+                "biopar_type": "FAPAR",
+                "date": {
+                    "from_parameter": "date"
+                },
+                "polygon": {
+                    "from_parameter": "polygon"
+                }
+            },
+            "namespace": "vito"
+        },
+        "maskpolygon12": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "BIOPAR5"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "loadcollection8": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "B04",
+                    "B08",
+                    "SCL"
+                ],
+                "id": "SENTINEL2_L2A",
+                "spatial_extent": {
+                    "from_parameter": "polygon"
+                },
+                "temporal_extent": {
+                    "from_parameter": "date"
+                }
+            }
+        },
+        "maskscldilation2": {
+            "process_id": "mask_scl_dilation",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection8"
+                },
+                "scl_band_name": "SCL"
+            }
+        },
+        "ndvi1": {
+            "process_id": "ndvi",
+            "arguments": {
+                "data": {
+                    "from_node": "maskscldilation2"
+                },
+                "nir": "B08",
+                "red": "B04",
+                "target_band": "NDVI"
+            }
+        },
+        "filterbands1": {
+            "process_id": "filter_bands",
+            "arguments": {
+                "bands": [
+                    "NDVI"
+                ],
+                "data": {
+                    "from_node": "ndvi1"
+                }
+            }
+        },
+        "maskpolygon13": {
+            "process_id": "mask_polygon",
+            "arguments": {
+                "data": {
+                    "from_node": "filterbands1"
+                },
+                "mask": {
+                    "from_parameter": "polygon"
+                }
+            }
+        },
+        "eq20": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "ndvi"
+            }
+        },
+        "if7": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon13"
+                },
+                "reject": null,
+                "value": {
+                    "from_node": "eq20"
+                }
+            }
+        },
+        "eq21": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "fapar"
+            }
+        },
+        "if8": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon12"
+                },
+                "reject": {
+                    "from_node": "if7"
+                },
+                "value": {
+                    "from_node": "eq21"
+                }
+            }
+        },
+        "eq22": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "lai"
+            }
+        },
+        "if9": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon11"
+                },
+                "reject": {
+                    "from_node": "if8"
+                },
+                "value": {
+                    "from_node": "eq22"
+                }
+            }
+        },
+        "eq23": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "fcover"
+            }
+        },
+        "if10": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon10"
+                },
+                "reject": {
+                    "from_node": "if9"
+                },
+                "value": {
+                    "from_node": "eq23"
+                }
+            }
+        },
+        "eq24": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "evi"
+            }
+        },
+        "if11": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "adddimension3"
+                },
+                "reject": {
+                    "from_node": "if10"
+                },
+                "value": {
+                    "from_node": "eq24"
+                }
+            }
+        },
+        "eq25": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "ccc"
+            }
+        },
+        "if12": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon8"
+                },
+                "reject": {
+                    "from_node": "if11"
+                },
+                "value": {
+                    "from_node": "eq25"
+                }
+            }
+        },
+        "eq26": {
+            "process_id": "eq",
+            "arguments": {
+                "case_sensitive": false,
+                "x": {
+                    "from_parameter": "s2_collection"
+                },
+                "y": "cwc"
+            }
+        },
+        "if13": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "maskpolygon7"
+                },
+                "reject": {
+                    "from_node": "if12"
+                },
+                "value": {
+                    "from_node": "eq26"
+                }
+            }
+        },
+        "mergecubes1": {
+            "process_id": "merge_cubes",
+            "arguments": {
+                "cube1": {
+                    "from_node": "if6"
+                },
+                "cube2": {
+                    "from_node": "if13"
+                }
+            }
+        },
+        "applyneighborhood1": {
+            "process_id": "apply_neighborhood",
+            "arguments": {
+                "data": {
+                    "from_node": "mergecubes1"
+                },
+                "overlap": [],
+                "process": {
+                    "process_graph": {
+                        "runudf1": {
+                            "process_id": "run_udf",
+                            "arguments": {
+                                "context": {
+                                    "include_uncertainties": {
+                                        "from_parameter": "include_uncertainties"
+                                    },
+                                    "include_raw_inputs": {
+                                        "from_parameter": "include_raw_inputs"
+                                    }
+                                },
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "runtime": "Python",
+                                "udf": "import os\nimport sys\nfrom configparser import ConfigParser\nfrom pathlib import Path\nfrom typing import Dict\n\nfrom openeo.metadata import CollectionMetadata\nfrom openeo.udf import XarrayDataCube, inspect\n\n\ndef load_venv():\n    \"\"\"\n    Add the virtual environment to the system path if the folder `/tmp/venv_static` exists\n    :return:\n    \"\"\"\n    for venv_path in [\"tmp/venv\", \"tmp/venv_static\"]:\n        if Path(venv_path).exists():\n            sys.path.insert(0, venv_path)\n\n\ndef set_home(home):\n    os.environ[\"HOME\"] = home\n\n\ndef create_gpy_cfg():\n    home = os.getenv(\"HOME\")\n    set_home(\"/tmp\")\n    user_file = Path.home() / \".config\" / \"GPy\" / \"user.cfg\"\n    if not user_file.exists():\n        user_file.parent.mkdir(parents=True, exist_ok=True)\n    return user_file, home\n\n\ndef write_gpy_cfg():\n    user_file, home = create_gpy_cfg()\n    config = ConfigParser()\n    config[\"plotting\"] = {\"library\": \"none\"}\n    with open(user_file, \"w\") as cfg:\n        config.write(cfg)\n        cfg.close()\n    return home\n\n\ndef apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:\n    # extra_bands = [Band(f\"{x}_STD\", None, None) for x in metadata.bands]\n    # inspect(data=metadata, message=\"MOGPR metadata\")\n    # for band in extra_bands:\n    #     metadata = metadata.append_band(band)\n    return metadata\n\n\ndef apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:\n    \"\"\"\n    Apply mogpr integration to a datacube.\n    MOGPR requires a full timeseries for multiple bands, so it needs to be invoked in the context of an apply_neighborhood process.\n    @param cube:\n    @param context:\n    @return:\n    \"\"\"\n    load_venv()\n    home = write_gpy_cfg()\n\n    from fusets.mogpr import mogpr\n\n    variables = context.get(\"variables\")\n    time_dimension = context.get(\"time_dimension\", \"t\")\n    prediction_period = context.get(\"prediction_period\", \"5D\")\n    include_uncertainties = context.get(\"include_uncertainties\", False)\n    include_raw_inputs = context.get(\"include_raw_inputs\", False)\n\n    dims = cube.get_array().dims\n    result = mogpr(\n        cube.get_array().to_dataset(dim=\"bands\"),\n        variables=variables,\n        time_dimension=time_dimension,\n        prediction_period=prediction_period,\n        include_uncertainties=include_uncertainties,\n        include_raw_inputs=include_raw_inputs\n    )\n    result_dc = XarrayDataCube(result.to_array(dim=\"bands\").transpose(*dims))\n    inspect(data=result_dc, message=\"MOGPR result\")\n    set_home(home)\n    return result_dc\n\n\ndef load_mogpr_udf() -> str:\n    \"\"\"\n    Loads an openEO udf that applies mogpr.\n    @return:\n    \"\"\"\n    import os\n\n    return Path(os.path.realpath(__file__)).read_text()\n"
+                            },
+                            "result": true
+                        }
+                    }
+                },
+                "size": [
+                    {
+                        "dimension": "x",
+                        "value": 32,
+                        "unit": "px"
+                    },
+                    {
+                        "dimension": "y",
+                        "value": 32,
+                        "unit": "px"
+                    }
+                ]
+            },
+            "result": true
+        }
+    },
+    "id": "mogpr_s1_s2",
+    "summary": "Integrates timeseries in data cube using multi-output gaussian process regression with a specific focus on fusing S1 and S2 data.",
+    "description": "# Sentinel-1 and Sentinel-2 data fusion through multi output gaussian process regression\n\n## Description\n\nCompute a temporal dense timeseries based on the fusion of Sentinel-1 (S1) and Sentinel-2 (S2) using MOGPR. \n\n## Parameters\n| Name | Description                                                                   | Type | Default |\n|---|-------------------------------------------------------------------------------|---|---|\n| polygon | Polygon representing the AOI on which to apply the data fusion                | GeoJSON |   | \n| date | Date range for which to apply the data fusion                                 | Array |   |\n| s1_collection | S1 data collection to use for the fusion                                      | Text | RVI |\n| s2_collection | S2 data collection to use for fusing the data                                 | Text | NDVI | \n| include_uncertainties | Flag that indicated if the uncertainties should be included in the result     | Boolean | False | \n| include_raw_inputs | Flag that indicated if the raw input signals should be included in the result | Boolean | False | \n\n### Supported collections\n\n#### Sentinel-1\n\n* RVI ASC\n* RVI DESC\n* GRD ASC\n* GRD DESC\n* GAMMA0\n* COHERENCE (only Europe)\n\n#### Sentinel-2\n\n* NDVI\n* FAPAR\n* LAI\n* FCOVER\n* EVI\n* CCC\n* CWC\n\n\n## Usage\n\nUsage examples for the MOGPR process.\n\n### Python\n\nThis code example highlights the usage of the MOGPR process in an OpenEO batch job.\nThe result of this batch job will consist of individual GeoTIFF files per date.\nGenerating multiple GeoTIFF files as output is only possible in a batch job.\n\n```python\nimport openeo\n\n## Setup of parameters\nminx, miny, maxx, maxy = (15.179421073198585, 45.80924633589998, 15.185336903822831, 45.81302555710934)\nspat_ext = dict(west=minx, east=maxx, north=maxy, south=miny, crs=4326)\ntemp_ext = [\"2021-01-01\", \"2021-12-31\"]\n\n## Setup connection to openEO\nconnection = openeo.connect(\"openeo.vito.be\").authenticate_oidc()\nservice = 'mogpr_s1_s2'\nnamespace = 'u:fusets'\n\nmogpr = connection.datacube_from_process(service,\n                                         namespace=f'https://openeo.vito.be/openeo/1.1/processes/{namespace}/{service}',\n                                         polygon=spat_ext, date=temp_ext)\n\nmogpr.execute_batch('./result_mogpr_s1_s2.nc', title=f'FuseTS - MOGPR S1 S2', job_options={\n    'udf-dependency-archives': [\n        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',\n        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'\n    ],\n    'executor-memory': '8g'\n})\n\n```\n\n## Limitations\n\nThe spatial extent is limited to a maximum size equal to a Sentinel-2 MGRS tile (100 km x 100 km).\n\n## Configuration & Resource Usage\nThe executor memory defaults to 5 GB. You can increase the executor memory by specifying it as a job option, eg:\n\n```python\njob = cube.execute_batch(out_format=\"GTIFF\", job_options={\"executor-memory\": \"8g\"})\n```\n",
+    "parameters": [
+        {
+            "name": "polygon",
+            "description": "Polygon representing the AOI on which to apply the data fusion",
+            "schema": {
+                "type": "object",
+                "subtype": "geojson"
+            }
+        },
+        {
+            "name": "date",
+            "description": "Date range for which to apply the data fusion",
+            "schema": {
+                "type": "array",
+                "subtype": "temporal-interval",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time",
+                            "subtype": "date-time"
+                        },
+                        {
+                            "type": "string",
+                            "format": "date",
+                            "subtype": "date"
+                        },
+                        {
+                            "type": "string",
+                            "subtype": "year",
+                            "minLength": 4,
+                            "maxLength": 4,
+                            "pattern": "^\\d{4}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "examples": [
+                    [
+                        "2015-01-01T00:00:00Z",
+                        "2016-01-01T00:00:00Z"
+                    ],
+                    [
+                        "2015-01-01",
+                        "2016-01-01"
+                    ]
+                ]
+            }
+        },
+        {
+            "name": "s1_collection",
+            "description": "S1 data collection to use for fusing the data",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "RVI ASC",
+                    "RVI DESC",
+                    "GRD ASC",
+                    "GRD DESC",
+                    "GAMMA0",
+                    "COHERENCE"
+                ]
+            },
+            "optional": true,
+            "default": "RVI ASC"
+        },
+        {
+            "name": "s2_collection",
+            "description": "S2 data collection to use for fusing the data",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "NDVI",
+                    "FAPAR",
+                    "LAI",
+                    "FCOVER",
+                    "EVI",
+                    "CCC",
+                    "CWC"
+                ]
+            },
+            "optional": true,
+            "default": "NDVI"
+        },
+        {
+            "name": "include_uncertainties",
+            "description": "Flag to include the uncertainties, expressed as the standard deviation in the final result",
+            "schema": {
+                "type": "boolean"
+            },
+            "optional": true,
+            "default": false
+        },
+        {
+            "name": "include_raw_inputs",
+            "description": "Flag to include the raw input signals in the final result",
+            "schema": {
+                "type": "boolean"
+            },
+            "optional": true,
+            "default": false
+        }
+    ]
+}

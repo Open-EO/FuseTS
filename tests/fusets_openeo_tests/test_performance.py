@@ -12,25 +12,18 @@ from shapely.wkt import loads
 
 from tests.helpers import read_test_json
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 job_options = {
-    'executor-memory': '8g',
-    'udf-dependency-archives': [
-        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-        'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
-    ]
+    "executor-memory": "8g",
+    "udf-dependency-archives": [
+        "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv",
+        "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static",
+    ],
 }
 
 
-def start_job(
-        data,
-        context: dict,
-        **kwargs
-) -> openeo.BatchJob:
+def start_job(data, context: dict, **kwargs) -> openeo.BatchJob:
     """
     Callback function for the openEO MultiBackendJobManager to start a new job.
     :param data: Dictionary containing the general information for launching the job
@@ -38,24 +31,31 @@ def start_job(
     :param kwargs:
     :return: OpenEO Batch Job
     """
-    row = data['row']
-    connection = data['connection']
-    aoi = geojson.Feature(geometry=row['geometry'])
+    row = data["row"]
+    connection = data["connection"]
+    aoi = geojson.Feature(geometry=row["geometry"])
 
-    if 'params' in context and 'skipData' in context['params'] and context['params']['skipData']:
-        service_dc = connection.datacube_from_process(polygon=aoi, **context['jobinfo'], )
+    if "params" in context and "skipData" in context["params"] and context["params"]["skipData"]:
+        service_dc = connection.datacube_from_process(
+            polygon=aoi,
+            **context["jobinfo"],
+        )
     else:
-        base = connection.load_collection('SENTINEL2_L2A',
-                                          spatial_extent=aoi,
-                                          temporal_extent=context['params']['temp-ext'],
-                                          bands=["B04", "B08", "SCL"])
+        base = connection.load_collection(
+            "SENTINEL2_L2A",
+            spatial_extent=aoi,
+            temporal_extent=context["params"]["temp-ext"],
+            bands=["B04", "B08", "SCL"],
+        )
         base_cloudmasked = base.process("mask_scl_dilation", data=base, scl_band_name="SCL")
         base_ndvi = base_cloudmasked.ndvi(red="B04", nir="B08")
-        service_dc = connection.datacube_from_process(data=base_ndvi, **context['jobinfo'])
+        service_dc = connection.datacube_from_process(data=base_ndvi, **context["jobinfo"])
 
-    return service_dc.create_job(title=f'FuseTS - Benchmark - {context["jobinfo"]["process_id"]} - {row["jobname"]}',
-                                 job_options=job_options,
-                                 format='netcdf')
+    return service_dc.create_job(
+        title=f'FuseTS - Benchmark - {context["jobinfo"]["process_id"]} - {row["jobname"]}',
+        job_options=job_options,
+        format="netcdf",
+    )
 
 
 def get_job_cost(connection, jobId) -> float:
@@ -66,7 +66,7 @@ def get_job_cost(connection, jobId) -> float:
     :return: Floating number representing the total cost of the job in credits
     """
     job = connection.job(jobId).describe_job()
-    return job['costs'] if 'costs' in job else np.nan
+    return job["costs"] if "costs" in job else np.nan
 
 
 def read_job_info(connection, path) -> pd.DataFrame:
@@ -78,18 +78,18 @@ def read_job_info(connection, path) -> pd.DataFrame:
     :return: Dataframe containing the job information extended with additional information
     """
     job_data = pd.read_csv(path)
-    geometry = [loads(poly) for poly in job_data['geometry']]
+    geometry = [loads(poly) for poly in job_data["geometry"]]
     job_data = gpd.GeoDataFrame(job_data, geometry=geometry, crs=4326)
     job_data = job_data.to_crs(epsg=3857)
-    for col in ['cpu', 'memory', 'duration', 'sentinelhub']:
-        job_data[col] = job_data[col].str.extract('(\d+)').astype(float)
+    for col in ["cpu", "memory", "duration", "sentinelhub"]:
+        job_data[col] = job_data[col].str.extract("(\d+)").astype(float)
 
-    job_data['area_hectares'] = job_data['geometry'].apply(lambda x: x.area / 10000)
-    job_data['cost'] = job_data['id'].apply(lambda x: get_job_cost(connection, x))
-    job_data['cost_ha'] = job_data['cost'] / job_data['area_hectares']
-    job_data['cpu_ha'] = job_data['cpu'] / job_data['area_hectares']
-    job_data['memory_ha'] = job_data['memory'] / job_data['area_hectares']
-    job_data['duration_ha'] = job_data['duration'] / job_data['area_hectares']
+    job_data["area_hectares"] = job_data["geometry"].apply(lambda x: x.area / 10000)
+    job_data["cost"] = job_data["id"].apply(lambda x: get_job_cost(connection, x))
+    job_data["cost_ha"] = job_data["cost"] / job_data["area_hectares"]
+    job_data["cpu_ha"] = job_data["cpu"] / job_data["area_hectares"]
+    job_data["memory_ha"] = job_data["memory"] / job_data["area_hectares"]
+    job_data["duration_ha"] = job_data["duration"] / job_data["area_hectares"]
     return job_data
 
 
@@ -99,7 +99,7 @@ def get_service_metrics(service) -> dict:
     :param service: Name of the service for which to read the base metrics
     :return: Dictionary containing the base metrics for cost, cpu, duration, memory and sentinelhub
     """
-    metrics = read_test_json('benchmarks/performance.json')
+    metrics = read_test_json("benchmarks/performance.json")
     return metrics[service]
 
 
@@ -113,74 +113,74 @@ def check_performance(service, jobs):
     metrics = get_service_metrics(service)
 
     # Check performance benchmarks
-    assert (jobs['cpu_ha'].mean() == pytest.approx(metrics['cpu'], abs=metrics['cpu'] * 0.25))
-    assert (jobs['memory_ha'].mean() == pytest.approx(metrics['memory'], abs=metrics['memory'] * 0.25))
-    assert (jobs['duration_ha'].mean() == pytest.approx(metrics['duration'], abs=metrics['duration'] * 0.25))
-    assert (jobs['sentinelhub'].mean() == pytest.approx(metrics['sentinelhub'], abs=metrics['sentinelhub'] * 0.25))
-    assert (jobs['cost_ha'].mean() == pytest.approx(metrics['cost_ha'], abs=metrics['cost_ha'] * 0.25))
+    assert jobs["cpu_ha"].mean() == pytest.approx(metrics["cpu"], abs=metrics["cpu"] * 0.25)
+    assert jobs["memory_ha"].mean() == pytest.approx(metrics["memory"], abs=metrics["memory"] * 0.25)
+    assert jobs["duration_ha"].mean() == pytest.approx(metrics["duration"], abs=metrics["duration"] * 0.25)
+    assert jobs["sentinelhub"].mean() == pytest.approx(metrics["sentinelhub"], abs=metrics["sentinelhub"] * 0.25)
+    assert jobs["cost_ha"].mean() == pytest.approx(metrics["cost_ha"], abs=metrics["cost_ha"] * 0.25)
 
 
 @pytest.mark.parametrize(
     "context",
     [
         (
-                {
-                    "params": {
-                        "temp-ext": ["2023-01-01", "2023-12-31"],
-                    },
-                    "jobinfo": {
-                        "process_id": "whittaker",
-                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/whittaker",
-                        "smoothing_lambda": 10000
-                    }
-                }
+            {
+                "params": {
+                    "temp-ext": ["2023-01-01", "2023-12-31"],
+                },
+                "jobinfo": {
+                    "process_id": "whittaker",
+                    "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/whittaker",
+                    "smoothing_lambda": 10000,
+                },
+            }
         ),
         (
-                {
-                    "params": {
-                        "temp-ext": ["2023-01-01", "2023-12-31"],
-                    },
-                    "jobinfo": {
-                        "process_id": "mogpr",
-                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/mogpr",
-                    }
-                }
+            {
+                "params": {
+                    "temp-ext": ["2023-01-01", "2023-12-31"],
+                },
+                "jobinfo": {
+                    "process_id": "mogpr",
+                    "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/mogpr",
+                },
+            }
         ),
         (
-                {
-                    "params": {
-                        "temp-ext": ["2023-01-01", "2023-12-31"],
-                    },
-                    "jobinfo": {
-                        "process_id": "peakvalley",
-                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/peakvalley",
-                    }
-                }
+            {
+                "params": {
+                    "temp-ext": ["2023-01-01", "2023-12-31"],
+                },
+                "jobinfo": {
+                    "process_id": "peakvalley",
+                    "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/peakvalley",
+                },
+            }
         ),
         (
-                {
-                    "params": {
-                        "temp-ext": ["2023-01-01", "2023-12-31"],
-                    },
-                    "jobinfo": {
-                        "process_id": "phenology",
-                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/phenology",
-                    }
-                }
+            {
+                "params": {
+                    "temp-ext": ["2023-01-01", "2023-12-31"],
+                },
+                "jobinfo": {
+                    "process_id": "phenology",
+                    "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/phenology",
+                },
+            }
         ),
         (
-                {
-                    "params": {
-                        "skipData": True,
-                    },
-                    "jobinfo": {
-                        "process_id": "mogpr_s1_s2",
-                        "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/mogpr_s1_s2",
-                        "date": ["2023-01-01", "2023-12-31"],
-                    }
-                }
+            {
+                "params": {
+                    "skipData": True,
+                },
+                "jobinfo": {
+                    "process_id": "mogpr_s1_s2",
+                    "namespace": "https://openeo.vito.be/openeo/1.1/processes/u:fusets/mogpr_s1_s2",
+                    "date": ["2023-01-01", "2023-12-31"],
+                },
+            }
         ),
-    ]
+    ],
 )
 def test_benchmark_fusets_service(benchmark_features, context):
     """
@@ -195,8 +195,9 @@ def test_benchmark_fusets_service(benchmark_features, context):
     manager.run_jobs(
         df=benchmark_features,
         start_job=lambda **x: start_job(x, context=context),
-        output_file=Path(f"benchmark_fusets_{context['jobinfo']['process_id']}.csv"))
+        output_file=Path(f"benchmark_fusets_{context['jobinfo']['process_id']}.csv"),
+    )
 
     # Evaluate the performance metrics
     job_data = read_job_info(connection, output_file)
-    check_performance(context['jobinfo']['process_id'], job_data)
+    check_performance(context["jobinfo"]["process_id"], job_data)

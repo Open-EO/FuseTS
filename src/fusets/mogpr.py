@@ -137,8 +137,12 @@ class MOGPRTransformer(BaseEstimator):
 
 
 def mogpr(
-        array: xarray.Dataset, variables: List[str] = None, time_dimension: str = "t", prediction_period: str = None,
-        include_uncertainties: bool = False
+    array: xarray.Dataset,
+    variables: List[str] = None,
+    time_dimension: str = "t",
+    prediction_period: str = None,
+    include_uncertainties: bool = False,
+    include_raw_inputs: bool = False,
 ) -> xarray.Dataset:
     """
     MOGPR (multi-output gaussian-process regression) integrates various timeseries into a single values. This allows to
@@ -152,6 +156,7 @@ def mogpr(
         time_dimension: The name of the time dimension of this datacube. Only needs to be specified to resolve ambiguities.
         prediction_period: The duration specified as ISO-8601, e.g. P5D: 5-daily, P1M: monthly. Defaults to input dates.
         include_uncertainties: Flag indicating if the uncertainties should be added to the output of the mogpr process.
+        include_raw_inputs: Flag indicating if the raw inputs should be added to the output of the mogpr process.
 
     Returns: A gapfilled datacube.
 
@@ -194,14 +199,23 @@ def mogpr(
         output_core_dims=[["variable", output_time_dimension], ["variable", output_time_dimension]],
         vectorize=True,
     )
+    result["variable"] = [f"{variable}_FUSED" for variable in result["variable"].values]
 
+    # Assign coordinates to the time dimensions
+    result = result.assign_coords({output_time_dimension: output_dates})
+    std = std.assign_coords({output_time_dimension: output_dates})
+
+    merged = result
     if include_uncertainties:
-        std['variable'] = [f"{variable}_STD" for variable in std['variable'].values]
-        merged = xarray.concat([result, std], dim='variable')
-    else:
-        merged = result
+        std["variable"] = [f"{variable}_STD" for variable in std["variable"].values]
+        merged = xarray.concat([merged, std], dim="variable")
 
-    merged = merged.assign_coords({output_time_dimension: output_dates})
+    if include_raw_inputs:
+        variables_renames = {a: f"{a}_RAW" for a in array.data_vars if a != "crs"}
+        variables_renames[time_dimension] = output_time_dimension
+        array = array.rename(variables_renames)
+        merged = xarray.concat([merged, array.to_array(dim="variable")], dim="variable", compat="no_conflicts")
+
     merged = merged.rename({output_time_dimension: time_dimension, "variable": "bands"})
 
     return merged.to_dataset(dim="bands")
@@ -310,11 +324,11 @@ def _MOGPR_GPY_retrieval(data_in, time_in, master_ind, output_timevec, nt):
                     else:
                         for ind in range(noutput_timeseries):
                             out_mean[ind][:, None, x, y] = (
-                                    out_mean[ind][:, None, x, y]
-                                    + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
+                                out_mean[ind][:, None, x, y]
+                                + (Yp[:, None, ind] * Y_std_vec[ind] + Y_mean_vec[ind]) / nt
                             )
                             out_std[ind][:, None, x, y] = (
-                                    out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
+                                out_std[ind][:, None, x, y] + (Vp[:, None, ind] * Y_std_vec[ind]) / nt
                             )
 
                     del Yp, Vp
@@ -430,7 +444,7 @@ def mogpr_1D(data_in, time_in, master_ind, output_timevec, nt, trained_model=Non
                     out_std[out][:, None] = (Vp[:, None, out] * Y_std_vec[out]) / nt
                 else:
                     out_mean[out][:, None] = (
-                            out_mean[out][:, None] + (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
+                        out_mean[out][:, None] + (Yp[:, None, out] * Y_std_vec[out] + Y_mean_vec[out]) / nt
                     )
                     out_std[out][:, None] = out_std[out][:, None] + (Vp[:, None, out] * Y_std_vec[out]) / nt
 

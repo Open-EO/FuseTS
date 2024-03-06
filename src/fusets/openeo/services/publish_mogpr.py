@@ -51,7 +51,7 @@ def execute_udf():
     merged_datacube = base_s2.merge(base_s1)
 
     # Execute MOGPR
-    mogpr = connection.datacube_from_flat_graph(generate_mogpr_cube(merged_datacube, True).flat_graph())
+    mogpr = connection.datacube_from_flat_graph(generate_mogpr_cube(merged_datacube, True, False).flat_graph())
     mogpr.execute_batch(
         "./result_mogpr.nc",
         title=f"FuseTS - MOGPR - Local",
@@ -66,14 +66,19 @@ def execute_udf():
 
 
 def generate_mogpr_cube(
-    input_cube: Union[DataCube, ProcessBuilder, Parameter], include_uncertainties: Union[bool, Parameter]
+    input_cube: Union[DataCube, ProcessBuilder, Parameter],
+    include_uncertainties: Union[bool, Parameter],
+    include_raw_inputs: Union[bool, Parameter],
 ):
     return apply_neighborhood(
         input_cube,
         lambda data: data.run_udf(
             udf=load_mogpr_udf(),
             runtime="Python",
-            context={"include_uncertainties": get_context_value(include_uncertainties)},
+            context={
+                "include_uncertainties": get_context_value(include_uncertainties),
+                "include_raw_inputs": get_context_value(include_raw_inputs),
+            },
         ),
         size=[
             {"dimension": "x", "value": NEIGHBORHOOD_SIZE, "unit": "px"},
@@ -91,14 +96,21 @@ def generate_mogpr_udp():
     include_uncertainties = Parameter.boolean(
         "include_uncertainties", "Flag to include the uncertainties in the output results", False
     )
+    include_raw_inputs = Parameter.boolean(
+        "include_raw_inputs",
+        "Flag to include the raw input signals in the final result",
+        False,
+    )
 
-    mogpr = generate_mogpr_cube(input_cube=input_cube, include_uncertainties=include_uncertainties)
+    mogpr = generate_mogpr_cube(
+        input_cube=input_cube, include_uncertainties=include_uncertainties, include_raw_inputs=include_raw_inputs
+    )
 
     return publish_service(
         id="mogpr",
         summary="Integrates timeseries in data cube using multi-output gaussian " "process regression.",
         description=description,
-        parameters=[input_cube.to_dict(), include_uncertainties.to_dict()],
+        parameters=[input_cube.to_dict(), include_uncertainties.to_dict(), include_raw_inputs.to_dict()],
         process_graph=mogpr,
     )
 

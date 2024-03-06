@@ -19,17 +19,17 @@ def execute_udf():
         "type": "Polygon",
         "coordinates": [
             [
-                [12.502373837196238, 42.06404350608216],
-                [12.502124488464212, 42.03089916587777],
-                [12.571692784699895, 42.031269589226014],
-                [12.57156811033388, 42.06663507169753],
-                [12.502373837196238, 42.06404350608216],
+                [5.170012098271149, 51.25062964728295],
+                [5.17085904378298, 51.24882567194015],
+                [5.17857421368097, 51.2468515482926],
+                [5.178972704726344, 51.24982704376254],
+                [5.170012098271149, 51.25062964728295],
             ]
         ],
     }
-    temp_ext = ["2023-01-01", "2023-12-31"]
+    temp_ext = ["2023-01-01", "2023-06-30"]
     mogpr = connection.datacube_from_flat_graph(
-        generate_cube(connection, "RVI DESC", "NDVI", spat_ext, temp_ext, True).flat_graph()
+        generate_cube(connection, "RVI DESC", "NDVI", spat_ext, temp_ext, True, True).flat_graph()
     )
     mogpr.execute_batch(
         "./result_mogpr_s1_s2_outputs.nc",
@@ -278,19 +278,16 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
-def generate_cube(connection, s1_collection, s2_collection, polygon, date, include_uncertainties):
+def generate_cube(connection, s1_collection, s2_collection, polygon, date, include_uncertainties, include_raw_inputs):
     # Build the S1 and S2 input data cubes
     s1_input_cube = load_s1_collection(connection, s1_collection, polygon, date)
     s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)
 
     # Merge the inputs to a single datacube
-    merged_cube = merge_cubes(s1_input_cube, s2_input_cube)
+    input_cube = merge_cubes(s1_input_cube, s2_input_cube)
 
     # Apply the MOGPR UDF to the multi source datacube
-    return generate_mogpr_cube(
-        merged_cube,
-        include_uncertainties,
-    )
+    return generate_mogpr_cube(input_cube, include_uncertainties, include_raw_inputs)
 
 
 def generate_mogpr_s1_s2_udp(connection):
@@ -317,7 +314,13 @@ def generate_mogpr_s1_s2_udp(connection):
     )
     include_uncertainties = Parameter.boolean(
         "include_uncertainties",
-        "Flag to include the uncertainties, expressed as the standard deviation, " "in the output results",
+        "Flag to include the uncertainties, expressed as the standard deviation in the final result",
+        False,
+    )
+
+    include_raw_inputs = Parameter.boolean(
+        "include_raw_inputs",
+        "Flag to include the raw input signals in the final result",
         False,
     )
 
@@ -328,6 +331,7 @@ def generate_mogpr_s1_s2_udp(connection):
         polygon=polygon,
         date=date,
         include_uncertainties=include_uncertainties,
+        include_raw_inputs=include_raw_inputs,
     )
     return publish_service(
         id="mogpr_s1_s2",
@@ -340,6 +344,7 @@ def generate_mogpr_s1_s2_udp(connection):
             s1_collection.to_dict(),
             s2_collection.to_dict(),
             include_uncertainties.to_dict(),
+            include_raw_inputs.to_dict(),
         ],
         process_graph=process,
     )

@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
-from openeo.metadata import CollectionMetadata
+from openeo.metadata import Band, CollectionMetadata
 from openeo.udf import XarrayDataCube, inspect
 
 
@@ -42,10 +42,18 @@ def write_gpy_cfg():
 
 
 def apply_metadata(metadata: CollectionMetadata, context: dict) -> CollectionMetadata:
-    # extra_bands = [Band(f"{x}_STD", None, None) for x in metadata.bands]
-    # inspect(data=metadata, message="MOGPR metadata")
-    # for band in extra_bands:
-    #     metadata = metadata.append_band(band)
+    include_uncertainties = context.get("include_uncertainties", False)
+    include_raw_inputs = context.get("include_raw_inputs", False)
+    extra_bands = []
+
+    if include_uncertainties:
+        extra_bands += [Band(f"{x.name}_STD", None, None) for x in metadata.bands]
+    if include_raw_inputs:
+        extra_bands += [Band(f"{x.name}_RAW", None, None) for x in metadata.bands]
+    for band in extra_bands:
+        metadata = metadata.append_band(band)
+    inspect(data=metadata, message="MOGPR metadata")
+
     return metadata
 
 
@@ -77,7 +85,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
         include_uncertainties=include_uncertainties,
         include_raw_inputs=include_raw_inputs,
     )
-    result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims))
+    result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims).astype("float32"))
     inspect(data=result_dc, message="MOGPR result")
     set_home(home)
     return result_dc

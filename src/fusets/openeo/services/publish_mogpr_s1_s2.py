@@ -3,7 +3,6 @@ import openeo
 from openeo.api.process import Parameter
 from openeo.processes import eq, if_, merge_cubes, process
 
-from fusets.openeo.services.dummies import DummyConnection
 from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
 from fusets.openeo.services.publish_mogpr import generate_mogpr_cube
 from fusets.openeo.services.publish_whittaker import WHITTAKER_DEFAULT_SMOOTHING, generate_whittaker_cube
@@ -15,7 +14,7 @@ S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
 def execute_udf():
-    connection = openeo.connect("openeo.vito.be").authenticate_oidc()
+    connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
     spat_ext = {
         "type": "Polygon",
         "coordinates": [
@@ -377,5 +376,5 @@ def generate_mogpr_s1_s2_udp(connection):
 if __name__ == "__main__":
     # Using the dummy connection as otherwise Datatype errors are generated when creating the input datacubes
     # where bands are selected.
-    generate_mogpr_s1_s2_udp(connection=DummyConnection())
-    # execute_udf()
+    # generate_mogpr_s1_s2_udp(connection=DummyConnection())
+    execute_udf()

@@ -74,7 +74,7 @@ def generate_mogpr_cube(
         input_cube,
         lambda data: data.run_udf(
             udf=load_mogpr_udf(),
-            runtime="Python",
+            runtime="Python-Jep",
             context={
                 "include_uncertainties": get_context_value(include_uncertainties),
                 "include_raw_inputs": get_context_value(include_raw_inputs),

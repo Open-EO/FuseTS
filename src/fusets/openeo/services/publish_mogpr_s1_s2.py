@@ -37,7 +37,7 @@ def execute_udf():
             polygon=spat_ext,
             date=temp_ext,
             include_uncertainties=True,
-            include_raw_inputs=True
+            include_raw_inputs=True,
         ).flat_graph()
     )
     mogpr.execute_batch(
@@ -290,7 +290,16 @@ def load_s2_collection(connection, collection, polygon, date):
     return collections
 
 
-def generate_cube(connection, s1_collection, s1_smoothing_lambda, s2_collection, polygon, date, include_uncertainties, include_raw_inputs):
+def generate_cube(
+    connection,
+    s1_collection,
+    s1_smoothing_lambda,
+    s2_collection,
+    polygon,
+    date,
+    include_uncertainties,
+    include_raw_inputs,
+):
     # Build the S1 and S2 input data cubes
     s1_input_cube = load_s1_collection(connection, s1_collection, s1_smoothing_lambda, polygon, date)
     s2_input_cube = load_s2_collection(connection, s2_collection, polygon, date)

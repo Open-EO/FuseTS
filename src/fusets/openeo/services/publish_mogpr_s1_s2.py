@@ -1,7 +1,7 @@
 # Reads contents with UTF-8 encoding and returns str.
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import eq, if_, merge_cubes, process
+from openeo.processes import eq, gt, if_, merge_cubes, process
 
 from fusets.openeo.services.dummies import DummyConnection
 from fusets.openeo.services.helpers import DATE_SCHEMA, GEOJSON_SCHEMA, publish_service, read_description
@@ -15,7 +15,7 @@ S2_COLLECTIONS = ["NDVI", "FAPAR", "LAI", "FCOVER", "EVI", "CCC", "CWC"]
 
 
 def execute_udf():
-    connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+    connection = openeo.connect("openeo.vito.be").authenticate_oidc()
     spat_ext = {
         "type": "Polygon",
         "coordinates": [
@@ -28,7 +28,7 @@ def execute_udf():
             ]
         ],
     }
-    temp_ext = ["2023-01-01", "2023-06-30"]
+    temp_ext = ["2023-01-01", "2023-02-28"]
     mogpr = connection.datacube_from_flat_graph(
         generate_cube(
             connection=connection,
@@ -42,7 +42,7 @@ def execute_udf():
         ).flat_graph()
     )
     mogpr.execute_batch(
-        "./result_mogpr_s1_s2_outputs.nc",
+        "./result_mogpr_s1_s2_outputs_smoothed.nc",
         title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",
         job_options={
             "udf-dependency-archives": [
@@ -259,7 +259,11 @@ def load_s1_collection(connection, collection, smoothing_lambda, polygon, date):
             collection=collection, label=option["label"], callable=option["function"], reject=collections
         )
 
-    smoothed = generate_whittaker_cube(input_cube=collections, smoothing_lambda=smoothing_lambda)
+    smoothed = if_(
+        gt(0, smoothing_lambda),
+        generate_whittaker_cube(input_cube=collections, smoothing_lambda=smoothing_lambda),
+        collections,
+    )
     return smoothed
 
 

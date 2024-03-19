@@ -688,6 +688,29 @@
                 }
             }
         },
+        "gt1": {
+            "process_id": "gt",
+            "arguments": {
+                "x": 0,
+                "y": {
+                    "from_parameter": "s1_smoothing_lambda"
+                }
+            }
+        },
+        "if7": {
+            "process_id": "if",
+            "arguments": {
+                "accept": {
+                    "from_node": "applydimension1"
+                },
+                "reject": {
+                    "from_node": "if6"
+                },
+                "value": {
+                    "from_node": "gt1"
+                }
+            }
+        },
         "BIOPAR1": {
             "process_id": "BIOPAR",
             "arguments": {
@@ -1047,7 +1070,7 @@
                 "y": "ndvi"
             }
         },
-        "if7": {
+        "if8": {
             "process_id": "if",
             "arguments": {
                 "accept": {
@@ -1069,14 +1092,14 @@
                 "y": "fapar"
             }
         },
-        "if8": {
+        "if9": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "maskpolygon12"
                 },
                 "reject": {
-                    "from_node": "if7"
+                    "from_node": "if8"
                 },
                 "value": {
                     "from_node": "eq21"
@@ -1093,14 +1116,14 @@
                 "y": "lai"
             }
         },
-        "if9": {
+        "if10": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "maskpolygon11"
                 },
                 "reject": {
-                    "from_node": "if8"
+                    "from_node": "if9"
                 },
                 "value": {
                     "from_node": "eq22"
@@ -1117,14 +1140,14 @@
                 "y": "fcover"
             }
         },
-        "if10": {
+        "if11": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "maskpolygon10"
                 },
                 "reject": {
-                    "from_node": "if9"
+                    "from_node": "if10"
                 },
                 "value": {
                     "from_node": "eq23"
@@ -1141,14 +1164,14 @@
                 "y": "evi"
             }
         },
-        "if11": {
+        "if12": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "adddimension3"
                 },
                 "reject": {
-                    "from_node": "if10"
+                    "from_node": "if11"
                 },
                 "value": {
                     "from_node": "eq24"
@@ -1165,14 +1188,14 @@
                 "y": "ccc"
             }
         },
-        "if12": {
+        "if13": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "maskpolygon8"
                 },
                 "reject": {
-                    "from_node": "if11"
+                    "from_node": "if12"
                 },
                 "value": {
                     "from_node": "eq25"
@@ -1189,14 +1212,14 @@
                 "y": "cwc"
             }
         },
-        "if13": {
+        "if14": {
             "process_id": "if",
             "arguments": {
                 "accept": {
                     "from_node": "maskpolygon7"
                 },
                 "reject": {
-                    "from_node": "if12"
+                    "from_node": "if13"
                 },
                 "value": {
                     "from_node": "eq26"
@@ -1207,10 +1230,10 @@
             "process_id": "merge_cubes",
             "arguments": {
                 "cube1": {
-                    "from_node": "applydimension1"
+                    "from_node": "if7"
                 },
                 "cube2": {
-                    "from_node": "if13"
+                    "from_node": "if14"
                 }
             }
         },

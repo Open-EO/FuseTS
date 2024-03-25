@@ -1,8 +1,18 @@
 import sys
+import time
 from pathlib import Path
 from typing import Dict
 
-from openeo.udf import XarrayDataCube
+from openeo.udf import XarrayDataCube, inspect
+
+start = time.time()
+
+
+def log_time(message: str, previous=time.time()) -> float:
+    """Create an output log for the batch job"""
+    now = time.time()
+    inspect(data=None, message=f"{message} ({previous - time.time()} seconds)")
+    return now
 
 
 def load_venv():
@@ -26,8 +36,12 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
 
     from fusets.whittaker import whittaker
 
+    time = log_time("Initiated Whittaker environment")
     smoothing_lambda = context.get("smoothing_lambda", None)
-    return XarrayDataCube(whittaker(cube.get_array(), smoothing_lambda=smoothing_lambda))
+
+    result = XarrayDataCube(whittaker(cube.get_array(), smoothing_lambda=smoothing_lambda))
+    log_time("Calculated whittaker result", time)
+    return result
 
 
 def load_whittakker_udf() -> str:

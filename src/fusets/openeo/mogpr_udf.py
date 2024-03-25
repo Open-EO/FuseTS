@@ -1,11 +1,21 @@
 import os
 import sys
+import time
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
 from openeo.metadata import Band, CollectionMetadata
 from openeo.udf import XarrayDataCube, inspect
+
+start = time.time()
+
+
+def log_time(message: str, previous=time.time()) -> float:
+    """Create an output log for the batch job"""
+    now = time.time()
+    inspect(data=None, message=f"{message} ({previous - time.time()} seconds)")
+    return now
 
 
 def load_venv():
@@ -70,6 +80,8 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
 
     from fusets.mogpr import mogpr
 
+    time = log_time("Initiated MOGPR environment")
+
     variables = context.get("variables")
     time_dimension = context.get("time_dimension", "t")
     prediction_period = context.get("prediction_period", "5D")
@@ -85,6 +97,7 @@ def apply_datacube(cube: XarrayDataCube, context: Dict) -> XarrayDataCube:
         include_uncertainties=include_uncertainties,
         include_raw_inputs=include_raw_inputs,
     )
+    log_time("Calculated MOGPR", time)
     result_dc = XarrayDataCube(result.to_array(dim="bands").transpose(*dims).astype("float32"))
     inspect(data=result_dc, message="MOGPR result")
     set_home(home)

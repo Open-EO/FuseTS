@@ -151,10 +151,20 @@ def _load_ndvi(connection, polygon, date):
     :param date:
     :return:
     """
-    base_s2 = connection.load_collection(
-        "SENTINEL2_L2A", spatial_extent=polygon, temporal_extent=date, bands=["B04", "B08", "SCL"]
+    scl = connection.load_collection(
+        "SENTINEL2_L2A", spatial_extent=polygon, temporal_extent=date, bands=["SCL"]
     )
-    base_s2 = base_s2.process("mask_scl_dilation", data=base_s2, scl_band_name="SCL")
+    cloud_mask = scl.process(
+        "to_scl_dilation_mask",
+        data=scl,
+        kernel1_size=17, kernel2_size=77,
+        mask1_values=[2, 4, 5, 6, 7],
+        mask2_values=[3, 8, 9, 10, 11],
+        erosion_kernel_size=3)
+    base_s2 = connection.load_collection(
+        "SENTINEL2_L2A", spatial_extent=polygon, temporal_extent=date, bands=["B04", "B08"]
+    )
+    base_s2 = base_s2.mask(cloud_mask)
     ndvi = base_s2.ndvi(red="B04", nir="B08", target_band="NDVI")
     ndvi = ndvi.filter_bands(bands=["NDVI"])
     return ndvi.mask_polygon(polygon)
@@ -182,13 +192,26 @@ def _load_evi(connection, polygon, date):
     :param date: Time of interest
     :return:
     """
+    scl = connection.load_collection(
+        collection_id="SENTINEL2_L2A",
+        spatial_extent=polygon,
+        temporal_extent=date,
+        bands=["SCL"],
+    )
+    cloud_mask = scl.process(
+        "to_scl_dilation_mask",
+        data=scl,
+        kernel1_size=17, kernel2_size=77,
+        mask1_values=[2, 4, 5, 6, 7],
+        mask2_values=[3, 8, 9, 10, 11],
+        erosion_kernel_size=3)
     base_s2 = connection.load_collection(
         collection_id="SENTINEL2_L2A",
         spatial_extent=polygon,
         temporal_extent=date,
-        bands=["B02", "B04", "B08", "SCL"],
+        bands=["B02", "B04", "B08"],
     )
-    base_s2 = base_s2.process("mask_scl_dilation", data=base_s2, scl_band_name="SCL")
+    base_s2 = base_s2.mask(cloud_mask)
 
     B02 = base_s2.band("B04")
     B04 = base_s2.band("B04")

@@ -60,7 +60,7 @@ s2 = connection.load_collection('SENTINEL2_L2A_SENTINELHUB',
                                 spatial_extent=spat_ext,
                                 temporal_extent=temp_ext,
                                 bands=["B04", "B08", "SCL"])
-s2 = s2.process("mask_scl_dilation", data=s2, scl_band_name="SCL")
+s2 = s2.process("mask_scl_dilation", data=s2, scl_band_name="SCL") # do md file also need updating?
 s2 = s2.mask_polygon(spat_ext)
 base_ndvi = s2.ndvi(red="B04", nir="B08")
 

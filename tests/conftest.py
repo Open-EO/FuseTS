@@ -112,11 +112,20 @@ def wetland_sentinel2_ndvi(areas):
     import openeo
 
     openeo_connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
-
-    data = openeo_connection.load_collection(
-        "SENTINEL2_L2A", temporal_extent=("2020-01-01", "2021-01-01"), bands=["B08", "B04", "SCL"]
+    scl = openeo_connection.load_collection(
+        "SENTINEL2_L2A", temporal_extent=("2020-01-01", "2021-01-01"), bands=["SCL"]
     ).filter_bbox(areas["wetland"])
-    data = data.process("mask_scl_dilation", data=data, scl_band_name="SCL")
+    cloud_mask = scl.process(
+        "to_scl_dilation_mask",
+        data=scl,
+        kernel1_size=17, kernel2_size=77,
+        mask1_values=[2, 4, 5, 6, 7],
+        mask2_values=[3, 8, 9, 10, 11],
+        erosion_kernel_size=3)
+    data = openeo_connection.load_collection(
+        "SENTINEL2_L2A", temporal_extent=("2020-01-01", "2021-01-01"), bands=["B08", "B04"]
+    ).filter_bbox(areas["wetland"])
+    data = data.mask(cloud_mask)
 
     return data.ndvi(nir="B08", red="B04")
 

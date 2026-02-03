@@ -29,16 +29,16 @@ def execute_udf():
     temp_ext = ["2023-01-01", "2023-03-31"]
 
     # Setup NDVI cube
-    scl = connection.load_collection(
-        "SENTINEL2_L2A", spatial_extent=spat_ext, temporal_extent=temp_ext, bands=["SCL"]
-    )
+    scl = connection.load_collection("SENTINEL2_L2A", spatial_extent=spat_ext, temporal_extent=temp_ext, bands=["SCL"])
     cloud_mask = scl.process(
         "to_scl_dilation_mask",
         data=scl,
-        kernel1_size=17, kernel2_size=77,
+        kernel1_size=17,
+        kernel2_size=77,
         mask1_values=[2, 4, 5, 6, 7],
         mask2_values=[3, 8, 9, 10, 11],
-        erosion_kernel_size=3)
+        erosion_kernel_size=3,
+    )
     base_s2 = connection.load_collection(
         "SENTINEL2_L2A", spatial_extent=spat_ext, temporal_extent=temp_ext, bands=["B04", "B08"]
     )

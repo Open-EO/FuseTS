@@ -72,16 +72,18 @@ def load_xarray(collection_id, spatial_extent, temporal_extent, properties=None,
     if openeo_connection == None:
         openeo_connection = openeo.connect("openeo.cloud").authenticate_oidc()
     print(spatial_extent)
-    scl = openeo_connection.load_collection(
-        collection_id, temporal_extent=temporal_extent, bands=["SCL"]
-    ).filter_bbox(spatial_extent)
+    scl = openeo_connection.load_collection(collection_id, temporal_extent=temporal_extent, bands=["SCL"]).filter_bbox(
+        spatial_extent
+    )
     cloud_mask = scl.process(
         "to_scl_dilation_mask",
         data=scl,
-        kernel1_size=17, kernel2_size=77,
+        kernel1_size=17,
+        kernel2_size=77,
         mask1_values=[2, 4, 5, 6, 7],
         mask2_values=[3, 8, 9, 10, 11],
-        erosion_kernel_size=3)
+        erosion_kernel_size=3,
+    )
     data = openeo_connection.load_collection(
         collection_id, temporal_extent=temporal_extent, bands=["B02", "B03", "B04"]
     ).filter_bbox(spatial_extent)

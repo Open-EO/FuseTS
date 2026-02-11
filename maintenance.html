@@ -1,0 +1,679 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Changelog" href="changelog.html" /><link rel="prev" title="API" href="api.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+        <title>Development and maintenance - FuseTS</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">FuseTS</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">FuseTS</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">FuseTS Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openeo.html">openEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Development and maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshops.html">Workshops</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/maintenance.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="development-and-maintenance">
+<span id="id1"></span><h1>Development and maintenance<a class="headerlink" href="#development-and-maintenance" title="Permalink to this heading">¶</a></h1>
+<p>For development on the <code class="docutils literal notranslate"><span class="pre">fusets</span></code> package itself,
+it is recommended to install a local git checkout of the project
+in development mode (<code class="docutils literal notranslate"><span class="pre">-e</span></code>)
+with additional development related dependencies (<code class="docutils literal notranslate"><span class="pre">[dev]</span></code>)
+like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="p">[</span><span class="n">dev</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If you are on Windows and experience problems installing this way, you can find some solutions in section <a class="reference internal" href="#development-installation-on-windows">Development Installation on Windows</a>.</p>
+<section id="running-the-unit-tests">
+<h2>Running the unit tests<a class="headerlink" href="#running-the-unit-tests" title="Permalink to this heading">¶</a></h2>
+<p>The test suite of the FuseTS leverages
+the nice <a class="reference external" href="https://docs.pytest.org/en/stable/">pytest</a> framework.
+It is installed automatically when installing the FuseTS
+with the <code class="docutils literal notranslate"><span class="pre">[dev]</span></code> extra as shown above.
+Running the whole tests is as simple as executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span>
+</pre></div>
+</div>
+<p>There are a ton of command line options for fine-tuning
+(e.g. select a subset of tests, how results should be reported, …).
+Run <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-h</span></code> for a quick overview
+or check the <a class="reference external" href="https://docs.pytest.org/en/stable/">pytest</a> documentation for more information.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Skip tests that are marked as slow</span>
+<span class="n">pytest</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;not slow&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="building-the-documentation">
+<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this heading">¶</a></h2>
+<p>Building the documentation requires <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a>
+and some plugins
+(which are installed automatically as part of the <code class="docutils literal notranslate"><span class="pre">[dev]</span></code> install).</p>
+<section id="quick-and-easy">
+<h3>Quick and easy<a class="headerlink" href="#quick-and-easy" title="Permalink to this heading">¶</a></h3>
+<p>The easiest way to build the documentation is working from the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder
+and using the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># From `docs` folder</span>
+make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>(assumes you have <code class="docutils literal notranslate"><span class="pre">make</span></code> available, if not: use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-msphinx</span> <span class="pre">-M</span> <span class="pre">html</span> <span class="pre">.</span>&#160; <span class="pre">build</span></code>.)</p>
+<p>This will generate the docs in HTML format under <code class="docutils literal notranslate"><span class="pre">docs/build/html/</span></code>.
+Open the HTML files manually,
+or use Python’s built-in web server to host them locally, e.g.:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># From `docs` folder</span>
+python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+<p>Then, visit  <a class="reference external" href="http://127.0.0.1:8000/build/html/">http://127.0.0.1:8000/build/html/</a> in your browser</p>
+</section>
+<section id="like-a-pro">
+<h3>Like a Pro<a class="headerlink" href="#like-a-pro" title="Permalink to this heading">¶</a></h3>
+<p>When doing larger documentation work, it can be tedious to manually rebuild the docs
+and refresh your browser to check the result.
+Instead, use <a class="reference external" href="https://github.com/executablebooks/sphinx-autobuild">sphinx-autobuild</a>
+to automatically rebuild on documentation changes and live-reload it in your browser.
+After installation (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sphinx-autobuild</span></code> in your development environment),
+just run</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># From project root</span>
+sphinx-autobuild<span class="w"> </span>docs/<span class="w"> </span>--watch<span class="w"> </span>fusets/<span class="w"> </span>docs/build/html/
+</pre></div>
+</div>
+<p>and then visit <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> .
+When you change (and save) documentation source files, your browser should now
+automatically refresh and show the newly built docs. Just like magic.</p>
+</section>
+</section>
+<section id="contributing-code">
+<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this heading">¶</a></h2>
+<p>User contributions (such as bug fixes and new features, both in source code and documentation)
+are greatly appreciated and welcome.</p>
+<section id="pull-requests">
+<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">¶</a></h3>
+<p>We use a traditional <a class="reference external" href="https://docs.github.com/en/pull-requests">GitHub Pull Request (PR)</a> workflow
+for user contributions, which roughly follows these steps:</p>
+<ul class="simple">
+<li><p>Create a personal fork of <a class="reference external" href="https://github.com/Open-EO/FuseTS">https://github.com/Open-EO/FuseTS</a>
+(unless you already have push permissions to an existing fork or the original repo)</p></li>
+<li><p>Preferably: work on your contribution in a new feature branch</p></li>
+<li><p>Push your feature branch to your fork and create a pull request</p></li>
+<li><p>The pull request is the place for review, discussion and fine-tuning of your work</p></li>
+<li><p>Once your pull request is in good shape it will be merged by a maintainer</p></li>
+</ul>
+</section>
+<section id="pre-commit-for-basic-code-quality-checks">
+<span id="precommit"></span><h3>Pre-commit for basic code quality checks<a class="headerlink" href="#pre-commit-for-basic-code-quality-checks" title="Permalink to this heading">¶</a></h3>
+<p>We started using the <a class="reference external" href="https://pre-commit.com/">pre-commit</a> tool
+for basic code quality fine-tuning of new contributions.
+Note that the whole repository does not adhere yet to these new code styles rules at the moment,
+we’re just gradually introducing it, piggybacking on new contributions and commits.
+It’s currently not enforced, but <strong>enabling pre-commit is recommended</strong> and appreciated
+when contributing code.</p>
+<section id="pre-commit-set-up">
+<h4>Pre-commit set up<a class="headerlink" href="#pre-commit-set-up" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>Install the <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> command line tool:</p>
+<ul class="simple">
+<li><p>The simplest option is to install it directly in the <em>virtual environment</em>
+you are using for FuseTS development (e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pre-commit</span></code>).</p></li>
+<li><p>You can also install it <em>globally</em> on your system
+(e.g. using <a class="reference external" href="https://pypa.github.io/pipx/">pipx</a>, conda, homebrew, …)
+so you can use it across different projects.</p></li>
+</ul>
+</li>
+<li><p>Install the git hook scripts by running this in your local git clone:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pre-commit install</span>
+</pre></div>
+</div>
+<p>This will automatically install additional tools in a sandbox
+to run the various checks defined in the <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> configuration file.</p>
+</li>
+</ul>
+</section>
+<section id="pre-commit-usage">
+<h4>Pre-commit usage<a class="headerlink" href="#pre-commit-usage" title="Permalink to this heading">¶</a></h4>
+<p>When you commit new changes, the freshly installed pre-commit hook
+will now automatically run each of the configured linters/formatters/…
+Some of these just flag issues (e.g. invalid JSON files)
+while others even automatically fix problems (e.g. clean up excessive whitespace).</p>
+<p>If there is some kind of violation, the commit will be blocked.
+Address these problems and try to commit again.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Some pre-commit tools directly <em>edit</em> your files (e.g. formatting tweaks)
+instead of just flagging issues.
+This might feel intrusive at first, but once you get the hang of it,
+it should allow to streamline your workflow.</p>
+<p>In particular, it is recommended to use the <em>staging</em> feature of git to prepare your commit.
+Pre-commit’s proposed changes are not staged automatically,
+so you can more easily keep them separate and review.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can temporarily disable pre-commit for these rare cases
+where you intentionally want to commit violating code style,
+e.g. through <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code> command line option <code class="docutils literal notranslate"><span class="pre">-n</span></code>/<code class="docutils literal notranslate"><span class="pre">--no-verify</span></code>.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="creating-a-release">
+<h2>Creating a release<a class="headerlink" href="#creating-a-release" title="Permalink to this heading">¶</a></h2>
+<p>This section describes the procedure to create
+properly versioned releases of the <code class="docutils literal notranslate"><span class="pre">fusets</span></code> package
+that can be downloaded by end users (e.g. through <code class="docutils literal notranslate"><span class="pre">pip</span></code> from pypi.org)
+and depended on by other projects.</p>
+<p>The releases will end up on:</p>
+<ul class="simple">
+<li><p>PyPi: <a class="reference external" href="https://pypi.org/project/fusets/">https://pypi.org/project/fusets</a></p></li>
+<li><p>VITO Artifactory: <a class="reference external" href="https://artifactory.vgt.vito.be/api/pypi/python-openeo/simple/fusets/">https://artifactory.vgt.vito.be/api/pypi/python-openeo/simple/fusets/</a></p></li>
+<li><p>GitHub: <a class="reference external" href="https://github.com/Open-EO/FuseTS/releases">https://github.com/Open-EO/FuseTS/releases</a></p></li>
+</ul>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>You have permissions to push branches and tags and maintain releases on
+the <a class="reference external" href="https://github.com/Open-EO/FuseTS">fusets project on GitHub</a>.</p></li>
+<li><p>You have permissions to upload releases to the
+<a class="reference external" href="https://pypi.org/project/fusets">fusets project on pypi.org</a></p></li>
+<li><p>The Python virtual environment you work in has the latest versions
+of the <code class="docutils literal notranslate"><span class="pre">twine</span></code> package installed.
+If you plan to build the wheel yourself (instead of letting Jenkins do this),
+you also need recent enough versions of the <code class="docutils literal notranslate"><span class="pre">setuptools</span></code> and <code class="docutils literal notranslate"><span class="pre">wheel</span></code> packages.</p></li>
+</ul>
+</section>
+<section id="important-files">
+<h3>Important files<a class="headerlink" href="#important-files" title="Permalink to this heading">¶</a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">setup.py</span></code></dt><dd><p>describes the metadata of the package,
+like package name <code class="docutils literal notranslate"><span class="pre">fusets</span></code> and version
+(which is extracted from <code class="docutils literal notranslate"><span class="pre">fusets/__init__.py</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">fusets/__init__.py</span></code></dt><dd><p>defines the version of the package.
+During general <strong>development</strong>, this version string should contain
+a <a class="reference external" href="https://www.python.org/dev/peps/pep-0440/#pre-releases">pre-release</a>
+segment (e.g. <code class="docutils literal notranslate"><span class="pre">a1</span></code> for alpha releases, <code class="docutils literal notranslate"><span class="pre">b1</span></code> for beta releases, etc)
+to avoid collision with final releases. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.0.0a1&#39;</span>
+</pre></div>
+</div>
+<p>As discussed below, this pre-release suffix should
+only be removed during the release procedure
+and restored when bumping the version after the release procedure.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code></dt><dd><p>keeps track of important changes associated with each release.
+It follows the <a class="reference external" href="https://keepachangelog.com">Keep a Changelog</a> convention
+and should be properly updated with each bug fix, feature addition/removal, …
+under the <code class="docutils literal notranslate"><span class="pre">Unreleased</span></code> section during development.</p>
+</dd>
+</dl>
+</section>
+<section id="procedure">
+<h3>Procedure<a class="headerlink" href="#procedure" title="Permalink to this heading">¶</a></h3>
+<p>These are the steps to create and publish a new release of the <code class="docutils literal notranslate"><span class="pre">fusets</span></code> package.
+To be as concrete as possible, we will assume that we are about to release version <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>.</p>
+<ol class="arabic" start="0">
+<li><p>Make sure you are working on <strong>latest master branch</strong>,
+without uncommitted changes and all tests are properly passing.</p></li>
+<li><p>Create release commit:</p>
+<ol class="upperalpha">
+<li><p><strong>Drop the pre-release suffix</strong> from the version string in <code class="docutils literal notranslate"><span class="pre">fusets/__init__.py</span></code>
+so that it just a “final” semantic versioning string, e.g. <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code></p></li>
+<li><p><strong>Update CHANGELOG.md</strong>: rename the “Unreleased” section title
+to contain version and date, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## [1.0.0] - 2020-12-15</span>
+</pre></div>
+</div>
+<p>remove empty subsections
+and start a new “Unreleased” section above it, like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## [Unreleased]</span>
+
+<span class="c1">### Added</span>
+
+<span class="c1">### Changed</span>
+
+<span class="c1">### Removed</span>
+
+<span class="c1">### Fixed</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Commit</strong> these changes in git with a commit message like <code class="docutils literal notranslate"><span class="pre">Release</span> <span class="pre">1.0.0</span></code>
+and <strong>push</strong> to GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">add</span> <span class="n">fusets</span><span class="o">/</span><span class="fm">__init__</span><span class="o">.</span><span class="n">py</span> <span class="n">CHANGELOG</span><span class="o">.</span><span class="n">md</span>
+<span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s1">&#39;Release 1.0.0&#39;</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">main</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p>Optional, but recommended: wait for <strong>VITO Jenkins</strong> to build this updated master
+(trigger it manually if necessary),
+so that a build of a final, non-alpha release <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>
+is properly uploaded to <strong>VITO artifactory</strong>.</p></li>
+<li><p>Create release on <a class="reference external" href="https://pypi.org/">PyPI</a>:</p>
+<ol class="upperalpha">
+<li><p><strong>Obtain a wheel archive</strong> of the package, with one of these approaches:</p>
+<ul>
+<li><p><em>Preferably, the path of least surprise</em>: build wheel through GitHub Actions.
+Go to workflow <a class="reference external" href="https://github.com/Open-EO/FuseTS/actions/workflows/build-wheel.yml">“Build wheel”</a>,
+manually trigger a build with “Run workflow” button, wait for it to finish successfully,
+download generated <code class="docutils literal notranslate"><span class="pre">artifact.zip</span></code>, and finally: unzip it to obtain <code class="docutils literal notranslate"><span class="pre">fusets-1.0.0-py3-none-any.whl</span></code></p></li>
+<li><p><em>Or, if you know what you are doing</em> and you’re sure you have a clean
+local checkout, you can also build it locally:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+</pre></div>
+</div>
+<p>This should create <code class="docutils literal notranslate"><span class="pre">dist/fusets-1.0.0-py3-none-any.whl</span></code></p>
+</li>
+</ul>
+</li>
+<li><p><strong>Upload</strong> this wheel to <a class="reference external" href="https://pypi.org/project/fusets/">PyPI</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">twine</span> <span class="n">upload</span> <span class="n">fusets</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
+</pre></div>
+</div>
+<p>Check the <a class="reference external" href="https://pypi.org/project/fusets/#history">release history on PyPI</a>
+to verify the twine upload.
+Another way to verify that the freshly created release installs
+is using docker to do a quick install-and-burn,
+for example as follows (check the installed version in pip’s output):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">--</span><span class="n">rm</span> <span class="o">-</span><span class="n">it</span> <span class="n">python</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">deps</span> <span class="n">fusets</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p>Create a <strong>git version tag</strong> and push it to GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="n">v1</span><span class="mf">.0.0</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">v1</span><span class="mf">.0.0</span>
+</pre></div>
+</div>
+</li>
+<li><p>Create a <strong>release in GitHub</strong>:
+Go to <a class="reference external" href="https://github.com/Open-EO/FuseTS/releases/new">https://github.com/Open-EO/FuseTS/releases/new</a>,
+Enter <code class="docutils literal notranslate"><span class="pre">v1.0.0</span></code> under “tag”,
+enter title: <code class="docutils literal notranslate"><span class="pre">FuseTS</span> <span class="pre">v1.0.0</span></code>,
+use the corresponding <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code> section as description
+and publish it
+(no need to attach binaries).</p></li>
+<li><p><strong>Bump version</strong> in <code class="docutils literal notranslate"><span class="pre">fusets/__init__.py</span></code>,
+and append a pre-release “a1” suffix again, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.0.1a1&#39;</span>
+</pre></div>
+</div>
+<p>Commit this (e.g. with message <code class="docutils literal notranslate"><span class="pre">__init__.py:</span> <span class="pre">bump</span> <span class="pre">to</span> <span class="pre">1.0.1a1</span></code>)
+and push to GitHub.</p>
+</li>
+</ol>
+<section id="verification">
+<h4>Verification<a class="headerlink" href="#verification" title="Permalink to this heading">¶</a></h4>
+<p>The new release should now be available/listed at:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pypi.org/project/fusets/#history">https://pypi.org/project/fusets/#history</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Open-EO/FuseTS/releases">https://github.com/Open-EO/FuseTS/releases</a></p></li>
+</ul>
+<p>Here is a bash (subshell) oneliner to verify that the PyPI release works properly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
+    <span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span> <span class="o">&amp;&amp;</span>\
+    <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">venv</span><span class="o">-</span><span class="n">fusets</span> <span class="o">&amp;&amp;</span>\
+    <span class="n">source</span> <span class="n">venv</span><span class="o">-</span><span class="n">fusets</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span> <span class="o">&amp;&amp;</span>\
+    <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">fusets</span> <span class="o">&amp;&amp;</span>\
+    <span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;import fusets;print(fusets)&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>It tries to install the latest version of the <code class="docutils literal notranslate"><span class="pre">fusets</span></code> package in a temporary virtual env,
+import it and print the package information.</p>
+</section>
+</section>
+</section>
+<section id="development-installation-on-windows">
+<h2>Development Installation on Windows<a class="headerlink" href="#development-installation-on-windows" title="Permalink to this heading">¶</a></h2>
+<p>Normally you can install the client the same way on Windows as on Linux, like so:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install -e .[dev]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="changelog.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Changelog</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="api.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">API</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Stefaan Lippens
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Open-EO/FuseTS" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Development and maintenance</a><ul>
+<li><a class="reference internal" href="#running-the-unit-tests">Running the unit tests</a></li>
+<li><a class="reference internal" href="#building-the-documentation">Building the documentation</a><ul>
+<li><a class="reference internal" href="#quick-and-easy">Quick and easy</a></li>
+<li><a class="reference internal" href="#like-a-pro">Like a Pro</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#contributing-code">Contributing code</a><ul>
+<li><a class="reference internal" href="#pull-requests">Pull requests</a></li>
+<li><a class="reference internal" href="#pre-commit-for-basic-code-quality-checks">Pre-commit for basic code quality checks</a><ul>
+<li><a class="reference internal" href="#pre-commit-set-up">Pre-commit set up</a></li>
+<li><a class="reference internal" href="#pre-commit-usage">Pre-commit usage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#creating-a-release">Creating a release</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#important-files">Important files</a></li>
+<li><a class="reference internal" href="#procedure">Procedure</a><ul>
+<li><a class="reference internal" href="#verification">Verification</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development-installation-on-windows">Development Installation on Windows</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=73cda6fb"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>

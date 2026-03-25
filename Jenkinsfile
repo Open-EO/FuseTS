@@ -13,4 +13,6 @@ pythonPipeline {
   wheel_repo = 'python-openeo'
   wheel_repo_dev = 'python-openeo'
   pep440 = true
+  enable_caching = true
+  enable_uv = true
 }

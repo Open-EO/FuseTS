@@ -7,7 +7,7 @@
 pythonPipeline {
   package_name = 'fusets'
   wipeout_workspace = true
-  python_version = ["3.8"]
+  python_version = ["3.11"]
   extras_require = 'dev'
   upload_dev_wheels = true
   wheel_repo = 'python-openeo'

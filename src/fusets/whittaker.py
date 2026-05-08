@@ -103,7 +103,7 @@ def whittaker(
 
     def callback(timeseries):
         _, _, Zd, XXd = whittaker_f(dates, timeseries, smoothing_lambda, 1)
-        dates_mask = np.in1d(XXd, output_dates)
+        dates_mask = np.isin(XXd, output_dates)
         return Zd[dates_mask]
 
     result = xarray.apply_ufunc(

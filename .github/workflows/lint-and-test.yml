@@ -17,7 +17,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.11"
 
       - uses: pre-commit/action@v3.0.0
         with:
@@ -27,21 +27,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10" ]
+        python-version: [ "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Install dependencies
         run: |
-          # Keep pip below 23.0.1 (vam.whittaker install fails with higher versions, #84)
-          python -m pip install --upgrade 'pip<23.0.1'
-          pip install flake8 pytest
-          # Workaround for vam.whittaker installation issue https://github.com/WFP-VAM/vam.whittaker/issues/4
-          pip install numpy==1.23.5 cython
-          pip install .[dev]
+          uv pip install --system flake8 pytest cython
+          uv pip install --system .[dev] --index-strategy unsafe-best-match --extra-index-url https://artifactory.vgt.vito.be/artifactory/api/pypi/python-packages-public/simple
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names

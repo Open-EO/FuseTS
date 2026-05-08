@@ -1,0 +1,966 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="openEO" href="openeo.html" /><link rel="prev" title="Getting Started" href="installation.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+        <title>FuseTS Design - FuseTS</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">FuseTS</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">FuseTS</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Getting Started</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">FuseTS Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openeo.html">openEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Development and maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshops.html">Workshops</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/design.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="fusets-design">
+<h1>FuseTS Design<a class="headerlink" href="#fusets-design" title="Permalink to this heading">¶</a></h1>
+<p>Core FuseTS algorithms are based on <a class="reference external" href="https://xarray.dev/">XArray</a> to maximize interoperability with the
+<a class="reference external" href="https://pangeo.io">Pangeo</a> ecosystem. XArray Datasets and arrays are used as input and output
+types throughout the library.</p>
+<p>FuseTS consist of multiple logical modules:</p>
+<ul class="simple">
+<li><p>Core timeseries integration</p></li>
+<li><p>Timeseries analysis</p></li>
+<li><p>OpenEO integration</p></li>
+</ul>
+<p>It tries to support multiple steps in EO data (pre-)processing. This is shown here as a <a class="reference internal" href="#fig-flowchart"><span class="std std-ref">flowchart</span></a> and
+more graphically through <a class="reference internal" href="#fig-steps"><span class="std std-ref">a figure showing timeseries plots</span></a>.</p>
+<figure class="align-default" id="fig-flowchart">
+<img alt="Timeseries processing steps" class="bg-primary mb-1" src="_images/eo_flowchart.png" />
+<figcaption>
+<p><span class="caption-text">Timeseries processing steps</span><a class="headerlink" href="#fig-flowchart" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="fig-steps">
+<img alt="Timeseries processing steps" class="bg-primary mb-1" src="_images/eo_steps.png" />
+<figcaption>
+<p><span class="caption-text">Timeseries processing steps</span><a class="headerlink" href="#fig-steps" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="key-design-highlights">
+<h2>Key Design Highlights<a class="headerlink" href="#key-design-highlights" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>We build on the concept of EO <strong>data cubes</strong>, which can be small, in-memory datasets as supported by <a class="reference external" href="https://docs.xarray.dev"><strong>XArray</strong></a>, or cloud-based
+virtual cubes as defined by <a class="reference external" href="https://openeo.org"><strong>openEO</strong></a>.</p></li>
+</ul>
+<!---Complex algorithms are exposed as **simple Python functions** wherever possible. -->
+<ul class="simple">
+<li><p>Simple things should be simple, complex things should be possible.</p></li>
+<li><p>Code should be the same when working with openEO or XArray datacubes.</p></li>
+<li><p>The general framework for timeseries processing is based on <a class="reference external" href="https://www.sktime.org">sktime</a>, which in turn
+is based on <a class="reference external" href="https://scikit-learn.org">scikit-learn</a>. These libraries have an API that has proven
+to be generic enough to support many timeseries transformation algorithms.</p></li>
+<li><p>Prefer <em><a class="reference external" href="https://en.wikipedia.org/wiki/Convention_over_configuration">convention over configuration</a></em> to allow functions
+to work with a minimal set of arguments.</p></li>
+</ul>
+</section>
+<section id="data-cubes">
+<h2>Data Cubes<a class="headerlink" href="#data-cubes" title="Permalink to this heading">¶</a></h2>
+<p>Conceptually, the FuseTS library mainly works on data cubes. The openEO standard provides <a class="reference external" href="https://openeo.org/documentation/1.0/datacubes.html">a good description</a>
+of this concept in our context. When running locally, FuseTS will use XArray to represent and work on such an in-memory data cube.</p>
+<p>The main data object used by this library is an <a class="reference external" href="https://docs.xarray.dev/en/latest/generated/xarray.Dataset.html">Xarray Dataset</a>.
+This is a self-describing data structure that combines the raw array data with metadata that describes it. This section
+further documents some of the conventions that are used when working with Earth Observation datasets.</p>
+<p>For building these conventions, we mainly rely on how <a class="reference external" href="https://docs.openeo.cloud/federation/backends/collections.html#bands">openEO collections</a> are defined.</p>
+<p>The ‘bands’ dimension in our EO data cubes is represented by variables in the XArray dataset. This allows us to
+conveniently reference them by name. Certain algorithms may expect variables with a specific name to be available, or for
+the variable name to be specified. Other algorithms simply process all of the variables in dataset in the same manner.</p>
+<section id="dimensions">
+<h3>Dimensions<a class="headerlink" href="#dimensions" title="Permalink to this heading">¶</a></h3>
+<p>In the Earth Observation domain, we can standardize on a few dimensions. The FuseTS library assumes that variables share
+spatiotemporal dimensions. Multiple space or time dimensions are not supported unless otherwise noted.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Units</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p>The temporal dimension</p></td>
+<td><p>Datetime objects as <code class="docutils literal notranslate"><span class="pre">numpy.datetime64</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x</span></code></p></td>
+<td><p>East-West spatial dimension</p></td>
+<td><p>Units of spatial reference system (meters/degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y</span></code></p></td>
+<td><p>South-North spatial dimension</p></td>
+<td><p>Units of spatial reference system (meters/degrees)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>When a datacube has <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> dimensions, these are assumed to be evenly spaced. The time dimension can be irregular.
+Instead of regular spatial dimensions, a cube axis can also have geometries as labels. In this case, the datacube is
+assumed to contain timeseries sampled at point locations or for instance aggregated over a geometry.</p>
+<p>An algorithm may require a specific combination of dimensions and variables to be available.</p>
+</section>
+<section id="variables-and-bands">
+<h3>Variables and bands<a class="headerlink" href="#variables-and-bands" title="Permalink to this heading">¶</a></h3>
+<p>For naming bands, sensor specific algorithms can choose to use standardized naming for that sensor. For instance,
+Sentinel-2 typically uses band names ‘B01’, ‘B02’ and son on.</p>
+<p>It is also possible to harmonize band names across sensors, this has been done already by the
+<a class="reference external" href="https://awesome-ee-spectral-indices.readthedocs.io">Awesome spectral indices</a> project.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Description</p></th>
+<th class="head"><p>Standard</p></th>
+<th class="head"><p>Sentinel-1</p></th>
+<th class="head"><p>Sentinel-2</p></th>
+<th class="head"><p>Landsat-89</p></th>
+<th class="head"><p>Landsat-457</p></th>
+<th class="head"><p>MODIS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Aerosols</p></td>
+<td><p>A</p></td>
+<td><p></p></td>
+<td><p>B01</p></td>
+<td><p>B1</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Blue</p></td>
+<td><p>B</p></td>
+<td><p></p></td>
+<td><p>B02</p></td>
+<td><p>B2</p></td>
+<td><p>B1</p></td>
+<td><p>B3</p></td>
+</tr>
+<tr class="row-even"><td><p>Green</p></td>
+<td><p>G</p></td>
+<td><p></p></td>
+<td><p>B03</p></td>
+<td><p>B3</p></td>
+<td><p>B2</p></td>
+<td><p>B4</p></td>
+</tr>
+<tr class="row-odd"><td><p>Red</p></td>
+<td><p>R</p></td>
+<td><p></p></td>
+<td><p>B04</p></td>
+<td><p>B4</p></td>
+<td><p>B3</p></td>
+<td><p>B1</p></td>
+</tr>
+<tr class="row-even"><td><p>Red Edge 1</p></td>
+<td><p>RE1</p></td>
+<td><p></p></td>
+<td><p>B05</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Red Edge 2</p></td>
+<td><p>RE2</p></td>
+<td><p></p></td>
+<td><p>B06</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Red Edge 3</p></td>
+<td><p>RE3</p></td>
+<td><p></p></td>
+<td><p>B07</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>NIR</p></td>
+<td><p>N</p></td>
+<td><p></p></td>
+<td><p>B08</p></td>
+<td><p>B5</p></td>
+<td><p>B4</p></td>
+<td><p>B2</p></td>
+</tr>
+<tr class="row-even"><td><p>NIR 2</p></td>
+<td><p>N2</p></td>
+<td><p></p></td>
+<td><p>B8A</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>SWIR 1</p></td>
+<td><p>S1</p></td>
+<td><p></p></td>
+<td><p>B11</p></td>
+<td><p>B6</p></td>
+<td><p>B5</p></td>
+<td><p>B6</p></td>
+</tr>
+<tr class="row-even"><td><p>SWIR 2</p></td>
+<td><p>S2</p></td>
+<td><p></p></td>
+<td><p>B12</p></td>
+<td><p>B7</p></td>
+<td><p>B7</p></td>
+<td><p>B7</p></td>
+</tr>
+<tr class="row-odd"><td><p>Thermal 1</p></td>
+<td><p>T1</p></td>
+<td><p></p></td>
+<td><p>B10</p></td>
+<td><p>B6</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Thermal 2</p></td>
+<td><p>T2</p></td>
+<td><p></p></td>
+<td><p>B11</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Backscattering Coefficient</p></td>
+<td><p>HV</p></td>
+<td><p>HV</p></td>
+<td><p>HV</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Backscattering Coefficient</p></td>
+<td><p>VH</p></td>
+<td><p>VH</p></td>
+<td><p>VH</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Backscattering Coefficient</p></td>
+<td><p>HH</p></td>
+<td><p>HH</p></td>
+<td><p>HH</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Backscattering Coefficient</p></td>
+<td><p>VV</p></td>
+<td><p>VV</p></td>
+<td><p>VV</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In a similar manner, it may be necessary to standardize specific variable names, we for now assume however the use
+of generally accepted names such as ‘NDVI’, ‘FAPAR’, ‘LAI’ and so on.</p>
+</section>
+<section id="reducing-dimensions-of-a-data-cube">
+<h3>Reducing Dimensions of a Data Cube<a class="headerlink" href="#reducing-dimensions-of-a-data-cube" title="Permalink to this heading">¶</a></h3>
+<p>This method is used to condense data into a more manageable format. Data Cube aggregation is a multidimensional aggregation that represents the original data set by aggregating at one or multiple layers of a data cube, resulting in data reduction.</p>
+<p>A few examples of such reductions are:</p>
+<ul class="simple">
+<li><p>taking a slice of data at a specific date (selectign 1 temporal point)</p></li>
+<li><p>calculating max NDVI for an area over a period (reducing temporal dimension with the <code class="docutils literal notranslate"><span class="pre">max</span></code> operation)</p></li>
+<li><p>spatially averaging data over a given geometry (reducing both spatial dimensions with the <code class="docutils literal notranslate"><span class="pre">mean</span></code> operation)</p></li>
+</ul>
+<p>For example, let’s say we are working with the following <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> data cube:</p>
+<p><img alt="cube" src="_images/example_cube.png" /></p>
+<p>If we want to reduce the temporal dimension of the cube by extracting max values of NDVI, once can do</p>
+<p>.. code-block::
+:caption: Reducing the temporal dim of the data cube with the <code class="docutils literal notranslate"><span class="pre">max</span></code> operator</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># perform operation on full datacube
+max_dataset = cube.max(dim=&#39;t&#39;)
+
+# perform operation on a specific variable only
+max_ndvi_dataarray = cube.NDVI.max(dim=&#39;t&#39;)
+</pre></div>
+</div>
+<p>where the outputs above only have the two spatial dimensions <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p>
+<p>Similarly one can perform the reduction on multiple dimensions at once, e.g., for obtaining spatially aggregated time series</p>
+<p>.. code-block::
+:caption: Reducing the spatial dims of the data cube with the <code class="docutils literal notranslate"><span class="pre">mean</span></code> operator</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># perform operation on full datacube
+cube_timeseries = cube.mean(dim=[&#39;x&#39;, &#39;y&#39;])
+
+# perform operation on a specific variable only
+ndvi_timeseries = cube.NDVI.max(dim=[&#39;x&#39;, &#39;y&#39;])
+</pre></div>
+</div>
+<p>where the outputs above only have the one temporal dimension <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<section id="reducing-dimensionality-in-openeo-pipelines">
+<h4>Reducing dimensionality in openEO pipelines<a class="headerlink" href="#reducing-dimensionality-in-openeo-pipelines" title="Permalink to this heading">¶</a></h4>
+<p>It is also possible to do dimensionality reduction via openEO processes. Many defined functions already exist and are ready to be used, such as:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#reduce_dimension">reduce_spatial</a></p></li>
+<li><p><a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#aggregate_spatial">aggregate_spatial</a></p></li>
+<li><p><a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#aggregate_temporal">aggregate_temporal</a></p></li>
+<li><p><a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#reduce_dimension">reduce_dimension</a></p></li>
+</ul>
+<p>These functions and more, along with the <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">median</span></code>, and other reducers can be found in the page <a class="reference external" href="https://openeo.org/documentation/1.0/processes.html">listing all the openEO processes</a>.</p>
+</section>
+</section>
+<section id="openeo-data-cubes">
+<h3>openEO Data Cubes<a class="headerlink" href="#openeo-data-cubes" title="Permalink to this heading">¶</a></h3>
+<p>The methods in this library are designed to work both on openEO and XArray datacubes. This allows the user code to work
+in both cases.</p>
+</section>
+</section>
+<section id="estimators-framework">
+<h2>Estimators Framework<a class="headerlink" href="#estimators-framework" title="Permalink to this heading">¶</a></h2>
+<p>In the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> and <code class="docutils literal notranslate"><span class="pre">sktime</span></code> libraries, the base class for most (if not all) algorithms is
+named <code class="docutils literal notranslate"><span class="pre">BaseEstimator</span></code>. Specific subtypes of this class are grouped into transformers, forecasters,
+classifiers, and so on.</p>
+<p>The advantages of this object oriented approach based on common base types is that estimators can
+be composed into pipelines, and different estimators implementations are interchangeable in a larger
+workflow. For instance, a whittaker estimator could be swapped for an MOGPR estimator with limited
+code changes.</p>
+<p>In this version of the design, we work with copies of the <code class="docutils literal notranslate"><span class="pre">sktime</span></code> <code class="docutils literal notranslate"><span class="pre">BaseEstimator</span></code> rather than
+extending directly. This avoids that we require these libraries as additional dependencies, while
+the weak typing system in Python still allows for a lot of interoperability.</p>
+<p>The concrete implementation can be found here:
+<a class="reference internal" href="api.html#fusets.base.BaseEstimator" title="fusets.base.BaseEstimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.base.BaseEstimator</span></code></a></p>
+<p>One notable difference with the aforementioned libraries, is that <code class="docutils literal notranslate"><span class="pre">FuseTS</span></code> mainly works on XArray
+and openEO data structures, as opposed to <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">pandas</span></code>. It is however not impossible to consider
+direct support for <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays in some cases. Also <code class="docutils literal notranslate"><span class="pre">sktime</span></code> supports a mechanism to properly declare
+the type of inputs that are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The use of the estimators framework is not yet completely consistent in the API. In fact, most functionality
+still uses simple Python functions. Some more experience may be needed to establish whether one or the other is preferrable
+in specific cases, or if both should be supported whereever possible.</p>
+</div>
+</section>
+<section id="supported-eo-data-pipelines">
+<h2>Supported EO data pipelines<a class="headerlink" href="#supported-eo-data-pipelines" title="Permalink to this heading">¶</a></h2>
+<p>The library is split up into various modules, that each try to support specific steps in a <a class="reference internal" href="#fig-steps"><span class="std std-ref">typical EO workflow</span></a>.
+In combination with other libraries in the Python ecosystem, it aims to address complete use cases.</p>
+<section id="eo-data-loading">
+<h3>EO Data Loading<a class="headerlink" href="#eo-data-loading" title="Permalink to this heading">¶</a></h3>
+<p>All use cases at some point need to read EO data for analysis. In the case of this library, this means reading it into
+an XArray Dataset that conforms to the conventions described above.</p>
+<section id="loading-sample-data">
+<h4>Loading Sample Data<a class="headerlink" href="#loading-sample-data" title="Permalink to this heading">¶</a></h4>
+<p>The easiest and fastest way to get started is to load a readily available piece of sample data.
+We have a sample data available to the public, which can be directly opened with the following line of code:</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Loading XArray dataset</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="o">,</span><span class="w"> </span><span class="nn">io</span><span class="o">,</span><span class="w"> </span><span class="nn">requests</span>
+ <span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc&quot;</span><span class="p">,</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>This netCDF file already follows the necessary conventions, so should get you going quickly. Other formats like Zarr can be
+<a class="reference external" href="https://xarray.pydata.org/en/v0.11.0/generated/xarray.open_zarr.html">loaded by xarray as well</a>.</p>
+</section>
+<section id="loading-netcdf-from-openeo">
+<h4>Loading NetCDF from openEO<a class="headerlink" href="#loading-netcdf-from-openeo" title="Permalink to this heading">¶</a></h4>
+<p>As there’s not always sample data available for your area of interest, you’ll soon wonder how to generate such a netCDF
+file yourself. One of the easiest approaches to achieve that is through a web service that supports the openEO standard.
+For instance <a class="reference external" href="https://openeo.cloud">openEO platform</a> gives you access to full archives of Copernicus and NASA data.</p>
+<p>A netCDF file can be generated by openEO with this piece of code:</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Retrieving raw input with openEO</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span><span class="w"> </span><span class="nn">openeo</span>
+ <span class="kn">from</span><span class="w"> </span><span class="nn">fusets.openeo</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_cubes</span>
+
+ <span class="n">spec</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s2">&quot;collections&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s2">&quot;SENTINEL2_L2A&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;bands&quot;</span><span class="p">:[</span><span class="s2">&quot;B04&quot;</span><span class="p">,</span> <span class="s2">&quot;B08&quot;</span> <span class="p">]},</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;spatial_extent&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.039291</span><span class="p">,</span><span class="mf">51.166858</span><span class="p">,</span><span class="mf">5.243225</span><span class="p">,</span><span class="mf">51.319455</span><span class="p">],</span>
+     <span class="s2">&quot;temporal_extent&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span><span class="s2">&quot;2021-01-01&quot;</span><span class="p">)</span>
+ <span class="p">}</span>
+
+ <span class="n">c</span> <span class="o">=</span> <span class="n">openeo</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;openeo.cloud&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">authenticate_oidc</span><span class="p">()</span>
+ <span class="n">load_cubes</span><span class="p">(</span><span class="o">**</span><span class="n">spec</span><span class="p">,</span> <span class="n">openeo_connection</span><span class="o">=</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">(</span><span class="s2">&quot;sentinel2_bands.nc&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;FuseTS sample job&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note that this simply uses the openEO Python client, which supports
+<a class="reference external" href="https://open-eo.github.io/openeo-python-client/data_access.html">other ways of loading</a> data as well. This approach
+is simply a small convenience wrapper that allows you to define your datacube parameters in a dictionary that can be
+easily stored as json.</p>
+</section>
+<section id="loading-data-from-a-stac-datacube">
+<h4>Loading data from a STAC datacube<a class="headerlink" href="#loading-data-from-a-stac-datacube" title="Permalink to this heading">¶</a></h4>
+<p>When your dataset is exposed through a <a class="reference external" href="https://stacspec.org">STAC catalog</a>, and uses a ‘cloud-native’ format like
+cloud optimized geotiffs, then it is possible to directly create an XArray based on a catalog query.</p>
+<p>The STAC website hosts a list of <a class="reference external" href="https://stacspec.org/en/about/datasets/#apis">public catalogs</a>. Do note that not
+all of them use the required cloud native formats.</p>
+<p>The following code snippet shows how to achieve this. Note that it does not depend on any FuseTS functionality. All data
+is loaded locally into memory, so make sure not to specify a too large spatiotemporal extent.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">STAC ODC data loading</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">pystac_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">odc</span>
+
+ <span class="n">mqs</span> <span class="o">=</span> <span class="n">Client</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;https://my.stac.catalog.eu/stac/v1&quot;</span><span class="p">)</span>
+
+ <span class="n">search_results</span> <span class="o">=</span> <span class="n">mqs</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+ <span class="n">collections</span><span class="o">=</span><span class="p">[</span>
+ <span class="s2">&quot;TERRASCOPE_S5P_L3_NO2_TD_V1&quot;</span>
+ <span class="p">],</span>
+ <span class="n">bbox</span><span class="o">=</span><span class="p">[</span><span class="mf">9.5</span><span class="p">,</span><span class="mf">46.0</span><span class="p">,</span><span class="mf">48.5</span><span class="p">,</span><span class="mf">49.5</span><span class="p">],</span>
+ <span class="n">max_items</span><span class="o">=</span><span class="mi">4</span>
+ <span class="p">)</span>
+
+ <span class="n">xx</span> <span class="o">=</span> <span class="n">odc</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+         <span class="n">search_results</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+         <span class="n">bands</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;NO2&quot;</span><span class="p">],</span>
+         <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;epsg:4326&quot;</span><span class="p">,</span>
+         <span class="n">resolution</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+     <span class="p">)</span>
+ <span class="nb">print</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">NO2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For more information on loading data from STAC, examples can be found <a class="reference external" href="https://odc-stac.readthedocs.io/en/latest/notebooks/stac-load-e84-aws.html">here</a>.</p>
+</section>
+<section id="loading-raw-copernicus-data">
+<h4>Loading Raw Copernicus Data<a class="headerlink" href="#loading-raw-copernicus-data" title="Permalink to this heading">¶</a></h4>
+<p>The hardest way to load data, is to read it from the original products. Depending on the EO product, the support in open
+source tools may vary. There’s also raw data products like SAR (Sentinel-1) data that requires substantial preprocessing
+to be usable.</p>
+</section>
+</section>
+<section id="ard-generation">
+<h3>ARD Generation<a class="headerlink" href="#ard-generation" title="Permalink to this heading">¶</a></h3>
+<p>Level-1 products require some level of processing to be usable. Examples include atmospheric correction for optical data,
+or computing backscatter for SAR data.</p>
+<section id="cloud-masking">
+<h4>Cloud Masking<a class="headerlink" href="#cloud-masking" title="Permalink to this heading">¶</a></h4>
+<p>Many methods in this toolbox have certain assumptions about the presence of clouds in the input.
+Often, some level of cloud contamination is acceptable, but it can be advisable to remove the majority of high probability
+clouds early on. This has the benefit of drastically reducing the data volume.</p>
+<p>When working with a cloud platform like openEO, you can use a <a class="reference external" href="https://open-eo.github.io/openeo-python-client/basics.html#applying-a-cloud-mask">built-in</a> cloud masking method.
+For a fully local workflow from raw products, we advise to use basic XArray methods to mask clouds based on quality
+information in the product.</p>
+</section>
+<section id="computing-sar-backscatter-locally">
+<h4>Computing SAR Backscatter locally<a class="headerlink" href="#computing-sar-backscatter-locally" title="Permalink to this heading">¶</a></h4>
+<p>For obtaining SAR backscatter, we provide a list of external tools that can be helpfull. Do note that the initial setup and
+tuning can be time consuming, and even with fast tools, you may need a considerable amount of processing resources to
+construct a complete timeseries of SAR backscatter imagery. The cloud tools in the next section try to address these issues.</p>
+<ul class="simple">
+<li><p>The Sentinel-1 toolbox (SNAP), which has been validated in many projects.</p></li>
+<li><p><a class="reference external" href="https://github.com/bopen/sarsen">Sarsen</a>, integrates well with XArray, but is still in the beta phase.</p></li>
+<li><p><a class="reference external" href="https://github.com/openforis/opensarkit">OpenSARKit</a>, which is based on the Sentinel-1 toolbox, but with a Python interface.</p></li>
+<li><p><a class="reference external" href="https://pyrosar.readthedocs.io">PyroSAR</a>, Python interface based on Sentinel-1 toolbox, but with tuning for performance included.</p></li>
+<li><p><a class="reference external" href="https://www.orfeo-toolbox.org/CookBook/recipes/sarprocessing.html">Orfeo toolbox</a>, supporting a limited set of SAR backscatter coefficients.</p></li>
+</ul>
+</section>
+<section id="computing-sar-backscatter-on-the-cloud">
+<h4>Computing SAR Backscatter on the cloud<a class="headerlink" href="#computing-sar-backscatter-on-the-cloud" title="Permalink to this heading">¶</a></h4>
+<p>These cloud based systems are available to retrieve SAR backscatter timeseries:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://open-eo.github.io/openeo-python-client/cookbook/ard.html#sar-backscatter">openEO platform</a></p></li>
+<li><p><a class="reference external" href="https://apps.sentinel-hub.com/s1-card4l/">Sentinelhub CARD4L tool</a></p></li>
+<li><p><a class="reference external" href="https://registry.opendata.aws/deafrica-sentinel-1/">Digital Earth Africa</a> A free and open Sentinel-1 backscatter dataset for Africa</p></li>
+</ul>
+</section>
+<section id="time-series-smoothing-interpolation">
+<h4>Time Series Smoothing &amp; Interpolation<a class="headerlink" href="#time-series-smoothing-interpolation" title="Permalink to this heading">¶</a></h4>
+<p>Time series smoothing methods take a single timeseries (from a pixel or aggregated over an area) and smooth it over time.
+This reduces noise and allows filling gaps by interpolating along the smoothing curve that is fitted through the observations.</p>
+<p>The code example below shows a typical invocation, using all parameters. Most of the parameters (except for the actual data)
+are optional, and the library will try to use good defaults.</p>
+<p>Two of these parameters parameters also occur in other methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time_dimension</span></code> allows to set the name of the time dimension. This only needs to be provided if it can not be determined unambiguously by the library.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prediction_period</span></code> sets a time interval at which output predictions should be generated. For instance, <code class="docutils literal notranslate"><span class="pre">P5D</span></code> results in 5-daily output. The default behaviour is to retain the dates of the input observations, unless specified otherwise.</p></li>
+</ul>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Whittaker example</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">fusets</span><span class="w"> </span><span class="kn">import</span> <span class="n">WhittakerTransformer</span>
+ <span class="n">result</span> <span class="o">=</span> <span class="n">WhittakerTransformer</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">timeseries_cube</span><span class="p">,</span><span class="n">smoothing_lambda</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">time_dimension</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">prediction_period</span><span class="o">=</span><span class="s2">&quot;P10D&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<figure class="align-default" id="fig-whittaker">
+<img alt="NDVI with different whittaker smoothing" class="bg-primary mb-1" src="_images/whittaker_rye.svg" /><figcaption>
+<p><span class="caption-text">NDVI with different whittaker smoothing</span><a class="headerlink" href="#fig-whittaker" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="time-series-fusion-prediction">
+<h4>Time Series Fusion &amp; Prediction<a class="headerlink" href="#time-series-fusion-prediction" title="Permalink to this heading">¶</a></h4>
+<p>Time series fusion methods take multiple input time series and derive a variable based on that. This is also
+referred to as timeseries fusion, and is the main objective of this library.</p>
+<p>MOGPR (multi-output gaussian-process regression) integrates various timeseries and delivers the same amount of
+reconstructed timeseries. So for example if both an NDVI and an RVI signal or provided, it will return both
+a fused NDVI and a fused RVI. This allows to fill gaps in one indicator based on other indicators
+that are correlated with each other.</p>
+<p>One example is combining an optical NDVI with a SAR based RVI to compute a gap-filled NDVI (and RVI if needed).</p>
+<p>Two methods are currently available:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.MOGPRTransformer.fit_transform</span></code></p></li>
+<li><p><a class="reference internal" href="api.html#fusets.openeo.cropsar" title="fusets.openeo.cropsar"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.openeo.cropsar</span></code></a></p></li>
+</ul>
+<p>The methods are still under evaluation, but the figure below shows the current state. For an actual validation, we refer
+to the technical note.</p>
+<figure class="align-default" id="fig-integration">
+<img alt="Integrated NDVI based on 2 algorithms" class="bg-primary mb-1" src="_images/integrated_ndvi_rye.svg" /><figcaption>
+<p><span class="caption-text">Integrated NDVI</span><a class="headerlink" href="#fig-integration" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>This library aims for seamless switching between XArray and openEO data structures, so this works in both cases:</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">MOGPR transformer</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">fusets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MOGPRTransformer</span>
+ <span class="n">timeseries_cube</span> <span class="c1"># openEO datacube or XArray DataSet</span>
+ <span class="n">result</span> <span class="o">=</span> <span class="n">MOGPRTransformer</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">timeseries_cube</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="time-series-analysis">
+<h3>Time Series Analysis<a class="headerlink" href="#time-series-analysis" title="Permalink to this heading">¶</a></h3>
+<p>FuseTS aims to provide time series analysis methods specific to Earth Observation use cases.</p>
+<p>It should be noted that the broader Python ecosystem also offers capabilities that are often applicable in earth
+observation:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.scipy.org">scipy</a>: interpolation, fourier transforms and signal processing</p></li>
+<li><p><a class="reference external" href="https://www.sktime.org">sktime</a>: time series clustering, classification and forecasting</p></li>
+<li><p><a class="reference external" href="https://tsfresh.readthedocs.io">tsfresh</a>: time series feature computation</p></li>
+</ul>
+<p>These libraries operate mostly on NumPy data structures, making them very compatible with the XArray data structures used
+here.</p>
+<section id="peak-valley-detection">
+<h4>Peak Valley detection<a class="headerlink" href="#peak-valley-detection" title="Permalink to this heading">¶</a></h4>
+<p>Peak/valley detection is provided by:
+<a class="reference internal" href="api.html#module-fusets.peakvalley" title="fusets.peakvalley"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.peakvalley</span></code></a></p>
+</section>
+<section id="change-detection">
+<h4>Change Detection<a class="headerlink" href="#change-detection" title="Permalink to this heading">¶</a></h4>
+<p>Change detection is provided by:
+<a class="reference internal" href="api.html#fusets.ccdc.ccdc_change_detection" title="fusets.ccdc.ccdc_change_detection"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.ccdc.ccdc_change_detection</span></code></a></p>
+<p>Additionally, integration with the Python version of BFast is foreseen in a similar manner.</p>
+</section>
+<section id="fitting-harmonics">
+<h4>Fitting Harmonics<a class="headerlink" href="#fitting-harmonics" title="Permalink to this heading">¶</a></h4>
+<p>For fitting harmonics, for instance to predict a future value, see:</p>
+<p><a class="reference internal" href="api.html#fusets.ccdc.fit_harmonics_curve" title="fusets.ccdc.fit_harmonics_curve"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.ccdc.fit_harmonics_curve</span></code></a></p>
+</section>
+<section id="phenology-metrics">
+<h4>Phenology Metrics<a class="headerlink" href="#phenology-metrics" title="Permalink to this heading">¶</a></h4>
+<p>The phenometrics implementation is based on the <a class="reference external" href="https://github.com/lewistrotter/PhenoloPy">Phenolopy library</a>, and is wrapped in the following FuseTS method:</p>
+<p><a class="reference internal" href="api.html#fusets.analytics.phenology" title="fusets.analytics.phenology"><code class="xref py py-class docutils literal notranslate"><span class="pre">fusets.analytics.phenology</span></code></a></p>
+<p>Computed phenometrics are shown in the figure below:</p>
+<figure class="align-default" id="fig-phenology">
+<a class="bg-primary mb-1 reference internal image-reference" href="https://github.com/lewistrotter/Phenolopy/blob/main/documentation/images/pheno_explain.png?raw=true"><img alt="Phenology" class="bg-primary mb-1" src="https://github.com/lewistrotter/Phenolopy/blob/main/documentation/images/pheno_explain.png?raw=true" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Phenology metrics</span><a class="headerlink" href="#fig-phenology" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The codes presented on the figure above translate to:</p>
+<p>| Code | Name                     | Description                                                                                                                                                                   | Method                                                                                                                                                                                        |
+| —- | ———————— | —————————————————————————————————————————————————————————– | ——————————————————————————————————————————————————————————————— | — |
+| POS  | Peak of Season           | Highest vegetation value and time of season.                                                                                                                                  | Maximum value in a timeseries.                                                                                                                                                                |     |
+| MOS  | Middle of Season         | Mean vegetation value and time of values in top 80% of season.                                                                                                                | Mean value and time where the left and right slope edges have increased and decreased to the 80% level of the season, respectively.                                                           |     |
+| VOS  | Valley of Season         | Lowest vegetation value and time of season.                                                                                                                                   | Minimum value in a timeseries.                                                                                                                                                                |     |
+| BSE  | Base                     | Mean of the lowest vegetation values in season.                                                                                                                               | Mean value of the lowest vegetation values to the left and right of Peak of Season.                                                                                                           |     |
+| SOS  | Start of Season          | Vegetation value and time at the start of season.                                                                                                                             | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of positive slope; and 6) Median value of positive slope. |     |
+| EOS  | End of season            | Vegetation value and time at the end of season.                                                                                                                               | Six methods available: 1) seasonal amplitude; 2) absolute amplitude; 3) Relative amplitude; 4) LOESS STL Trend line; 5) First value of negative slope; and 6) Median value of negative slope. |     |
+| LOS  | Length of Season         | Length of time (number of days) between the start and end of season.                                                                                                          | The day of year at SOS minus EOS.                                                                                                                                                             |     |
+| ROI  | Rate of Increase         | The rate of vegetation “green up” at the beginning of season.                                                                                                                 | Calculated as the ratio of the difference between the left 20% and 80% levels and the corresponding time difference.                                                                          |     |
+| ROD  | Rate of Decrease         | The rate of vegetation “green down” at the end of season.                                                                                                                     | Calculated as the ratio of the difference between the right 20% and 80% levels and the corresponding time difference.                                                                         |     |
+| AOS  | Amplitude of Season      | The amplitude of vegetation values for season.                                                                                                                                | The difference between the maximum value and the VOS/BSE value.                                                                                                                               |     |
+| SIOS | Short Integral of Season | Represents the seasonally active vegetation and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover.                     | Calculated using the trapezoidal rule on the total vegetation values between season start and end minus the VOS/BSE level value.                                                              |     |
+| LIOS | Long Integral of Season  | Represents the total productivity of vegetation when in season.                                                                                                               | Calculated using the trapezoidal rule between the total vegetation values between season start and end.                                                                                       |     |
+| SIOT | Short Integral of Total  | Represents total vegetation productivity throughout the season, and provides a larger value for herbaceous vegetation cover and smaller value for evergreen vegetation cover. | Calculated using the trapezoidal rule on the total vegetation values minus the VOS/BSE level value.                                                                                           |     |
+| LIOT | Long Integral of Total   | Represents the total productivity of vegetation throughout the season.                                                                                                        | Calculated using the trapezoidal rule between the total vegetation values between season start and end.                                                                                       |     |
+| NOS  | Number of Seasons        | Total number of seasons (i.e. prominent graph peaks) in timerseries.                                                                                                          | Peaks detected using scipy find_peaks and any peaks are over 3 months apart.                                                                                                                  |     |</p>
+</section>
+</section>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">¶</a></h2>
+<section id="types-of-dependencies">
+<h3>Types of Dependencies<a class="headerlink" href="#types-of-dependencies" title="Permalink to this heading">¶</a></h3>
+<p>There are three types of dependencies in <code class="docutils literal notranslate"><span class="pre">fusets</span></code>:</p>
+<ul class="simple">
+<li><p>“core” dependencies</p></li>
+<li><p>“soft” dependencies</p></li>
+<li><p>“developer” dependencies</p></li>
+</ul>
+<p>A core dependency is required for <code class="docutils literal notranslate"><span class="pre">fusets</span></code> to install and run.
+They are automatically installed whenever <code class="docutils literal notranslate"><span class="pre">fusets</span></code> is installed.
+Example: <code class="docutils literal notranslate"><span class="pre">xarray</span></code></p>
+<p>A soft dependency is a dependency that is only required to import
+certain modules, but not necessary to use most functionality. A soft
+dependency is not installed automatically when the package is
+installed. Instead, users need to install it manually if they want to
+use a module that requires a soft dependency.
+Example: <code class="docutils literal notranslate"><span class="pre">lcmap-pyccd</span></code></p>
+<p>A developer dependency is required for <code class="docutils literal notranslate"><span class="pre">fusets</span></code> developers, but not for typical
+users of <code class="docutils literal notranslate"><span class="pre">fusets</span></code>.
+Example: <code class="docutils literal notranslate"><span class="pre">pytest</span></code></p>
+<p>We try to keep the number of core dependencies to a minimum and rely on
+other packages as soft dependencies when feasible.</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="openeo.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">openEO</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="installation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Getting Started</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Stefaan Lippens
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Open-EO/FuseTS" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">FuseTS Design</a><ul>
+<li><a class="reference internal" href="#key-design-highlights">Key Design Highlights</a></li>
+<li><a class="reference internal" href="#data-cubes">Data Cubes</a><ul>
+<li><a class="reference internal" href="#dimensions">Dimensions</a></li>
+<li><a class="reference internal" href="#variables-and-bands">Variables and bands</a></li>
+<li><a class="reference internal" href="#reducing-dimensions-of-a-data-cube">Reducing Dimensions of a Data Cube</a><ul>
+<li><a class="reference internal" href="#reducing-dimensionality-in-openeo-pipelines">Reducing dimensionality in openEO pipelines</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#openeo-data-cubes">openEO Data Cubes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#estimators-framework">Estimators Framework</a></li>
+<li><a class="reference internal" href="#supported-eo-data-pipelines">Supported EO data pipelines</a><ul>
+<li><a class="reference internal" href="#eo-data-loading">EO Data Loading</a><ul>
+<li><a class="reference internal" href="#loading-sample-data">Loading Sample Data</a></li>
+<li><a class="reference internal" href="#loading-netcdf-from-openeo">Loading NetCDF from openEO</a></li>
+<li><a class="reference internal" href="#loading-data-from-a-stac-datacube">Loading data from a STAC datacube</a></li>
+<li><a class="reference internal" href="#loading-raw-copernicus-data">Loading Raw Copernicus Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ard-generation">ARD Generation</a><ul>
+<li><a class="reference internal" href="#cloud-masking">Cloud Masking</a></li>
+<li><a class="reference internal" href="#computing-sar-backscatter-locally">Computing SAR Backscatter locally</a></li>
+<li><a class="reference internal" href="#computing-sar-backscatter-on-the-cloud">Computing SAR Backscatter on the cloud</a></li>
+<li><a class="reference internal" href="#time-series-smoothing-interpolation">Time Series Smoothing &amp; Interpolation</a></li>
+<li><a class="reference internal" href="#time-series-fusion-prediction">Time Series Fusion &amp; Prediction</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#time-series-analysis">Time Series Analysis</a><ul>
+<li><a class="reference internal" href="#peak-valley-detection">Peak Valley detection</a></li>
+<li><a class="reference internal" href="#change-detection">Change Detection</a></li>
+<li><a class="reference internal" href="#fitting-harmonics">Fitting Harmonics</a></li>
+<li><a class="reference internal" href="#phenology-metrics">Phenology Metrics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li><a class="reference internal" href="#types-of-dependencies">Types of Dependencies</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=73cda6fb"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>

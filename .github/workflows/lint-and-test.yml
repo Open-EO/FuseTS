@@ -34,14 +34,16 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --yes libopenblas-dev
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          pip install cython
-          pip install .[dev] --extra-index-url https://artifactory.vgt.vito.be/artifactory/api/pypi/python-packages-public/simple
+          uv pip install --system flake8 pytest cython
+          uv pip install --system .[dev] --extra-index-url https://artifactory.vgt.vito.be/artifactory/api/pypi/python-packages-public/simple
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names

@@ -40,8 +40,6 @@ jobs:
           enable-cache: true
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes libopenblas-dev
           uv pip install --system flake8 pytest cython
           uv pip install --system .[dev] --index-strategy unsafe-best-match --extra-index-url https://artifactory.vgt.vito.be/artifactory/api/pypi/python-packages-public/simple
       - name: Lint with flake8

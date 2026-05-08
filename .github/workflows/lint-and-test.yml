@@ -36,6 +36,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes libopenblas-dev
           python -m pip install --upgrade pip
           pip install flake8 pytest
           pip install cython

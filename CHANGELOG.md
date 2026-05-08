@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+* Removed MOGPR due to dependency incompatibility with NumPy 2.
+
 ### Fixed
 
 ## [2.0.1] - 2023-10-20

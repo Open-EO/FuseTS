@@ -10,7 +10,7 @@ This section contains the API reference, generated from the current state of the
 
 ```{eval-rst}
 .. automodule:: fusets
-    :members: whittaker, mogpr, WhittakerTransformer
+    :members: whittaker, WhittakerTransformer
     :show-inheritance:
 
 ```
@@ -53,4 +53,3 @@ This section contains the API reference, generated from the current state of the
     :members:
     
 ```
-

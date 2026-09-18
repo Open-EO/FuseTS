@@ -11,7 +11,7 @@ def connection():
     """Connection fixture to a backend of given version with some image collections."""
     import openeo
 
-    return openeo.connect("openeo-dev.vito.be")
+    return openeo.connect("openeo-staging.terrascope.be")
 
 
 @pytest.fixture
@@ -111,7 +111,7 @@ def xarray_inputs(areas):
 def wetland_sentinel2_ndvi(areas):
     import openeo
 
-    openeo_connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+    openeo_connection = openeo.connect("openeo-staging.terrascope.be").authenticate_oidc()
     scl = openeo_connection.load_collection(
         "SENTINEL2_L2A", temporal_extent=("2020-01-01", "2021-01-01"), bands=["SCL"]
     ).filter_bbox(areas["wetland"])

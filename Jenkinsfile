@@ -12,7 +12,9 @@ pythonPipeline {
   upload_dev_wheels = true
   wheel_repo = 'python-openeo'
   wheel_repo_dev = 'python-openeo'
-  pep440 = true
   enable_caching = true
   enable_uv = true
+  artifactory_server = ['sas', 'rss']
+  wheel_repo_sas = 'openeo-pypi-local'
+  wheel_repo_dev_sas = 'openeo-pypi-local'
 }

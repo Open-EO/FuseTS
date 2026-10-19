@@ -10,8 +10,8 @@ def test_peakvalley_openeo_udf(wetland_sentinel2_ndvi):
         description="Testing fusets peak-valley",
         job_options={
             "udf-dependency-archives": [
-                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv",
-                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static",
+                "https://auxdata.terrascope.be/openeo/FuseTS/fusets_venv.zip#tmp/venv",
+                "https://auxdata.terrascope.be/openeo/FuseTS/fusets.zip#tmp/venv_static",
             ]
         },
     )

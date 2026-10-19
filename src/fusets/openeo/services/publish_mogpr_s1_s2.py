@@ -46,8 +46,8 @@ def execute_udf():
         title=f"FuseTS - MOGPR S1 S2 - Local - Outputs - DESC",
         job_options={
             "udf-dependency-archives": [
-                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv",
-                "https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static",
+                "https://auxdata.terrascope.be/openeo/FuseTS/fusets_venv.zip#tmp/venv",
+                "https://auxdata.terrascope.be/openeo/FuseTS/fusets.zip#tmp/venv_static",
             ],
             "executor-memory": "8g",
         },

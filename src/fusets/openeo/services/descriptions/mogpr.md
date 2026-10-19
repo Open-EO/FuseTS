@@ -58,8 +58,8 @@ mogpr = mogpr.aggregate_spatial(spat_ext, reducer='mean')
 mogpr_job = mogpr.execute_batch('./mogpr.json', out_format="json",
                                           title=f'FuseTS - MOGPR', job_options={
         'udf-dependency-archives': [
-            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets_venv.zip#tmp/venv',
-            'https://artifactory.vgt.vito.be:443/artifactory/auxdata-public/ai4food/fusets.zip#tmp/venv_static'
+            'https://auxdata.terrascope.be/openeo/FuseTS/fusets_venv.zip#tmp/venv',
+            'https://auxdata.terrascope.be/openeo/FuseTS/fusets.zip#tmp/venv_static'
         ]
     })
 ```

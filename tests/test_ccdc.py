@@ -13,7 +13,7 @@ def test_fit_harmonics():
     ds = xarray.load_dataset(
         io.BytesIO(
             requests.get(
-                "https://artifactory.vgt.vito.be/artifactory/testdata-public/malawi_sentinel2.nc", stream=True
+                "https://auxdata.terrascope.be/openeo/testdata/FuseTS/malawi_sentinel2.nc", stream=True
             ).content
         )
     )

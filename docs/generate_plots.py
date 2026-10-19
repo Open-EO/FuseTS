@@ -14,7 +14,7 @@ area = "rye"
 rye_raw = xarray.load_dataset(
     io.BytesIO(
         requests.get(
-            f"https://artifactory.vgt.vito.be/artifactory/testdata-public/fusets/b4_b8_vv_vh/{area}.nc", stream=True
+            f"https://auxdata.terrascope.be/openeo/testdata/FuseTS/b4_b8_vv_vh/{area}.nc", stream=True
         ).content
     )
 )

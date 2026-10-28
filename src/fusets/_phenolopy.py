@@ -2113,7 +2113,7 @@ def get_lios(da, da_sos_times, da_eos_times):
 
     # calculate lios using trapz (note: more sophisticated than integrate)
     da_lios_values = xr.apply_ufunc(
-        np.trapz,
+        np.trapezoid,
         da_lios_values,
         input_core_dims=[["time"]],
         dask="parallelized",
@@ -2172,7 +2172,7 @@ def get_sios(da, da_sos_times, da_eos_times, da_base_values):
 
     # calculate sios using trapz (note: more sophisticated than integrate)
     da_sios_values = xr.apply_ufunc(
-        np.trapz,
+        np.trapezoid,
         da_sios_values,
         input_core_dims=[["time"]],
         dask="parallelized",
@@ -2191,7 +2191,7 @@ def get_sios(da, da_sos_times, da_eos_times, da_base_values):
 
     # calculate trapz of base (note: more sophisticated than integrate)
     da_sios_bse_values = xr.apply_ufunc(
-        np.trapz,
+        np.trapezoid,
         da_sios_bse_values,
         input_core_dims=[["time"]],
         dask="parallelized",
@@ -2239,7 +2239,7 @@ def get_liot(da):
     # calculate liot using trapz (note: more sophisticated than integrate)
     print("> Calculating long integral of total (liot) values.")
     da_liot_values = xr.apply_ufunc(
-        np.trapz, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
+        np.trapezoid, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
     )
 
     # convert type
@@ -2283,7 +2283,7 @@ def get_siot(da, da_base_values):
     # calculate siot using trapz (note: more sophisticated than integrate)
     print("> Calculating short integral of total (siot) values.")
     da_siot_values = xr.apply_ufunc(
-        np.trapz, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
+        np.trapezoid, da, input_core_dims=[["time"]], dask="parallelized", output_dtypes=[np.float32], kwargs={"dx": 1}
     )
 
     # combine 2d base vals with 3d da, projecting const base val to pixel timeseries (i.e. a rectangle)
@@ -2291,7 +2291,7 @@ def get_siot(da, da_base_values):
 
     # calculate trapz of base (note: more sophisticated than integrate)
     da_siot_bse_values = xr.apply_ufunc(
-        np.trapz,
+        np.trapezoid,
         da_siot_bse_values,
         input_core_dims=[["time"]],
         dask="parallelized",

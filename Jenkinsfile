@@ -10,11 +10,9 @@ pythonPipeline {
   python_version = ["3.11"]
   extras_require = 'dev'
   upload_dev_wheels = true
-  wheel_repo = 'python-openeo'
-  wheel_repo_dev = 'python-openeo'
   enable_caching = true
   enable_uv = true
-  artifactory_server = ['sas', 'rss']
-  wheel_repo_sas = 'openeo-pypi-local'
-  wheel_repo_dev_sas = 'openeo-pypi-local'
+  artifactory_server = 'sas'
+  wheel_repo = 'openeo-pypi-local'
+  wheel_repo_dev = 'openeo-pypi-local'
 }

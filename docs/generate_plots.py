@@ -13,9 +13,7 @@ area = "rye"
 
 rye_raw = xarray.load_dataset(
     io.BytesIO(
-        requests.get(
-            f"https://auxdata.terrascope.be/openeo/testdata/FuseTS/b4_b8_vv_vh/{area}.nc", stream=True
-        ).content
+        requests.get(f"https://auxdata.terrascope.be/openeo/testdata/FuseTS/b4_b8_vv_vh/{area}.nc", stream=True).content
     )
 )
 rye_ndvi = (rye_raw.B08 - rye_raw.B04) / (rye_raw.B08 + rye_raw.B04)
